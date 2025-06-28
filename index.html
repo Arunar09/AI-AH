@@ -26,13 +26,12 @@
             justify-content: center;
             color: #E0E0E0; /* Soft light grey text */
             padding: 20px;
-            overflow: hidden; /* Prevent scrollbar from background effects */
             position: relative;
         }
 
         /* Canvas for the pixel animation */
         #pixelCanvas {
-            position: absolute;
+            position: fixed; /* Changed to fixed to allow page scrolling */
             top: 0;
             left: 0;
             width: 100%;
@@ -44,7 +43,7 @@
         /* Subtle Static background grid lines for retro tech feel (now layered over canvas) */
         body::before {
             content: '';
-            position: absolute;
+            position: fixed; /* Changed to fixed to allow page scrolling */
             top: 0;
             left: 0;
             width: 100%;
@@ -71,6 +70,10 @@
             animation: fadeInScale 0.8s ease-out;
             position: relative;
             z-index: 1; /* Ensures content is above the canvas */
+            min-height: calc(100vh - 40px); /* Ensure container stretches to at least viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically if space allows */
         }
 
         @keyframes fadeInScale {
@@ -102,6 +105,9 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
             padding: 20px;
+            flex-grow: 1; /* Allow grid to take available vertical space */
+            align-items: center; /* Align cards in the center of their grid cells */
+            justify-content: center;
         }
 
         /* Individual Card Styles - Muted Data Panels */
@@ -214,6 +220,98 @@
                 font-size: 0.9rem;
             }
         }
+
+        /* Feedback Button */
+        #feedbackButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #B5EAD7; /* Muted green, matching titles */
+            color: #1A1A2E; /* Dark text for contrast */
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        #feedbackButton:hover {
+            background-color: #8FD8C4; /* Slightly lighter green on hover */
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Feedback Modal */
+        .feedback-modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 200; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .feedback-modal-content {
+            background-color: #16213E; /* Dark background from theme */
+            margin: auto;
+            padding: 30px;
+            border: 1px solid rgba(70, 70, 100, 0.5);
+            width: 80%; /* Could be responsive */
+            max-width: 600px; /* Increased max-width for iframe */
+            height: 600px; /* Set a fixed height for the iframe container */
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            position: relative;
+            animation: fadeInScale 0.3s ease-out;
+            color: #E0E0E0;
+            display: flex; /* Use flexbox for content alignment */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback-modal-content h2 {
+            color: #A0D2EB;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-shadow: none; /* Remove text-shadow for modal title */
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Styles specific to Google Form iframe */
+        .feedback-modal-content iframe {
+            width: 100%;
+            height: 100%; /* Make iframe fill modal content height */
+            border: none;
+            border-radius: 8px;
+        }
+
+        .feedback-modal-close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute; /* Position relative to modal-content */
+            top: 15px;
+            right: 20px;
+            z-index: 201; /* Ensure close button is clickable */
+        }
+
+        .feedback-modal-close:hover,
+        .feedback-modal-close:focus {
+            color: #E0E0E0;
+            text-decoration: none;
+        }
+        /* Removed .feedback-success-message as it's no longer needed with Google Forms */
     </style>
 </head>
 <body>
@@ -258,6 +356,32 @@
                 <div class="card-title">DevOps Mindmap</div>
                 <div class="card-description">Explore DevOps principles and AWS services for continuous delivery.</div>
             </a>
+
+            <!-- NEW LINK: Linux -->
+            <a href="./Linux.html" class="card">
+                <span class="card-icon">🐧</span> <!-- Penguin for Linux -->
+                <div class="card-title">Linux Basics</div>
+                <div class="card-description">Fundamental concepts and commands for Linux operating systems.</div>
+            </a>
+
+            <!-- NEW LINK: DevSecOps -->
+            <a href="./Devsecops.html" class="card">
+                <span class="card-icon">🛡️</span> <!-- Shield for Security -->
+                <div class="card-title">DevSecOps Guide</div>
+                <div class="card-description">Integrating security practices throughout the DevOps lifecycle.</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Feedback Button -->
+    <button id="feedbackButton">Feedback & Suggestions</button>
+
+    <!-- Feedback Modal Structure -->
+    <div id="feedbackModal" class="feedback-modal">
+        <div class="feedback-modal-content">
+            <span class="feedback-modal-close" id="closeFeedbackModal">&times;</span>
+            <h2>Feedback & Suggestions</h2>
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd0oDv66wGuqnvmkKimCtIoOrCw12Isd0EKvWY_U6mjrBosrA/viewform?embedded=true" width="100%" height="450" frameborder="0" marginheight="0" marginwidth="0">Loading form...</iframe>
         </div>
     </div>
 
@@ -336,6 +460,29 @@
 
             // Request the next animation frame
             requestAnimationFrame(animate);
+        }
+
+        // Feedback Modal Logic
+        const feedbackModal = document.getElementById('feedbackModal');
+        const feedbackButton = document.getElementById('feedbackButton');
+        const closeFeedbackModal = document.getElementById('closeFeedbackModal');
+        // Removed feedbackForm, feedbackTextarea, feedbackSuccessMessage as they are not directly handled now
+
+        // Open Modal
+        feedbackButton.onclick = function() {
+            feedbackModal.style.display = 'flex'; // Use flex to center content
+        }
+
+        // Close Modal via X button
+        closeFeedbackModal.onclick = function() {
+            feedbackModal.style.display = 'none';
+        }
+
+        // Close Modal when clicking outside content
+        window.onclick = function(event) {
+            if (event.target == feedbackModal) {
+                feedbackModal.style.display = 'none';
+            }
         }
 
         // Start the animation when the window loads
