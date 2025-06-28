@@ -1,0 +1,2020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevSecOps Mindmap with AWS Security Focus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            border-radius: 8px; /* Applying rounded corners to all elements */
+        }
+
+        /* Body Styles */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); /* Dark blue/gray gradient for security theme */
+            min-height: 100vh;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        /* Container for overall layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Main Heading */
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #EF4444; /* Red accent for Security */
+        }
+
+        /* Mindmap Layout */
+        .mindmap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            width: 100%;
+        }
+
+        /* Central Node */
+        .central-node {
+            background: linear-gradient(45deg, #EF4444, #F87171); /* Red gradient for central node */
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transform: scale(1);
+            transition: all 0.3s ease;
+        }
+
+        .central-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Main Branches Grid Layout */
+        .main-branches {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+        }
+
+        /* Individual Branch Styles */
+        .branch {
+            background: rgba(255,255,255,0.08); /* Slightly less opaque for security feel */
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .branch:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.12);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .branch-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #60A5FA; /* Light blue accent for DevSecOps */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .branch-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Sub-services (initially hidden) */
+        .sub-services {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .sub-services.active {
+            display: block;
+        }
+
+        /* Fade-in animation for sub-services */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Individual Service Item Styles (now category-item) */
+        .category-item {
+            background: rgba(0,0,0,0.25);
+            margin: 10px 0;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-item:hover {
+            background: rgba(0,0,0,0.35);
+            transform: translateX(10px);
+        }
+
+        .category-name {
+            font-weight: bold;
+            color: #A78BFA; /* Purple accent for security */
+            margin-bottom: 5px;
+        }
+
+        .category-desc {
+            font-size: 0.9rem;
+            color: #e2e8f0; /* Lighter text for readability */
+            margin-bottom: 10px;
+        }
+
+        /* Feature Tag Styles within modal */
+        .feature-tag {
+            display: inline-block;
+            background: #EF4444; /* Red accent */
+            color: white;
+            padding: 3px 8px;
+            margin: 2px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feature-tag:hover {
+            background: #DC2626;
+            transform: scale(1.05);
+        }
+        .feature-tag.active-tag {
+            background: #DC2626; /* Darker red for active tag */
+            box-shadow: 0 0 0 2px #FCA5A5; /* Light red outline */
+        }
+
+
+        /* Feature Details (initially hidden, expands on click) */
+        .feature-details {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.4);
+            border-left: 4px solid #EF4444; /* Red accent */
+        }
+
+        .feature-details.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        /* Slide-down animation for feature details */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Sub-feature styles within details */
+        .sub-feature {
+            background: rgba(255,255,255,0.1);
+            margin: 8px 0;
+            padding: 10px;
+            border-left: 3px solid #60A5FA; /* Light blue accent */
+        }
+
+        .sub-feature-title {
+            font-weight: bold;
+            color: #60A5FA; /* Light blue accent */
+            margin-bottom: 5px;
+        }
+
+        .sub-feature-desc {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            line-height: 1.4;
+        }
+
+        /* How-to Steps specific styling */
+        .how-to-steps {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        .how-to-steps ol {
+            list-style-type: decimal;
+            margin-left: 20px;
+        }
+        .how-to-steps li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+        .how-to-steps li strong {
+            color: #FACC15; /* Yellow accent for emphasis in steps */
+        }
+
+
+        .feature-nav {
+            text-align: center;
+            margin: 15px 0 0;
+            font-size: 0.9rem;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .feature-nav strong {
+            color: #FACC15; /* Yellow accent */
+        }
+        .feature-nav button {
+            background-color: #60A5FA; /* Light blue accent */
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .feature-nav button:hover {
+            background-color: #3B82F6;
+        }
+        .feature-nav button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .use-cases-list {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #FACC15; /* Yellow accent */
+            list-style: disc;
+            margin-left: 20px;
+        }
+        .use-cases-list li {
+            margin-bottom: 5px;
+        }
+
+
+        /* Modal Overlay */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85); /* Slightly darker overlay */
+            animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+        }
+
+        /* Modal Content Box */
+        .modal-content {
+            background: linear-gradient(135deg, #1f283e 0%, #3a4b6c 100%);
+            margin: 5% auto;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Close Button for Modal */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: white;
+        }
+
+        /* Sections within the modal */
+        .tech-stack-list, .interdependencies-list, .config-options {
+            background: rgba(0,0,0,0.25);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .tech-stack-list ul, .interdependencies-list ul, .config-options ul {
+            list-style: disc;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .pricing-info-box {
+            background: rgba(100, 116, 139, 0.2); /* Slate color for tool list */
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            border-radius: 8px;
+        }
+
+        .scenario-box {
+            background: rgba(34, 197, 94, 0.2); /* Green tint for examples */
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        
+        .config-options li {
+            margin-bottom: 5px;
+        }
+
+        .llm-action-button {
+            background-color: #A78BFA; /* Purple accent */
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            margin-right: 10px;
+            transition: background-color 0.3s ease;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .llm-action-button:hover {
+            background-color: #8B5CF6;
+            transform: translateY(-1px);
+        }
+
+        .llm-output-area {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            min-height: 50px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: none;
+            border-radius: 8px;
+        }
+
+        .loading-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #A78BFA; /* Purple accent */
+            animation: spin 1s ease-in-out infinite;
+            -webkit-animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { -webkit-transform: rotate(360deg); }
+        }
+        @-webkit-animation {
+            to { -webkit-transform: rotate(360deg); }
+        }
+
+        /* News Section */
+        .news-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 25px;
+            color: white;
+            width: 100%;
+            margin-top: 30px;
+            border-radius: 12px;
+        }
+
+        .news-section h2 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #EF4444; /* Red accent for security news */
+            text-align: center;
+        }
+
+        .news-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .news-item:last-child {
+            border-bottom: none;
+        }
+
+        .news-item h3 {
+            font-size: 1.2rem;
+            color: #A78BFA; /* Purple accent */
+            margin-bottom: 5px;
+        }
+
+        .news-item p {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .news-item a {
+            color: #FACC15; /* Yellow accent */
+            text-decoration: underline;
+            font-size: 0.85rem;
+        }
+
+        /* Floating Search Bar Styles - Hexagon Shape */
+        .floating-search-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px; /* Default position */
+            z-index: 1001;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease-in-out;
+            opacity: 0.8;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: grab;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            border-radius: 0;
+        }
+
+        .floating-search-container:hover {
+            opacity: 1;
+        }
+
+        .floating-search-container.expanded {
+            width: 350px;
+            height: auto;
+            opacity: 1;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px;
+            cursor: auto;
+            border-radius: 8px;
+            clip-path: none;
+            -webkit-clip-path: none;
+        }
+
+        .search-toggle-button {
+            background-color: #EF4444; /* Red accent */
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            border-radius: 0;
+        }
+
+        .floating-search-container.expanded .search-toggle-button {
+            clip-path: none;
+            -webkit-clip-path: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+
+        .search-toggle-button:hover {
+            background-color: #DC2626;
+        }
+
+        .floating-search-content {
+            display: none;
+            width: 100%;
+        }
+
+        .floating-search-container.expanded .floating-search-content {
+            display: block;
+        }
+
+        .floating-search-content .search-bar-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-direction: column;
+        }
+        
+        .floating-search-content .search-bar-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background-color: rgba(0,0,0,0.3);
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .floating-search-content .search-bar-container button {
+            padding: 10px 20px;
+            background-color: #A78BFA; /* Purple accent */
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .floating-search-content .search-bar-container button:hover {
+            background-color: #8B5CF6;
+        }
+
+        /* Close button for expanded search */
+        .floating-search-close {
+            color: #aaa;
+            align-self: flex-end;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .floating-search-container.expanded .floating-search-close {
+            display: block;
+        }
+
+        .floating-search-close:hover {
+            color: white;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .main-branches {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+            .floating-search-container.expanded {
+                width: 90%;
+                right: 5%;
+                bottom: 10%;
+            }
+            .floating-search-content .search-bar-container {
+                flex-direction: column;
+            }
+            .news-section {
+                padding: 15px;
+            }
+            .central-node {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+            }
+            .branch-header {
+                font-size: 1.1rem;
+            }
+            .floating-search-container {
+                width: 60px;
+                height: 60px;
+            }
+            .search-toggle-button {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 DevSecOps Mindmap with AWS Security Focus</h1>
+        
+        <div class="mindmap">
+            <div class="central-node">
+                Security Everywhere
+            </div>
+            	 
+	<!-- Back to Landing Page Button -->
+    <a href="./The Dubs.html" class="fixed top-4 left-4 z-50 bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-purple-800 transition duration-300 ease-in-out text-lg font-bold">
+        &larr; Back to Hub
+    </a>
+	
+            <div class="main-branches">
+                <!-- Secure Design -->
+                <div class="branch" onclick="toggleBranch('secure-design')">
+                    <div class="branch-header">
+                        <span class="branch-icon">🛡️</span>
+                        Secure Design
+                    </div>
+                    <div id="secure-design" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('threat-modeling')">
+                            <div class="category-name">Threat Modeling</div>
+                            <div class="category-desc">Identify and mitigate security threats early.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('security-requirements')">
+                            <div class="category-name">Security Requirements</div>
+                            <div class="category-desc">Define security non-functional requirements.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('architecture-review')">
+                            <div class="category-name">Secure Architecture Review</div>
+                            <div class="category-desc">Review designs for security vulnerabilities.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('compliance-by-design')">
+                            <div class="category-name">Compliance by Design</div>
+                            <div class="category-desc">Integrate compliance from inception.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secure Development -->
+                <div class="branch" onclick="toggleBranch('secure-development')">
+                    <div class="branch-header">
+                        <span class="branch-icon">✍️</span>
+                        Secure Development
+                    </div>
+                    <div id="secure-development" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('secure-coding')">
+                            <div class="category-name">Secure Coding Practices</div>
+                            <div class="category-desc">Develop code resistant to vulnerabilities.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('sast')">
+                            <div class="category-name">Static Application Security Testing (SAST)</div>
+                            <div class="category-desc">Analyze source code for security flaws.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('sca')">
+                            <div class="category-name">Software Composition Analysis (SCA)</div>
+                            <div class="category-desc">Identify vulnerabilities in open-source components.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('ide-security')">
+                            <div class="category-name">IDE Security Integrations</div>
+                            <div class="category-desc">Real-time security feedback in development.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('secrets-management')">
+                            <div class="category-name">Secrets Management</div>
+                            <div class="category-desc">Securely store and retrieve sensitive data.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secure Build -->
+                <div class="branch" onclick="toggleBranch('secure-build')">
+                    <div class="branch-header">
+                        <span class="branch-icon">🏗️</span>
+                        Secure Build
+                    </div>
+                    <div id="secure-build" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('secure-build-pipelines')">
+                            <div class="category-name">Secure Build Pipelines</div>
+                            <div class="category-desc">Harden the CI/CD build process itself.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('image-scanning')">
+                            <div class="category-name">Container Image Scanning</div>
+                            <div class="category-desc">Scan container images for vulnerabilities.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('supply-chain-security')">
+                            <div class="category-name">Software Supply Chain Security</div>
+                            <div class="category-desc">Secure all steps from code to deployment.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secure Test -->
+                <div class="branch" onclick="toggleBranch('secure-test')">
+                    <div class="branch-header">
+                        <span class="branch-icon">🔬</span>
+                        Secure Test
+                    </div>
+                    <div id="secure-test" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('dast')">
+                            <div class="category-name">Dynamic Application Security Testing (DAST)</div>
+                            <div class="category-desc">Test running applications for vulnerabilities.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('iast')">
+                            <div class="category-name">Interactive Application Security Testing (IAST)</div>
+                            <div class="category-desc">Combine static and dynamic analysis.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('penetration-testing')">
+                            <div class="category-name">Penetration Testing</div>
+                            <div class="category-desc">Manual ethical hacking simulations.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('fuzz-testing')">
+                            <div class="category-name">Fuzz Testing</div>
+                            <div class="category-desc">Find vulnerabilities by injecting malformed data.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('rasp')">
+                            <div class="category-name">Runtime Application Self-Protection (RASP)</div>
+                            <div class="category-desc">Protect applications from attacks at runtime.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secure Deploy -->
+                <div class="branch" onclick="toggleBranch('secure-deploy')">
+                    <div class="branch-header">
+                        <span class="branch-icon">🚀</span>
+                        Secure Deploy
+                    </div>
+                    <div id="secure-deploy" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('secure-config-management')">
+                            <div class="category-name">Secure Configuration Management</div>
+                            <div class="category-desc">Ensure secure configurations across environments.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('secure-iac')">
+                            <div class="category-name">Secure Infrastructure as Code (IaC)</div>
+                            <div class="category-desc">Define and provision secure infrastructure.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('policy-as-code')">
+                            <div class="category-name">Policy as Code</div>
+                            <div class="category-desc">Automate policy enforcement through code.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('immutable-infrastructure')">
+                            <div class="category-name">Immutable Infrastructure</div>
+                            <div class="category-desc">Prevent configuration drift post-deployment.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secure Operate -->
+                <div class="branch" onclick="toggleBranch('secure-operate')">
+                    <div class="branch-header">
+                        <span class="branch-icon">🚨</span>
+                        Secure Operate
+                    </div>
+                    <div id="secure-operate" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('security-monitoring')">
+                            <div class="category-name">Security Monitoring</div>
+                            <div class="category-desc">Real-time detection of malicious activities.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('incident-response-devsecops')">
+                            <div class="category-name">Automated Incident Response</div>
+                            <div class="category-desc">Rapid, automated reactions to security incidents.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('security-log-management')">
+                            <div class="category-name">Security Log Management</div>
+                            <div class="category-desc">Collect, analyze, and retain security logs.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('vulnerability-management')">
+                            <div class="category-name">Vulnerability Management</div>
+                            <div class="category-desc">Identify, assess, and remediate vulnerabilities.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secure Monitor -->
+                <div class="branch" onclick="toggleBranch('secure-monitor')">
+                    <div class="branch-header">
+                        <span class="branch-icon">👁️‍🗨️</span>
+                        Secure Monitor
+                    </div>
+                    <div id="secure-monitor" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('siem')">
+                            <div class="category-name">SIEM & Log Correlation</div>
+                            <div class="category-desc">Aggregate and analyze security events.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('cspm')">
+                            <div class="category-name">Cloud Security Posture Management (CSPM)</div>
+                            <div class="category-desc">Continuous assessment of cloud configurations.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('threat-detection')">
+                            <div class="category-name">Threat Detection</div>
+                            <div class="category-desc">Identify active threats and anomalies.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('waf-ddos')">
+                            <div class="category-name">WAF & DDoS Protection</div>
+                            <div class="category-desc">Protect web applications and networks.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Governance & Compliance -->
+                <div class="branch" onclick="toggleBranch('governance-compliance')">
+                    <div class="branch-header">
+                        <span class="branch-icon">⚖️</span>
+                        Governance & Compliance
+                    </div>
+                    <div id="governance-compliance" class="sub-services">
+                        <div class="category-item" onclick="showCategoryDetails('security-auditing')">
+                            <div class="category-name">Security Auditing</div>
+                            <div class="category-desc">Verify security controls and processes.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('regulatory-compliance')">
+                            <div class="category-name">Regulatory Compliance</div>
+                            <div class="category-desc">Adhere to industry standards and regulations.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('data-protection')">
+                            <div class="category-name">Data Protection & Privacy</div>
+                            <div class="category-desc">Secure sensitive data at rest and in transit.</div>
+                        </div>
+                        <div class="category-item" onclick="showCategoryDetails('iam-devsecops')">
+                            <div class="category-name">IAM & Access Control</div>
+                            <div class="category-desc">Manage identities and enforce least privilege.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Letter Section -->
+            <div class="news-section">
+                <h2>Recent DevSecOps & AWS Security News</h2>
+                <ul id="news-list" style="list-style: none; padding: 0;">
+                    <!-- News items will be loaded here by JavaScript -->
+                    <li><div class="loading-indicator"></div> Loading latest DevSecOps & AWS security news...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Details Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Floating AI Search Bar -->
+    <div id="floatingAISearch" class="floating-search-container">
+        <button class="search-toggle-button" onclick="toggleFloatingSearch()">
+            <span id="searchIcon">✨</span>
+        </button>
+        <div class="floating-search-content">
+            <span class="floating-search-close" onclick="toggleFloatingSearch()">&times;</span>
+            <div class="search-bar-container">
+                <input type="text" id="ai-search-input" placeholder="Ask Gemini AI about DevSecOps/AWS Security...">
+                <button id="ai-search-button" onclick="performAISearch()">Search with AI 🔍</button>
+            </div>
+            <div id="ai-search-output" class="llm-output-area">
+                <!-- Search results will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data structure containing details for each DevSecOps category and AWS service
+        const devSecOpsData = {
+            'threat-modeling': {
+                name: "Threat Modeling",
+                purpose: "To systematically identify, understand, and mitigate potential security threats and vulnerabilities in software and systems early in the design phase, before any code is written. It helps build security into the architecture from the ground up.",
+                features: [
+                    { title: "Identify Assets & Trust Boundaries", desc: "Define what assets (data, services, systems) need protection and identify trust boundaries within the system architecture where data flows between different trust levels. This helps in understanding where security controls are most critical." },
+                    { title: "Decompose Application", desc: "Break down the application into its components, data flows, and interactions to gain a clear understanding of its attack surface and potential entry points for attackers. Common techniques include Data Flow Diagrams (DFD)." },
+                    { title: "Identify Threats (STRIDE)", desc: "Use frameworks like STRIDE (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) to systematically categorize and identify potential threats applicable to each component and data flow." },
+                    { title: "Identify Vulnerabilities & Mitigations", desc: "Based on identified threats, pinpoint specific vulnerabilities and design appropriate security controls and countermeasures to mitigate those threats. This involves choosing suitable security patterns and technologies." },
+                    { title: "Document & Iterate", desc: "Document the threat model, identified threats, and proposed mitigations. Threat modeling is an iterative process that should be revisited as the application evolves or new threats emerge." }
+                ],
+                examples: [
+                    "A development team uses a 'stride per element' approach to threat model a new microservice handling user authentication. They identify potential spoofing threats to the API, tampering with user data in the database, and denial-of-service risks against the login endpoint.",
+                    "Before deploying a new serverless application on AWS Lambda and API Gateway, the team conducts a threat model session to consider risks like unauthorized API access, data injection, and insecure configuration of S3 buckets storing sensitive data.",
+                    "An architect designing a multi-tenant SaaS application uses threat modeling to ensure tenant data isolation, secure inter-tenant communication, and prevent privilege escalation across tenants."
+                ],
+                technicalDetails: "Threat modeling can be done manually or with the aid of specialized tools. Methodologies like STRIDE, DREAD, PASTA, and OWASP Top 10 are commonly used. In an AWS context, it involves considering the security of AWS services themselves, IAM policies, network configurations (VPCs, Security Groups), data encryption, and logging mechanisms from a threat perspective.",
+                tools: "Microsoft Threat Modeling Tool, OWASP Threat Dragon, IriusRisk, Lucidchart (for DFDs), AWS Well-Architected Framework (Security Pillar)."
+            },
+            'security-requirements': {
+                name: "Security Requirements",
+                purpose: "To define and document the specific security functionalities and non-functional security properties that a system must possess to protect its assets, meet compliance obligations, and operate securely. They guide secure design and development.",
+                features: [
+                    { title: "Confidentiality Requirements", desc: "Specify rules for protecting sensitive information from unauthorized access or disclosure (e.g., 'All customer PII must be encrypted at rest and in transit', 'Only authorized personnel shall view financial reports')." },
+                    { title: "Integrity Requirements", desc: "Define rules to ensure data accuracy, completeness, and prevention of unauthorized modification (e.g., 'All critical transaction data must have checksums', 'Only authorized roles can update user profiles')." },
+                    { title: "Availability Requirements", desc: "Specify rules to ensure that systems and data are accessible to authorized users when needed (e.g., 'The web application must have 99.9% uptime', 'Backup and recovery procedures must ensure RPO of X and RTO of Y')." },
+                    { title: "Authentication & Authorization Requirements", desc: "Define how users and systems prove their identity and what actions they are permitted to perform (e.g., 'Users must authenticate with MFA for administrative actions', 'Only administrators can delete records'). AWS IAM directly addresses these." },
+                    { title: "Auditing & Accountability Requirements", desc: "Specify how system activities are logged and who is responsible for actions (e.g., 'All administrative actions must be logged with user ID and timestamp', 'Logs must be retained for 7 years'). AWS CloudTrail and CloudWatch Logs are key here." },
+                    { title: "Compliance Mapping", desc: "Link specific security requirements directly to clauses in regulatory standards (e.g., GDPR, HIPAA, PCI DSS) or internal security policies, ensuring that development efforts contribute to compliance." }
+                ],
+                examples: [
+                    "For a healthcare application handling Protected Health Information (PHI), a security requirement states: 'All PHI stored in Amazon S3 must be encrypted using customer-managed KMS keys (CMKs) and access must be restricted via Bucket Policies and IAM roles adhering to least privilege.'",
+                    "A financial system requires: 'All API endpoints processing payments must validate input using OWASP Top 10 guidelines (e.g., prevent SQL injection, XSS) and reject malformed requests.'",
+                    "A SaaS platform's requirement: 'The system must support single sign-on (SSO) integration with enterprise identity providers (e.g., Okta, Azure AD) for customer user management, leveraging SAML 2.0.'",
+                    "Requirement: 'All access to production AWS environments must be via IAM roles with temporary credentials, and all actions must be logged in AWS CloudTrail and sent to a centralized S3 bucket for auditing.'"
+                ],
+                technicalDetails: "Security requirements are derived from threat modeling, risk assessments, and compliance obligations. They should be clear, unambiguous, measurable, and testable. They form the basis for security test cases and influence architectural decisions and coding practices. AWS Well-Architected Framework's Security Pillar provides guidance on operational security, identity, detection, infrastructure protection, and data protection.",
+                tools: "Jira (for tracking), Confluence (for documentation), Regulatory standards (NIST, ISO 27001), AWS Well-Architected Framework."
+            },
+            'architecture-review': {
+                name: "Secure Architecture Review",
+                purpose: "To systematically evaluate system designs and architectures for security flaws, weaknesses, and non-compliance with security policies or best practices before implementation. It's a proactive measure to 'shift left' security, identifying costly issues early.",
+                features: [
+                    { title: "Design-Level Vulnerability Identification", desc: "Reviewing architectural diagrams, data flow diagrams, and design documents to identify fundamental security weaknesses that could lead to vulnerabilities like insecure data flow, broken access control, weak authentication mechanisms, or single points of failure for security controls." },
+                    { title: "Threat Modeling Integration", desc: "Often conducted as part of or in conjunction with threat modeling, using the identified threats and attack vectors to guide the review process and ensure appropriate mitigations are designed into the architecture." },
+                    { title: "Compliance & Best Practice Alignment", desc: "Assessing the architecture's adherence to relevant security standards (e.g., OWASP ASVS), industry regulations (e.g., HIPAA, PCI DSS), and organizational security policies (e.g., AWS Security Best Practices, CIS Benchmarks). This includes reviewing IAM roles, network configurations, data encryption strategies, and logging." },
+                    { title: "Security Control Placement & Effectiveness", desc: "Evaluating where security controls are placed in the architecture (e.g., WAF at edge, encryption at rest for databases, granular IAM policies) and assessing their effectiveness in mitigating identified risks. Ensuring defense-in-depth principles are applied." },
+                    { title: "Review of AWS Specific Configurations", desc: "Deep dive into AWS service configurations such as VPC network ACLs and security groups, S3 bucket policies, CloudFront distributions, Lambda concurrency limits, KMS key policies, and RDS security settings to ensure they align with security best practices." },
+                    { title: "Feedback & Remediation Guidance", desc: "Providing clear, actionable feedback to architects and development teams on identified security issues, proposing specific remediation strategies and alternative secure design patterns." }
+                ],
+                examples: [
+                    "Reviewing the proposed architecture for a new microservices platform on AWS. The review identifies that inter-service communication is not adequately encrypted, leading to a recommendation to use mutual TLS (mTLS) or AWS PrivateLink.",
+                    "An architect reviews the CloudFormation templates for a new production environment and notices that S3 buckets are not configured with Block Public Access enabled by default, leading to a design change.",
+                    "During a serverless architecture review, the security team finds that an AWS Lambda function has excessive permissions, recommending an update to the IAM role to adhere to the principle of least privilege.",
+                    "Assessing the disaster recovery plan for a critical application to ensure that recovery point objectives (RPO) and recovery time objectives (RTO) align with business continuity requirements, including security considerations during recovery."
+                ],
+                technicalDetails: "Secure architecture reviews are typically performed by security architects or senior security engineers. They require deep understanding of system architecture, cloud security patterns, common vulnerabilities, and compliance requirements. AWS provides the Well-Architected Framework's Security Pillar and various security services (IAM, VPC, GuardDuty, Security Hub, Config) that are essential considerations during such reviews.",
+                tools: "AWS Well-Architected Framework, OWASP Application Security Verification Standard (ASVS), Security Design Patterns, Architectural Diagrams (e.g., Lucidchart, Draw.io), AWS Solution Architectures."
+            },
+            'compliance-by-design': {
+                name: "Compliance by Design",
+                purpose: "To proactively integrate regulatory compliance requirements and industry standards into the very initial stages of software and system design and development, rather than as an afterthought. It ensures that compliance is a core attribute, not a bolt-on.",
+                features: [
+                    { title: "Early Requirement Integration", desc: "Incorporate compliance requirements (e.g., GDPR data privacy, HIPAA security rules, PCI DSS payment handling) directly into the functional and non-functional requirements specifications from project inception." },
+                    { title: "Automated Policy Enforcement", desc: "Utilize tools like AWS Config Rules or Open Policy Agent (OPA) to automatically enforce compliance policies (e.g., 'all S3 buckets must be encrypted', 'no public security groups') in real-time as infrastructure is provisioned or code is deployed, preventing non-compliant states." },
+                    { title: "Data Lifecycle Management", desc: "Design systems to properly handle sensitive data throughout its entire lifecycle—from collection and storage to processing, transmission, and eventual deletion—in accordance with privacy regulations and data retention policies." },
+                    { title: "Auditability & Traceability", desc: "Build in mechanisms to log all relevant activities (e.g., user actions, API calls, configuration changes) and ensure these logs are immutable and retained for the required periods, providing a comprehensive audit trail for compliance verification. AWS CloudTrail is fundamental here." },
+                    { title: "Privacy Enhancing Technologies (PETs)", desc: "Incorporate technologies and techniques such as data encryption (at rest and in transit), data anonymization/pseudonymization, and access control mechanisms to minimize data exposure and protect privacy, especially for sensitive data." },
+                    { title: "Continuous Monitoring & Reporting", desc: "Implement continuous monitoring of compliance posture using tools like AWS Security Hub and AWS Audit Manager to assess adherence to standards and generate automated reports for auditors and regulators." }
+                ],
+                examples: [
+                    "Designing a new payment processing system on AWS with PCI DSS compliance in mind from day one, ensuring that all payment card data is encrypted end-to-end, stored in a PCI-compliant database (like Amazon RDS with encryption), and processed within a segmented VPC network.",
+                    "For a European customer-facing application, integrating GDPR's 'right to be forgotten' into the database schema and application logic, allowing for secure and complete deletion of user data upon request.",
+                    "Using AWS Config Conformance Packs to automatically deploy a set of AWS Config rules that enforce adherence to the CIS AWS Foundations Benchmark across all development and production accounts, ensuring a secure baseline."
+                ],
+                technicalDetails: "Compliance by Design requires a shift in mindset to treat compliance as a design principle. It leverages cloud-native services for security (IAM, KMS, VPC, S3 security features) and governance (Config, CloudTrail, Security Hub, Audit Manager) to automate controls and evidence collection. It often overlaps with DevSecOps practices like Policy as Code and Secure IaC.",
+                tools: "AWS Config, AWS CloudTrail, AWS Security Hub, AWS Audit Manager, AWS KMS, AWS IAM, Open Policy Agent (OPA), Privacy by Design principles."
+            },
+            'secure-coding': {
+                name: "Secure Coding Practices",
+                purpose: "To write code that is inherently resistant to common vulnerabilities and attacks, minimizing the attack surface and reducing the likelihood of introducing security flaws. This involves following established guidelines and principles during the development process.",
+                features: [
+                    { title: "Input Validation & Sanitization", desc: "Strictly validating and sanitizing all user inputs (e.g., from web forms, APIs, command line arguments) to prevent injection attacks (SQL, XSS, Command Injection) and buffer overflows. This includes checking data type, length, format, and content." },
+                    { title: "Output Encoding", desc: "Properly encoding all output (e.g., HTML escaping, URL encoding) when displaying user-supplied data in web pages or other contexts. This prevents Cross-Site Scripting (XSS) attacks by ensuring malicious scripts are rendered as harmless text." },
+                    { title: "Least Privilege in Code", desc: "Ensuring that application components, services, or functions only have the minimum necessary permissions to perform their intended tasks. This limits the blast radius in case of a compromise (e.g., an AWS Lambda function only has permissions to write to a specific DynamoDB table, not delete it)." },
+                    { title: "Secure Error Handling & Logging", desc: "Implementing robust error handling that avoids exposing sensitive system details (e.g., stack traces, database errors) to end-users or attackers. Logging sufficient context for security incidents without logging sensitive data itself." },
+                    { title: "Secure Cryptography Usage", desc: "Using strong, industry-standard cryptographic algorithms and protocols correctly for data encryption (at rest and in transit), hashing passwords, and secure communication. Avoiding weak algorithms or custom crypto implementations." },
+                    { title: "Dependency Management & Updates", desc: "Regularly updating libraries and dependencies to their latest secure versions to patch known vulnerabilities. Using Software Composition Analysis (SCA) tools to identify vulnerable components." }
+                ],
+                examples: [
+                    "A Python web application uses a validated input parsing library (like `marshmallow` or `pydantic`) to ensure all incoming API parameters conform to expected data types and formats, preventing common injection attacks.",
+                    "An AWS Lambda function retrieves a secret from AWS Secrets Manager at runtime instead of having it hardcoded in the code or environment variables, adhering to best practices for sensitive data handling.",
+                    "A Java Spring Boot application uses Spring Security to automatically handle cross-site request forgery (CSRF) tokens and session management, reducing the risk of common web vulnerabilities.",
+                    "Implementing `helmet.js` in a Node.js Express application to automatically set various HTTP headers that enhance security, such as X-Content-Type-Options, X-Frame-Options, and Strict-Transport-Security."
+                ],
+                technicalDetails: "Secure coding relies on adherence to secure development guidelines (e.g., OWASP Secure Coding Practices, CERT Secure Coding Standards), regular training for developers, and integration with static analysis tools. In AWS, leveraging AWS SDKs for secure interactions, using IAM roles for least privilege, and utilizing services like AWS Secrets Manager for credential management are key.",
+                tools: "OWASP Secure Coding Practices, CERT Secure Coding Standards, OWASP Top 10, Code analysis tools (SAST, SCA), AWS IAM, AWS Secrets Manager, Application frameworks (Spring Security, Django, Rails security features)."
+            },
+            'sast': {
+                name: "Static Application Security Testing (SAST)",
+                purpose: "To analyze source code, bytecode, or binary code for security vulnerabilities *without* executing the program. It identifies flaws like SQL Injection, Cross-Site Scripting (XSS), insecure direct object references, and hardcoded credentials directly at the code level, early in the SDLC.",
+                features: [
+                    {
+                        title: "Early Vulnerability Detection",
+                        desc: "Scans code for security flaws during development, often directly within the IDE or as part of the CI pipeline. Finding vulnerabilities at this stage is significantly cheaper and faster to fix than later in the lifecycle.",
+                        howToSteps: [
+                            "**1. Integrate AWS CodeGuru Security with CodeCommit/GitHub:** Navigate to the CodeGuru console, choose 'Security', then 'Associate repository'. Select your CodeCommit or GitHub/Bitbucket repository.",
+                            "**2. Trigger a Scan:** For CodeCommit, CodeGuru Security automatically scans new pull requests. For other repositories, you can manually trigger a full scan or integrate it with your CI pipeline (e.g., AWS CodeBuild) to run a scan on every build via `aws codeguru-security create-scan`.",
+                            "**3. Review Findings:** Go to the CodeGuru Security console, select your scan, and review the identified vulnerabilities. CodeGuru provides recommendations, code examples, and often links to relevant security best practices.",
+                            "**4. Remediate & Rescan:** Implement the recommended fixes in your code. CodeGuru Security will automatically rescan pull requests, or you can trigger new scans to verify the fix."
+                        ]
+                    },
+                    { title: "Code Quality & Best Practices", desc: "Beyond just security, SAST tools often identify code smells, adherence to coding standards, and potential quality issues that can indirectly lead to security problems." },
+                    { title: "Comprehensive Language Support", desc: "Enterprise-grade SAST tools support a wide array of programming languages (Java, .NET, Python, Node.js, Go, C++, PHP) and commonly used frameworks, making them versatile for diverse development environments." },
+                    { title: "Integration with CI/CD", desc: "Seamlessly integrates into Continuous Integration (CI) pipelines (e.g., AWS CodeBuild, Jenkins, GitLab CI). This allows security checks to be automated and run on every code commit or pull request, providing immediate feedback to developers." },
+                    { title: "Actionable Reports & Recommendations", desc: "Provides detailed reports on identified vulnerabilities, including severity, location in the code, and often remediation guidance with code examples or links to best practices." }
+                ],
+                examples: [
+                    "A developer commits new code to an AWS CodeCommit repository. An AWS CodeBuild project runs, and an integrated AWS CodeGuru Security scan identifies a potential SQL injection vulnerability in a Python function, flagging it in the pull request before merge.",
+                    "A Jenkins pipeline uses SonarQube to perform a SAST scan on a Java application whenever a new feature branch is merged to `develop`, automatically failing the build if critical security issues are found.",
+                    "Using GitHub Actions to run a Snyk Code scan on every push to a frontend JavaScript repository, identifying XSS vulnerabilities and insecure API calls in the React components."
+                ],
+                technicalDetails: "SAST tools analyze source code by building abstract syntax trees (ASTs) and performing control flow and data flow analysis to identify predefined patterns of vulnerabilities. They can generate false positives, requiring tuning and human review. AWS CodeGuru Security uses machine learning and automated reasoning to identify common security flaws in Java and Python code.",
+                tools: "AWS CodeGuru Security, SonarQube, Checkmarx CxSAST, Fortify Static Code Analyzer (SCA), Veracode Static Analysis, GitLab SAST, Snyk Code, Bandit (Python), ESLint (JavaScript with security plugins)."
+            },
+            'sca': {
+                name: "Software Composition Analysis (SCA)",
+                purpose: "To identify and manage open-source components (libraries, frameworks, packages) used within a software application, detect known vulnerabilities (CVEs) in those components, and manage associated licensing risks. It's crucial for managing third-party dependency risks.",
+                features: [
+                    { title: "Open-Source Component Identification", desc: "Scans application codebases and build artifacts to identify all direct and transitive open-source dependencies (e.g., npm packages, Maven JARs, Python wheels, Docker base images)." },
+                    { title: "Vulnerability Database Lookup", desc: "Compares identified open-source components against public vulnerability databases (e.g., NVD, OSV, proprietary databases) to determine if they contain known Common Vulnerabilities and Exposures (CVEs)." },
+                    { title: "License Compliance", desc: "Identifies the licenses associated with each open-source component, helping organizations ensure compliance with legal obligations (e.g., avoiding GPL licensed components in commercial products if not permitted)." },
+                    { title: "Dependency Tree Visualization", desc: "Often provides a visual representation of the application's dependency tree, highlighting vulnerable components and their paths, making it easier to understand and remediate issues." },
+                    { title: "Integration with CI/CD & IDEs", desc: "Integrates into CI/CD pipelines (e.g., CodeBuild, Jenkins) to automatically scan new builds, and often offers IDE plugins to provide developers with immediate feedback on vulnerable dependencies as they code." },
+                    { title: "Remediation Guidance", desc: "Provides actionable recommendations for remediating identified vulnerabilities, such as suggesting known safe versions of components or detailing patches." }
+                ],
+                examples: [
+                    "A CI/CD pipeline uses an SCA tool (like Snyk or Dependabot) to scan a Java application's `pom.xml` file during an AWS CodeBuild stage. The scan identifies an outdated Apache Log4j library with a critical CVE, failing the build and preventing deployment until it's updated.",
+                    "A developer using a VS Code extension for Dependabot or Snyk receives real-time alerts about vulnerable npm packages in their `package.json` file, along with suggestions for upgrading to secure versions.",
+                    "Before a release, an SCA tool generates a 'Software Bill of Materials' (SBOM) listing all open-source components and their licenses, providing comprehensive visibility for compliance and security auditing.",
+                    "A container image scanned by Amazon ECR identifies an operating system vulnerability in a base layer, prompting the team to rebuild the image with a patched base."
+                ],
+                technicalDetails: "SCA tools work by parsing package manager files (e.g., `package.json`, `pom.xml`, `requirements.txt`), locking files (`yarn.lock`, `package-lock.json`), or by binary scanning compiled artifacts. They maintain large databases of known open-source vulnerabilities. AWS does not have a direct SCA service but Amazon Inspector for EC2 and ECR provides vulnerability scanning that can cover OS and some application component vulnerabilities.",
+                tools: "Snyk, Dependabot (GitHub Native), OWASP Dependency-Check, WhiteSource, Black Duck by Synopsys, Sonatype Nexus Lifecycle, Mend (formerly WhiteSource), Amazon Inspector (for container image OS vulnerabilities)."
+            },
+            'ide-security': {
+                name: "IDE Security Integrations",
+                purpose: "To provide real-time security feedback, vulnerability detection, and secure coding guidance directly within the Integrated Development Environment (IDE) as developers write code. This enables developers to 'shift security left' and fix issues instantly.",
+                features: [
+                    { title: "Real-time Vulnerability Highlighting", desc: "Scans code in the background as it's being written, highlighting potential security vulnerabilities (e.g., SQL injection, XSS, insecure function calls) directly in the editor, similar to linting for code quality." },
+                    { title: "In-line Remediation Suggestions", desc: "Offers immediate suggestions or automated fixes for detected security issues, guiding developers to implement secure coding practices without leaving their development environment." },
+                    { title: "Dependency Vulnerability Alerts", desc: "Alerts developers to known vulnerabilities (CVEs) in open-source libraries and dependencies used in the project, often with recommendations for updating to a secure version. This integrates SCA capabilities into the IDE." },
+                    { title: "Secrets Detection", desc: "Automatically identifies and flags hardcoded secrets (e.g., API keys, database passwords, private keys) in code before they are committed, helping prevent accidental exposure." },
+                    { title: "Security Best Practice Guidance", desc: "Provides context-sensitive tips, links to secure coding guidelines (e.g., OWASP Top 10), and documentation within the IDE to educate developers on secure development principles." },
+                    { title: "Integration with AWS Security Services (Indirect)", desc: "While not direct AWS services, IDE extensions (e.g., AWS Toolkit) facilitate interactions with AWS services like Secrets Manager, IAM, and CodeGuru, promoting their secure usage during development." }
+                ],
+                examples: [
+                    "A developer using VS Code with the Snyk extension receives an alert directly in their editor when they try to use an outdated and vulnerable version of a popular `npm` package.",
+                    "As a Python developer types a database query in PyCharm, an integrated security linter highlights a potential SQL injection vulnerability and suggests using parameterized queries instead.",
+                    "An engineer using IntelliJ IDEA with a secrets detection plugin is immediately warned if they attempt to hardcode an AWS access key directly into their Java application code.",
+                    "The AWS Toolkit for VS Code helps developers easily retrieve secrets from AWS Secrets Manager for local testing, reinforcing the practice of not storing secrets in code."
+                ],
+                technicalDetails: "IDE security integrations typically involve plugins or extensions that run lightweight static analysis engines locally. They leverage vulnerability databases for dependencies and pattern matching for secure coding practices and secrets. While not AWS services themselves, they are crucial for shifting security left in a DevSecOps context. AWS CodeGuru Security's findings can be viewed in some IDEs through integrations.",
+                tools: "Snyk IDE Plugins (VS Code, IntelliJ), SonarLint (IDE companion to SonarQube), GitGuardian, TruffleHog (for secrets), AWS Toolkit (for AWS service interaction), Bandit (Python linter)."
+            },
+            'secrets-management': {
+                name: "Secrets Management",
+                purpose: "To securely store, retrieve, and manage sensitive credentials, API keys, database passwords, tokens, and other secrets used by applications and infrastructure. It eliminates hardcoded secrets and enables secure rotation and access control.",
+                features: [
+                    { title: "Centralized & Encrypted Storage", desc: "Provides a central, highly secure, and encrypted repository for all application and infrastructure secrets. Secrets are encrypted at rest and often in transit." },
+                    { title: "Dynamic Secrets & Just-in-Time Access", desc: "Ability to generate temporary, short-lived credentials for databases or services on demand. Applications request a secret, and the system generates one that expires after a short period, minimizing the window of exposure." },
+                    { title: "Automated Rotation", desc: "Automating the periodic rotation of secrets (e.g., database passwords, API keys) without human intervention or application downtime. This reduces the risk of compromised long-lived credentials." },
+                    { title: "Granular Access Control & Auditing", desc: "Fine-grained access controls to determine which users or applications can access which secrets, implementing the principle of least privilege. All access attempts and secret rotations are logged for auditing." },
+                    { title: "Integration with Applications & CI/CD", desc: "Seamlessly integrates with application runtimes (e.g., via SDKs, environment variables managed by orchestrators) and CI/CD pipelines to inject secrets securely at deployment time, avoiding hardcoded secrets in code or configuration files." },
+                    { title: "Secret Versioning", desc: "Maintains different versions of secrets, allowing for rollback to previous valid versions if issues arise during rotation or deployment." }
+                ],
+                examples: [
+                    "An AWS Lambda function retrieves a database password from AWS Secrets Manager at runtime using the AWS SDK, ensuring no sensitive credentials are hardcoded in the Lambda code or configuration.",
+                    "Using AWS Secrets Manager to automatically rotate the master password for an Amazon RDS PostgreSQL database every 30 days, without requiring manual intervention or application redeployment.",
+                    "A containerized application deployed on Amazon ECS or Kubernetes pulls its sensitive configuration (e.g., API keys for external services) from AWS Systems Manager Parameter Store (for non-secrets) or AWS Secrets Manager (for secrets) as environment variables or mounted files.",
+                    "A CI/CD pipeline (e.g., AWS CodePipeline) securely fetches temporary credentials from AWS Secrets Manager to perform deployments, rather than using long-lived access keys."
+                ],
+                technicalDetails: "Secrets management solutions leverage cryptographic services (e.g., AWS KMS) for encryption. They often use IAM roles (for AWS services) or identity-based authentication (for human users) to control access. Dynamic secrets and automated rotation often involve a Lambda function or a custom script interacting with both the secret manager and the target service (e.g., RDS, Redshift). AWS Secrets Manager and Systems Manager Parameter Store are key AWS services.",
+                tools: "AWS Secrets Manager, AWS Systems Manager Parameter Store (for non-secret configurations), HashiCorp Vault, CyberArk Conjur, Doppler, Kubernetes Secrets (with external secret stores), GitGuardian (for detecting leaked secrets)."
+            },
+            'secure-build-pipelines': {
+                name: "Secure Build Pipelines",
+                purpose: "To integrate security measures directly into the Continuous Integration (CI) and build process, ensuring that the build environment, tools, and artifacts themselves are secure and contribute to the overall security of the software supply chain.",
+                features: [
+                    { title: "Hardened Build Environments", desc: "Ensuring that CI/CD build agents (e.g., AWS CodeBuild environments, Jenkins agents) are minimal, regularly patched, isolated, and configured with least privilege IAM roles. They should be ephemeral and destroyed after each build." },
+                    { title: "Dependency Verification", desc: "Verifying the integrity and authenticity of all fetched dependencies (e.g., using checksums, trusted registries) to prevent 'dependency confusion' attacks or the use of compromised libraries. This links with SCA." },
+                    { title: "Static Code Analysis (SAST) Integration", desc: "Automating SAST scans as part of the build process to identify code-level security vulnerabilities early. The build can be configured to fail if critical vulnerabilities are found, preventing insecure code from progressing." },
+                    { title: "Secrets Management in Build", desc: "Ensuring that no secrets (e.g., API keys, deployment credentials) are hardcoded or exposed in the build logs or artifacts. Secrets should be injected securely at runtime from a secrets manager (e.g., AWS Secrets Manager)." },
+                    { title: "Container Image Scanning", desc: "If container images are built, scanning them for known vulnerabilities immediately after creation (e.g., using Amazon ECR image scanning) to catch issues before deployment." },
+                    { title: "Supply Chain Integrity", desc: "Implementing measures to ensure the integrity of the software supply chain, from source code to artifact signing, to prevent malicious code injection or tampering during the build process." }
+                ],
+                examples: [
+                    "An AWS CodeBuild project runs its builds within a VPC and uses an IAM role with only the necessary permissions to access source code and push artifacts, minimizing potential lateral movement if the build environment is compromised.",
+                    "A Jenkins pipeline integrates with a Snyk or Black Duck scan that automatically analyzes all project dependencies during the build phase, failing the build if a critical vulnerability is detected in any third-party library.",
+                    "After building a Docker image in CodeBuild, an automated step pushes the image to Amazon ECR, which is configured for continuous scanning, immediately flagging any CVEs in the base image or application layers.",
+                    "Using AWS Systems Manager Parameter Store to inject non-secret configuration values into the build environment, and AWS Secrets Manager for sensitive credentials, ensuring they are never stored in plain text."
+                ],
+                technicalDetails: "Secure build pipelines leverage automation, least privilege, and integration of security tools. CI/CD platforms provide mechanisms for defining build environments and steps. AWS CodeBuild allows fine-grained control over build environments, network access, and IAM roles, making it suitable for secure builds. Concepts like 'build reproducible' and 'binary provenance' are becoming increasingly important for supply chain security.",
+                tools: "AWS CodeBuild (with IAM, VPC integration), Amazon ECR (Image Scanning), AWS Secrets Manager, AWS Systems Manager Parameter Store, SAST tools, SCA tools, Notary, TUF (The Update Framework)."
+            },
+            'image-scanning': {
+                name: "Container Image Scanning",
+                purpose: "To automatically scan container images for known vulnerabilities, misconfigurations, and outdated software packages within their layers (OS, libraries, application dependencies). This ensures that deployable images are secure before they reach production.",
+                features: [
+                    {
+                        title: "Vulnerability Database Integration",
+                        desc: "Scans container images by comparing their components (OS packages, programming language dependencies) against regularly updated vulnerability databases (CVEs).",
+                        howToSteps: [
+                            "**1. Enable Enhanced Scanning in ECR:** In the Amazon ECR console, go to 'Repositories', select or create a repository. Under 'Scan settings', enable 'Enhanced scanning'. This uses Amazon Inspector for deeper analysis.",
+                            "**2. Push a Docker Image:** Build your Docker image and push it to the configured ECR repository: `docker push <your-ecr-repo-uri>/<image-name>:latest`.",
+                            "**3. View Scan Findings:** After the image is pushed, ECR automatically scans it. Go to the ECR console, select your repository, then click on your image tag. You'll see the 'Vulnerability scan' results with severity, CVEs, and recommended fixes.",
+                            "**4. Integrate with CI/CD (Optional):** In your AWS CodeBuild `buildspec.yml`, add a step to wait for the ECR scan to complete and check its status. You can use AWS CLI commands or custom scripts to query scan findings and fail the build if high-severity vulnerabilities are present."
+                        ]
+                    },
+                    { title: "Layer-by-Layer Analysis", desc: "Analyzes each layer of a Docker image independently, identifying vulnerabilities introduced at specific build steps. This helps in pinpointing the source of issues and optimizing base images." },
+                    { title: "Integration with Container Registries", desc: "Seamlessly integrated with container registries (e.g., Amazon ECR, Docker Hub, GitLab Container Registry) to automatically scan images upon push or on a scheduled basis." },
+                    { title: "Policy Enforcement & Gates", desc: "Allows setting policies to block deployments or trigger alerts if images contain high-severity vulnerabilities, preventing insecure images from reaching production environments. This creates a 'security gate' in the pipeline." },
+                    { title: "Remediation Guidance", desc: "Provides actionable advice on how to fix identified vulnerabilities, often recommending updating base images, patching specific packages, or rebuilding layers." },
+                    { title: "Continuous Scanning", desc: "Many solutions offer continuous scanning of images already present in the registry, providing alerts if new vulnerabilities are discovered in previously scanned images." }
+                ],
+                examples: [
+                    "A CI/CD pipeline builds a new Docker image for a microservice. After pushing to Amazon ECR, the image is automatically scanned by Amazon Inspector (via ECR Enhanced Scanning). If critical vulnerabilities are detected, the CodePipeline fails, preventing deployment.",
+                    "A security team uses Twistlock (Palo Alto Networks) to continuously monitor container images in their registry for new CVEs, receiving alerts when a previously clean image now contains a newly discovered vulnerability.",
+                    "During development, a developer pushes an image to a private Docker registry. The registry's built-in scanning detects an outdated library with a critical vulnerability, and the CI tool prevents the next deployment stage until the image is fixed."
+                ],
+                technicalDetails: "Container image scanning tools parse container image manifests and layer contents, identifying installed packages and software. They query vulnerability databases (e.g., NVD, proprietary databases) for matches. Amazon ECR Enhanced Scanning leverages Amazon Inspector for more comprehensive vulnerability management. It's a critical component of container security and supply chain security.",
+                tools: "Amazon ECR (Enhanced Scanning via Amazon Inspector), Clair, Trivy, Anchore, Docker Scout, Snyk Container, Twistlock (Palo Alto Networks), Aqua Security, GitLab Container Scanning."
+            },
+            'supply-chain-security': {
+                name: "Software Supply Chain Security",
+                purpose: "To protect the entire process of software creation, delivery, and deployment from malicious attacks, tampering, and vulnerabilities. This spans from source code to dependencies, build systems, artifacts, and deployment mechanisms.",
+                features: [
+                    { title: "Secure Source Code Management", desc: "Protecting source code repositories from unauthorized access, tampering, and malicious code injection. This includes strong authentication (MFA), access controls (IAM), and code review processes." },
+                    { title: "Dependency Integrity & Validation", desc: "Ensuring the integrity and authenticity of all third-party and open-source dependencies used in a project. This involves using trusted registries, verifying checksums, and performing Software Composition Analysis (SCA) to detect vulnerabilities." },
+                    { title: "Hardened Build Environments", desc: "Securing the CI/CD build infrastructure by making it ephemeral, isolated, least-privileged, and regularly patched. Preventing build poisoning by ensuring only authorized code and dependencies are used." },
+                    { title: "Immutable Artifacts & Image Signing", desc: "Ensuring that build artifacts (e.g., binaries, container images) cannot be tampered with after creation. Digitally signing artifacts to verify their origin and integrity, and verifying signatures before deployment." },
+                    { title: "Secure Release & Deployment Processes", desc: "Protecting the deployment pipeline from unauthorized access or modification. This includes using secure deployment tools, automated gates, and enforcing policies like Policy as Code." },
+                    { title: "Vulnerability Disclosure & Patching", desc: "Establishing processes for timely discovery, disclosure, and application of patches for vulnerabilities found anywhere in the supply chain (from OS to application libraries)." }
+                ],
+                examples: [
+                    "Implementing Binary Authorization on Google Cloud or signing container images in AWS with Notary/Cosign, ensuring only cryptographically verified images from trusted CI/CD pipelines can be deployed to production.",
+                    "Using GitHub's Dependabot to automatically scan all `package.json` and `Gemfile` dependencies for known CVEs and create pull requests with suggested version upgrades, automating vulnerability remediation.",
+                    "An organization configures AWS CodeBuild environments to run on isolated VPCs with specific IAM roles, and then publishes build logs to an immutable S3 bucket for auditing, ensuring the build process itself is secure.",
+                    "Adopting a 'zero trust' approach to CI/CD, where every step in the pipeline requires explicit authorization and verification, regardless of its location."
+                ],
+                technicalDetails: "Software supply chain security is a multi-faceted problem addressing threats like dependency confusion, typosquatting, credential stuffing, and compromised build systems. Technologies like SBOM (Software Bill of Materials), SLSA (Supply-chain Levels for Software Artifacts), and cryptographic signing (e.g., Sigstore, Notary) are emerging standards. AWS services like CodeCommit, CodeBuild, ECR, KMS, IAM, and Security Hub are crucial building blocks.",
+                tools: "Snyk, Black Duck, Notary, Sigstore/Cosign, AWS CodeCommit, AWS CodeBuild, Amazon ECR, AWS KMS, GitLab CI/CD, GitHub Actions, Dependabot."
+            },
+            'dast': {
+                name: "Dynamic Application Security Testing (DAST)",
+                purpose: "To test a *running* application from the outside, simulating attacks by malicious users to identify vulnerabilities that manifest at runtime. It's a 'black-box' testing method that finds issues like misconfigurations, broken authentication, or business logic flaws.",
+                features: [
+                    { title: "Runtime Vulnerability Detection", desc: "Interacts with the running application (e.g., a web application, API) by sending various inputs and analyzing responses. It detects vulnerabilities that are exposed through the application's external interface, such as Cross-Site Scripting (XSS), SQL Injection, broken authentication, and session management flaws." },
+                    { title: "Black-Box Testing", desc: "Does not require access to the source code, making it suitable for testing third-party applications, legacy systems, or applications where source code is not readily available. It mimics an external attacker." },
+                    { title: "Automated & Scalable", desc: "DAST tools can automate thousands of vulnerability checks against a running application, making them efficient for continuous testing in CI/CD pipelines. They can scale to test large and complex applications." },
+                    { title: "Coverage of Business Logic Flaws (Limited)", desc: "While primarily focused on common web vulnerabilities, some DAST tools can be configured or scripted to identify certain business logic flaws by understanding the application's workflow and state changes." },
+                    { title: "Reporting & Remediation Guidance", desc: "Provides reports detailing identified vulnerabilities, their severity, and often includes information on how to reproduce the issue and general remediation advice." }
+                ],
+                examples: [
+                    "Integrating OWASP ZAP (Zed Attack Proxy) into an AWS CodePipeline stage. After a new web application version is deployed to a staging environment, ZAP automatically scans the live application for common OWASP Top 10 vulnerabilities.",
+                    "A security team uses Tenable.io's web application scanning capabilities to regularly test their external-facing APIs for authentication bypasses, insecure endpoints, and data leakage vulnerabilities.",
+                    "Running a DAST scan on a newly developed REST API exposed via AWS API Gateway to ensure proper input validation and error handling, preventing injection attacks or information disclosure.",
+                    "Using PortSwigger Burp Suite's automated scanner to discover vulnerabilities on a public-facing web portal after a major feature release."
+                ],
+                technicalDetails: "DAST tools perform HTTP/HTTPS requests to probe the application and analyze responses for security indicators. They often use fuzzing, crawling, and attack vector generation techniques. DAST complements SAST by finding different classes of vulnerabilities, especially runtime issues and configuration problems. It requires a deployed, running instance of the application. AWS doesn't have a direct DAST service but AWS WAF (Web Application Firewall) can protect against some web exploits that DAST tools test for.",
+                tools: "OWASP ZAP, Burp Suite Professional (Scanner), Acunetix, IBM AppScan, Qualys Web Application Scanning, Rapid7 InsightAppSec, Detectify."
+            },
+            'iast': {
+                name: "Interactive Application Security Testing (IAST)",
+                purpose: "To combine elements of SAST and DAST by analyzing an application from *within* at runtime. It instruments the running application to observe code execution and data flow, providing highly accurate vulnerability detection with fewer false positives than SAST or DAST alone.",
+                features: [
+                    { title: "Runtime Code & Data Flow Analysis", desc: "Deploys an agent within the application's runtime environment (e.g., JVM, .NET CLR, Node.js runtime). As the application executes and is exercised by functional tests or manual usage, the agent observes the actual code paths and data flow, identifying vulnerabilities like injection attacks, path traversal, or insecure deserialization." },
+                    { title: "High Accuracy & Low False Positives", desc: "By observing real data interacting with real code, IAST can confirm if a vulnerability is actually exploitable and reduce false positives. It's more precise than SAST (which can't confirm exploitability) and DAST (which lacks internal code visibility)." },
+                    { title: "Continuous Monitoring in Test Environments", desc: "Can run continuously in QA, staging, or even pre-production environments, providing immediate security feedback to developers without requiring dedicated security scans. Functional testers can inadvertently trigger security findings." },
+                    { title: "Integration with Functional Testing", desc: "Leverages existing functional tests (manual or automated) to exercise the application, thereby 'testing' for security vulnerabilities during normal testing activities. This shifts security left without adding a separate security test phase." },
+                    { title: "Detailed Context & Remediation", desc: "Provides precise details on vulnerabilities, including the exact line of code where the flaw exists, the data that triggered it, and the execution path, significantly accelerating remediation for developers." }
+                ],
+                examples: [
+                    "A development team integrates a Contrast Security IAST agent into their Java Spring Boot application deployed in a staging environment on Amazon EC2. As QA testers run their functional tests, the IAST agent automatically detects and reports a critical SQL injection vulnerability, pinpointing the exact method and line of code.",
+                    "An IAST tool is embedded in a Node.js application running on Amazon ECS. During integration testing, it identifies an insecure deserialization vulnerability that would have been difficult to find with black-box DAST.",
+                    "Using HCL AppScan on a web application. The IAST component monitors internal application behavior while a DAST component performs external scans, providing a combined, highly accurate vulnerability report."
+                ],
+                technicalDetails: "IAST tools inject bytecode/runtime agents into the application server. They monitor HTTP traffic, API calls, database queries, and system calls. They combine elements of both static (code analysis) and dynamic (runtime observation) techniques. While AWS doesn't have a direct IAST service, applications running on EC2, ECS, or EKS can be instrumented with third-party IAST agents.",
+                tools: "Contrast Security, HCL AppScan, Veracode IAST, Checkmarx CxIAST, Rapid7 InsightAppSec (with IAST capabilities), Synopsys SeekOut (formerly Black Duck IAST)."
+            },
+            'penetration-testing': {
+                name: "Penetration Testing",
+                purpose: "To simulate real-world cyberattacks on a system, application, or network to identify exploitable vulnerabilities and weaknesses. It's typically a manual, hands-on exercise performed by ethical hackers, going beyond automated scans to discover complex, chained vulnerabilities.",
+                features: [
+                    { title: "Manual Exploitation & Validation", desc: "Ethical hackers (pen testers) actively attempt to exploit identified vulnerabilities and chain multiple weaknesses together to gain unauthorized access or achieve a specific malicious objective. This validates the true risk and impact of vulnerabilities." },
+                    { title: "Business Logic Flaw Discovery", desc: "Excels at finding vulnerabilities related to the application's specific business logic (e.g., payment fraud, privilege escalation flaws, incorrect data calculations) that automated tools often miss." },
+                    { title: "Human Creativity & Adversarial Thinking", desc: "Relies on the creativity and expertise of human testers to think like a real attacker, adapt to the system's unique context, and uncover complex attack vectors that are beyond the capabilities of automated scanning tools." },
+                    { title: "Comprehensive Reporting & Remediation Guidance", desc: "Provides detailed reports outlining discovered vulnerabilities, steps to reproduce them, proof-of-concept exploits, and concrete recommendations for remediation, often with specific code fixes or configuration changes." },
+                    { title: "Credential Testing (Brute-Force, Password Spraying)", desc: "Includes testing of authentication mechanisms for weaknesses, such as susceptibility to brute-force attacks, password spraying, or insecure password reset flows." },
+                    { title: "Compliance Requirement", desc: "Often a mandatory requirement for various regulatory compliance frameworks (e.g., PCI DSS, HIPAA, SOC 2) to demonstrate the effectiveness of security controls." }
+                ],
+                examples: [
+                    "A third-party security firm conducts a penetration test on an organization's public-facing web application hosted on AWS. They uncover a SQL injection flaw in a lesser-used API endpoint, combine it with an insecure file upload vulnerability, and gain access to internal data.",
+                    "A penetration tester attempts to exploit misconfigurations in an Amazon S3 bucket policy or an overly permissive IAM role discovered during the reconnaissance phase of a test, successfully gaining unauthorized access to sensitive files.",
+                    "After a major cloud migration, a company engages a red team to perform a 'breach and attack simulation' (BAS) against their AWS environment, mimicking common attacker techniques to test their security controls and incident response capabilities.",
+                    "Performing a mobile application penetration test to identify vulnerabilities related to insecure data storage on the device, insecure communication with backend APIs, and reverse engineering challenges."
+                ],
+                technicalDetails: "Penetration testing involves reconnaissance, scanning, vulnerability analysis, exploitation, and post-exploitation. It can be black-box (no prior knowledge), white-box (full knowledge of system), or gray-box (partial knowledge). Ethical hacking tools (e.g., Burp Suite, Metasploit, Nmap) are used. AWS customers must get explicit permission from AWS before conducting penetration tests against their AWS infrastructure (unless using services like AWS Inspector which are designed for this purpose).",
+                tools: "Burp Suite Pro, Metasploit, Nmap, Nessus, Aircrack-ng, Wireshark, Manual testing, AWS offers specific guidelines for permitted penetration testing activities."
+            },
+            'fuzz-testing': {
+                name: "Fuzz Testing",
+                purpose: "To discover implementation bugs and security vulnerabilities (e.g., crashes, memory leaks, buffer overflows, unexpected behavior) by repeatedly feeding large amounts of malformed, unexpected, or random data (fuzz) as input to a computer program. It's a robust way to find edge-case vulnerabilities.",
+                features: [
+                    { title: "Automated Input Generation", desc: "Automatically generates a wide range of invalid, unexpected, or random inputs (e.g., malformed files, oversized network packets, invalid API parameters) to exercise the application's input parsers and handlers." },
+                    { title: "Crash & Anomaly Detection", desc: "Monitors the application for crashes, memory errors, infinite loops, exceptions, or other unexpected behaviors when processing fuzzed inputs. These often indicate underlying vulnerabilities." },
+                    { title: "Protocol & File Format Fuzzing", desc: "Specializes in fuzzing specific data formats (e.g., PDF, JPEG, XML, JSON) or network protocols (e.g., HTTP, FTP, DNS) by manipulating their structure or content to find parsing vulnerabilities." },
+                    { title: "Coverage-Guided Fuzzing", desc: "More advanced fuzzers use code coverage information to guide the generation of new inputs, favoring inputs that explore new code paths, thus increasing the likelihood of finding deeper bugs." },
+                    { title: "Early Lifecycle Integration", desc: "Can be integrated into the CI/CD pipeline (e.g., AWS CodeBuild) to continuously fuzz new code commits, providing early detection of robustness and security issues." },
+                    { title: "API Fuzzing", desc: "Fuzzing specifically targets API endpoints by sending malformed or out-of-spec requests, helping uncover vulnerabilities in microservices and web APIs." }
+                ],
+                examples: [
+                    "Using American Fuzzy Lop (AFL) or LibFuzzer to fuzz a C++ image processing library. The fuzzer continuously feeds malformed image files, eventually discovering a buffer overflow vulnerability that could lead to remote code execution.",
+                    "Integrating a REST API fuzzer into an AWS CodePipeline. After a new microservice is deployed to a staging environment, the fuzzer bombards its API endpoints with invalid JSON payloads, attempting to trigger errors or unexpected behavior.",
+                    "A team uses Google's OSS-Fuzz service to continuously fuzz critical open-source components that their application relies on, contributing to the security of the software supply chain.",
+                    "AWS Device Farm offers built-in 'fuzz testing' for mobile applications, generating random user inputs to find crashes or issues on real devices."
+                ],
+                technicalDetails: "Fuzzing techniques vary from dumb (random) fuzzing to smart (protocol-aware, grammar-based) and coverage-guided fuzzing. It's effective at finding obscure bugs and vulnerabilities that might be missed by other testing methods. Integration with CI/CD involves running fuzzers against newly built components. AWS doesn't have a direct fuzzing service for applications but provides compute resources (EC2, Lambda, CodeBuild) to run open-source or commercial fuzzers.",
+                tools: "American Fuzzy Lop (AFL), LibFuzzer, Peach Fuzzer, OWASP ZAP (Fuzzing features), Boofuzz, OpenAPI Fuzzer, AWS Device Farm (for mobile app fuzzing)."
+            },
+            'rasp': {
+                name: "Runtime Application Self-Protection (RASP)",
+                purpose: "To provide real-time protection for running applications against cyberattacks by integrating security capabilities directly into the application's runtime environment. RASP monitors application behavior and can block attacks from within, regardless of origin.",
+                features: [
+                    { title: "Real-time Attack Detection & Blocking", desc: "Deploys an agent (software module) directly within the application's runtime (e.g., JVM, .NET CLR, Node.js). It continuously monitors inputs, data flows, and code execution, detecting malicious activity (e.g., SQL injection attempts, XSS attacks, deserialization attacks) and blocking them instantly, preventing successful exploits." },
+                    { title: "Context-Aware Protection", desc: "Unlike traditional network-based security (WAF), RASP has full visibility into the application's internal logic and data. This allows for highly accurate detection by understanding the application's specific vulnerabilities and valid behavior, leading to fewer false positives." },
+                    { title: "Deployment Flexibility", desc: "Can be deployed on traditional servers (EC2), containers (ECS, EKS), or serverless functions (Lambda) by integrating the RASP agent or library into the application's build or deployment process." },
+                    { title: "Continuous Monitoring & Reporting", desc: "Provides detailed logs and alerts on detected attacks, including information about the attacker, the attack vector, and the specific vulnerability targeted. This data can be integrated into SIEMs or security dashboards." },
+                    { title: "Protection Against Zero-Day Attacks", desc: "Because RASP monitors application behavior rather than relying on signatures of known attacks, it can offer protection against zero-day vulnerabilities and previously unknown attack techniques." },
+                    { title: "Low Overhead", desc: "Typically designed to have a minimal performance impact on the running application, making it suitable for production environments." }
+                ],
+                examples: [
+                    "A Java Spring Boot application running on Amazon EC2 has a RASP agent embedded. When an attacker attempts a SQL injection through a web form, the RASP agent detects the malicious payload attempting to modify the database query and blocks it instantly from within the JVM, preventing the attack.",
+                    "A Node.js microservice deployed on Amazon ECS is protected by a RASP solution. When an attacker tries to exploit a deserialization vulnerability, the RASP agent identifies the malicious code being executed and terminates the process or sanitizes the input.",
+                    "An organization uses a RASP solution to provide continuous, real-time protection for their critical web applications against new and evolving threats, reducing reliance on frequent patching or external WAF rules for every vulnerability."
+                ],
+                technicalDetails: "RASP operates at the application layer, using instrumentation or bytecode manipulation to hook into the application's execution flow. It can protect against OWASP Top 10 vulnerabilities. It complements WAFs by providing deeper, inside-the-application protection. Key vendors offer SDKs or agents for various programming languages/runtimes. AWS does not have a native RASP service but third-party RASP solutions can be deployed on AWS compute services.",
+                tools: "Contrast Security, Imperva RASP, Fortify AppDefense, Checkmarx CxRASP, Data Theorem, SQreen."
+            },
+            'secure-config-management': {
+                name: "Secure Configuration Management",
+                purpose: "To define, implement, and continuously enforce secure baseline configurations for all systems and services across an IT environment. It prevents configuration drift, reduces attack surface, and ensures compliance with security policies.",
+                features: [
+                    {
+                        title: "Automated Baseline Enforcement",
+                        desc: "Automatically applies and maintains a set of predefined secure configurations across servers, network devices, and cloud services (e.g., disabling unnecessary ports, enforcing password policies, configuring firewalls, enabling encryption).",
+                        howToSteps: [
+                            "**1. Define a Secure Baseline:** Start by defining your desired secure configuration for EC2 instances or other resources. For example, ensure no public IP, specific security group, CloudWatch agent installed.",
+                            "**2. Create an AWS Config Rule (Managed/Custom):** In the AWS Config console, create a rule to check for compliance. Use a managed rule (e.g., `s3-bucket-public-read-prohibited`) or a custom Lambda-backed rule for more complex checks.",
+                            "**3. Enable Remediation (Optional):** For some Config rules, you can set up automated remediation. For example, if `s3-bucket-public-read-prohibited` detects a public bucket, it can trigger an AWS Systems Manager Automation document to make it private.",
+                            "**4. Monitor Compliance:** Use the AWS Config dashboard or AWS Security Hub to monitor the compliance status of your resources. Identify non-compliant resources and their associated violations.",
+                            "**5. Automate with Systems Manager (Optional):** For EC2 instances, use AWS Systems Manager State Manager to automatically apply configuration baselines (e.g., install specific security agents, enforce OS hardening settings) across your fleet regularly."
+                        ]
+                    },
+                    { title: "Configuration Drift Detection", desc: "Continuously monitors configurations for any deviations from the established secure baseline. It alerts administrators to unauthorized or accidental changes that could introduce vulnerabilities." },
+                    { title: "Policy as Code Integration", desc: "Often works hand-in-hand with Policy as Code frameworks to define security policies in a machine-readable format that can be automatically enforced by configuration management tools." },
+                    { title: "Centralized Audit Trail", desc: "Maintains a comprehensive log of all configuration changes, who made them, and when. This is essential for auditing, forensics, and demonstrating compliance with regulatory requirements." },
+                    { title: "Secret Management Integration", desc: "Integrates with secrets management solutions (e.g., AWS Secrets Manager, Systems Manager Parameter Store) to inject sensitive configuration data securely into systems without hardcoding." },
+                    { title: "Compliance Reporting", desc: "Generates reports on the compliance status of systems against predefined security benchmarks (e.g., CIS Benchmarks, organizational policies), simplifying audits." }
+                ],
+                examples: [
+                    "Using AWS Config to ensure that all EC2 instances adhere to a specific security baseline, including a limited set of open ports via security groups, enabled CloudWatch logging, and no public IP addresses. Any deviation triggers an alert or automated remediation.",
+                    "An organization uses AWS Systems Manager State Manager to ensure that all Windows servers in their AWS environment have specific security patches applied and auditing policies enabled on a regular schedule.",
+                    "Defining secure configurations for Kubernetes clusters using tools like OPA (Open Policy Agent) to enforce that no pods are deployed with elevated privileges or unencrypted volumes.",
+                    "Automating the hardening of Amazon Linux EC2 instances based on CIS benchmarks using Ansible playbooks, ensuring consistency across the fleet."
+                ],
+                technicalDetails: "Secure configuration management leverages tools that can enforce 'desired state' configurations. It often integrates with IaC tools (e.g., CloudFormation, Terraform) to provision initial secure infrastructure. AWS Config continuously assesses compliance against rules, and AWS Systems Manager provides automation capabilities for configuring instances. AWS Security Hub aggregates findings from Config for a centralized view.",
+                tools: "AWS Config, AWS Systems Manager (State Manager, Run Command, Patch Manager), Ansible, Chef, Puppet, SaltStack, HashiCorp Consul, Open Policy Agent (OPA)."
+            },
+            'secure-iac': {
+                name: "Secure Infrastructure as Code (IaC)",
+                purpose: "To define and provision cloud and on-premises infrastructure using code, with security considerations built in from the very beginning. It ensures that infrastructure is secure, compliant, and consistently deployed, preventing misconfigurations and vulnerabilities.",
+                features: [
+                    { title: "Security by Default", desc: "Designing IaC templates to provision resources with secure default configurations (e.g., S3 buckets private by default, encrypted EBS volumes, least privilege IAM roles, secure network configurations), minimizing the risk of accidental exposure." },
+                    { title: "Static Analysis for IaC", desc: "Using specialized tools to statically analyze IaC templates (e.g., CloudFormation, Terraform, Kubernetes manifests) for security misconfigurations, policy violations, and known vulnerabilities before deployment. This 'shifts left' infrastructure security." },
+                    { title: "Policy as Code Enforcement", desc: "Implementing policies in a machine-readable format (e.g., Open Policy Agent, AWS Config Rules) that automatically validate IaC templates or deployed resources against security and compliance baselines, preventing non-compliant infrastructure from being provisioned." },
+                    { title: "Secrets Management Integration", desc: "Ensuring that no sensitive data (e.g., database passwords, API keys) is hardcoded in IaC templates. Instead, secrets are securely retrieved from dedicated secrets management solutions (e.g., AWS Secrets Manager) during deployment." },
+                    { title: "Version Control & Auditability", desc: "Storing IaC templates in version control systems (e.g., Git) to track all infrastructure changes, facilitate code reviews, and provide a clear audit trail of infrastructure deployments and modifications." },
+                    { title: "Automated Deployment & Rollback", desc: "Leveraging CI/CD pipelines to automate the deployment of secure IaC, with automated rollback capabilities in case of deployment failures or security issues detected post-deployment." }
+                ],
+                examples: [
+                    "A CloudFormation template for a new S3 bucket automatically includes `BlockPublicAccess: True` and uses `ServerSideEncryptionByDefault` to enforce security by default.",
+                    "Integrating Checkov (by Bridgecrew) or Terrascan into an AWS CodeBuild stage to scan Terraform plans and CloudFormation templates for common misconfigurations and security vulnerabilities before they are applied.",
+                    "Using AWS CDK to define secure patterns for VPCs and subnets that automatically include security groups with minimal egress/ingress rules and flow logging enabled, making it easier for developers to deploy secure networks.",
+                    "An Open Policy Agent (OPA) policy prevents any CloudFormation stack from being deployed if it includes an IAM policy with `Effect: Allow` and `Action: '*'` on `Resource: '*'`, enforcing least privilege."
+                ],
+                technicalDetails: "Secure IaC builds on the principles of Infrastructure as Code but adds a strong security focus. It involves using linting, static analysis, and policy enforcement tools to validate templates. AWS services like CloudFormation, CDK, IAM, KMS, and Config are fundamental. Services like AWS Security Hub can aggregate findings from IaC scanning tools.",
+                tools: "AWS CloudFormation, AWS CDK, HashiCorp Terraform, Pulumi, Checkov, Terrascan, tfsec, Cloud Custodian, Open Policy Agent (OPA), AWS Config (Rules, Conformance Packs)."
+            },
+            'policy-as-code': {
+                name: "Policy as Code",
+                purpose: "To define and manage security, compliance, and operational policies in a machine-readable, version-controlled format. This allows for automated enforcement of policies across the entire software development lifecycle and infrastructure, ensuring consistency and preventing policy violations.",
+                features: [
+                    { title: "Declarative Policy Definitions", desc: "Policies are written in a high-level, declarative language (e.g., Rego for OPA, YAML for AWS Config Rules) that describes the desired state or permitted actions, rather than imperative steps. This makes policies easier to understand, manage, and audit." },
+                    { title: "Automated Enforcement & Validation", desc: "Policies are automatically enforced at various points in the CI/CD pipeline and runtime environment (e.g., code commit, build, deployment, runtime API calls). Tools validate against policies and block non-compliant actions or resources." },
+                    { title: "Version Control & Auditability", desc: "Policy definitions are stored in version control systems (e.g., Git), allowing for tracking of all policy changes, collaboration, code reviews, and a clear audit trail of policy evolution and enforcement." },
+                    { title: "Shift-Left Policy Enforcement", desc: "Policies can be applied early in the development lifecycle (e.g., validating IaC templates before deployment), catching policy violations before they reach production, which is more cost-effective." },
+                    { title: "Centralized Management", desc: "Provides a centralized framework for managing all organizational policies across different environments, teams, and cloud providers, ensuring consistency and reducing fragmentation." },
+                    { title: "Compliance Automation", desc: "Directly maps policy-as-code definitions to regulatory requirements and industry standards, automating the evidence collection and reporting for compliance audits." }
+                ],
+                examples: [
+                    "An Open Policy Agent (OPA) policy defined in Rego is used in a Kubernetes admission controller to prevent any pod from being deployed if it requests excessive CPU or memory resources, or attempts to run as root.",
+                    "An AWS Config Rule is defined as code to check that all EC2 instances are tagged with 'Owner' and 'Environment'. Any untagged instances are flagged as non-compliant.",
+                    "Integrating a Sentinel policy (HashiCorp) into Terraform Cloud to ensure that no `terraform apply` can provision an S3 bucket without server-side encryption enabled.",
+                    "A custom AWS Lambda-backed Config Rule ensures that newly created IAM users are immediately put into a specific IAM group and have MFA enabled."
+                ],
+                technicalDetails: "Policy as Code leverages policy engines (like OPA, Sentinel) that evaluate policies against input data (e.g., JSON representation of an IaC template, API request payload) and return a decision (allow/deny). AWS Config Rules provide native policy enforcement for AWS resources. It's a fundamental concept for enabling automated governance and compliance in cloud environments.",
+                tools: "Open Policy Agent (OPA) / Rego, HashiCorp Sentinel, AWS Config (Rules, Conformance Packs), Cloud Custodian, Kyverno (for Kubernetes), Git (for version control)."
+            },
+            'immutable-infrastructure': {
+                name: "Immutable Infrastructure",
+                purpose: "A strategy where servers and other infrastructure components are never modified after they are deployed. Instead, every update (e.g., new application version, security patch, configuration change) results in a new, fully re-provisioned infrastructure component being deployed, and the old one is discarded.",
+                features: [
+                    { title: "Consistency & Reproducibility", desc: "Ensures that every environment (development, staging, production) is identical and built from the same validated artifacts, eliminating 'configuration drift' and 'works on my machine' issues. This significantly improves reliability and reduces bugs." },
+                    { title: "Simplified Rollbacks", desc: "To roll back to a previous version, you simply switch traffic to an older, proven immutable infrastructure artifact, which is much faster and safer than attempting to revert changes on live servers." },
+                    { title: "Enhanced Security", desc: "Reduces the attack surface because servers cannot be modified or patched in place, limiting opportunities for attackers to establish persistence or leave backdoors. Any compromise requires the entire component to be replaced." },
+                    { title: "Faster Deployments", desc: "Once a new immutable image (e.g., AMI, Docker image) is built and tested, it can be deployed rapidly by simply launching new instances or containers from that image." },
+                    { title: "Simplified Operations", desc: "Eliminates the complexity of managing configuration drift, dependency conflicts, and patching existing servers. Operations teams deal with 'known good' artifacts." },
+                    { title: "Better Resource Utilization", desc: "Encourages the efficient use of cloud resources by making it easy to scale up and down by simply launching or terminating instances from standardized images." }
+                ],
+                examples: [
+                    "Baking an application and its dependencies into an Amazon Machine Image (AMI). When a new application version is ready, a new AMI is built, and an Auto Scaling Group launches new EC2 instances from this new AMI, then traffic is shifted. The old instances are terminated.",
+                    "Deploying Docker containers to Amazon ECS or Kubernetes. Each new application version is a new Docker image. Updates involve deploying new tasks/pods from the new image, and traffic is shifted, rather than updating running containers.",
+                    "Using AWS Lambda functions. Every code update creates a new version of the Lambda function. When deployed, the new version replaces the old, embodying an immutable approach.",
+                    "A security patch for the operating system means creating a new base AMI, rebuilding all application AMIs on top of it, and then deploying the entirely new immutable infrastructure."
+                ],
+                technicalDetails: "Immutable infrastructure relies heavily on Infrastructure as Code (IaC) tools (e.g., CloudFormation, Terraform) for provisioning and configuration management tools (e.g., Packer for AMI creation, Docker for container images) for building artifacts. Deployment strategies like blue/green or canary deployments are essential for smooth transitions. AWS services like EC2 Auto Scaling, ECS, EKS, Lambda, and AWS CodeDeploy are ideal for implementing immutable infrastructure patterns.",
+                tools: "Packer, Docker, AMI (Amazon Machine Image), AWS EC2 Auto Scaling, Amazon ECS, Amazon EKS, AWS Lambda, AWS CodeDeploy, Terraform, CloudFormation."
+            },
+            'security-monitoring': {
+                name: "Security Monitoring",
+                purpose: "To continuously collect, analyze, and visualize security-relevant data from various sources across applications and infrastructure to detect, prevent, and respond to cyber threats and malicious activities in real-time.",
+                features: [
+                    { title: "Log Aggregation & Analysis", desc: "Centralizing and analyzing security-relevant logs from all sources (e.g., AWS CloudTrail, VPC Flow Logs, application logs, security service logs like GuardDuty, WAF) to identify suspicious patterns, unauthorized access attempts, and anomalies." },
+                    { title: "Threat Detection (Managed Services)", desc: "Leveraging specialized services (e.g., Amazon GuardDuty) to continuously monitor AWS accounts and workloads for malicious activity and unauthorized behavior, using machine learning and threat intelligence." },
+                    { title: "Vulnerability Scanning & Assessment", desc: "Continuously scanning systems and applications for known vulnerabilities (CVEs) and misconfigurations, integrating these findings into a centralized security dashboard for prioritization and remediation." },
+                    { title: "Real-time Alerting & Notifications", desc: "Setting up automated alerts and notifications (email, SMS, PagerDuty, Slack) for critical security events detected by monitoring systems, ensuring immediate awareness and response by security teams." },
+                    { title: "Cloud Security Posture Management (CSPM)", desc: "Continuously assessing the security configuration of cloud resources against security best practices and compliance benchmarks (e.g., CIS AWS Foundations Benchmark), identifying and flagging misconfigurations." },
+                    { title: "User & Entity Behavior Analytics (UEBA)", desc: "Analyzing user and system behavior patterns over time to detect deviations from normal activity, which might indicate compromised accounts or insider threats." }
+                ],
+                examples: [
+                    "Monitoring Amazon GuardDuty for findings like 'UnauthorizedAccess:EC2/MaliciousIPCaller.BadIP' and triggering an automated response to isolate the affected EC2 instance.",
+                    "Sending AWS CloudTrail logs and VPC Flow Logs to a centralized Amazon S3 bucket, then using Amazon OpenSearch Service and Kibana dashboards to visualize API calls by region and identify unusual network traffic patterns.",
+                    "Using AWS Security Hub to aggregate findings from Amazon Inspector (vulnerability scans), AWS Config (compliance checks), and Amazon GuardDuty, providing a unified view of the security posture across multiple AWS accounts.",
+                    "Setting up CloudWatch Alarms on specific CloudTrail events, such as `CreateUser` or `DeleteRole`, to detect unauthorized IAM changes."
+                ],
+                technicalDetails: "Security monitoring relies on a combination of logging, metrics, event management, and specialized security services. Key AWS services include CloudTrail, CloudWatch Logs, GuardDuty, Inspector, Macie, WAF, Security Hub, and KMS. Often, this data is fed into a SIEM (Security Information and Event Management) system for correlation and long-term analysis. Automation is key to scaling effective security monitoring.",
+                tools: "AWS CloudTrail, Amazon CloudWatch Logs, Amazon GuardDuty, Amazon Inspector, Amazon Macie, AWS WAF, AWS Security Hub, Amazon OpenSearch Service (for SIEM), Splunk, Datadog Security Monitoring, Sumo Logic, Elastic Stack (ELK)."
+            },
+            'incident-response-devsecops': {
+                name: "Automated Incident Response",
+                purpose: "To automatically detect, analyze, and respond to security incidents and anomalies in real-time or near real-time, reducing Mean Time To Respond (MTTR) and minimizing the impact of security breaches. This is a crucial 'Sec' aspect of DevSecOps.",
+                features: [
+                    { title: "Event-Driven Automation", desc: "Leveraging event sources (e.g., AWS CloudWatch Events/EventBridge, AWS Security Hub findings) to trigger automated remediation actions immediately when specific security events or alerts occur." },
+                    { title: "Automated Containment & Isolation", desc: "Automatically isolating compromised resources (e.g., EC2 instances, containers) by modifying security groups, network ACLs, or placing them in a quarantine VPC, limiting the spread of an attack." },
+                    { title: "Automated Forensic Data Collection", desc: "Automatically collecting relevant diagnostic and forensic data (e.g., memory dumps, disk snapshots, logs) from affected resources when an incident is detected, preserving evidence for investigation." },
+                    { title: "Playbook Execution", desc: "Defining and automating predefined 'playbooks' or 'runbooks' for common security incidents. These playbooks outline a sequence of steps (e.g., notify team, block IP, isolate host, collect data) to be executed automatically." },
+                    { title: "Integration with Orchestration Tools", desc: "Connecting automated response actions with security orchestration, automation, and response (SOAR) platforms or ITSM tools to streamline the overall incident management workflow and notify human responders." },
+                    { title: "Automated Remediation", desc: "Automatically taking direct action to fix a security issue, such as reverting a misconfiguration, revoking compromised credentials, or applying a missing security patch." }
+                ],
+                examples: [
+                    "An AWS GuardDuty finding for 'UnauthorizedAccess:IAMUser/ConsoleLogin.Success.FromSuspiciousIP' triggers an Amazon EventBridge rule, which invokes an AWS Lambda function to automatically attach an IAM policy to the user denying further access and send a notification to the security team.",
+                    "An AWS Config rule detects a publicly accessible S3 bucket. An automated remediation action (using AWS Systems Manager Automation document) is triggered to immediately apply a bucket policy making it private.",
+                    "If a WAF (Web Application Firewall) rule detects a high volume of SQL injection attempts from a specific IP, an AWS Lambda function is invoked via CloudWatch Logs to automatically add that IP to a deny list for a limited time.",
+                    "Using AWS Systems Manager Incident Manager with a runbook that, upon detection of a high-severity threat, automatically creates snapshots of affected EC2 instances and sends a PagerDuty alert to the on-call security engineer."
+                ],
+                technicalDetails: "Automated incident response relies on a robust event-driven architecture, typically using AWS EventBridge, CloudWatch Alarms, and AWS Security Hub findings as triggers. AWS Lambda functions and Systems Manager Automation documents are key for executing remediation logic. This is a core capability of SOAR (Security Orchestration, Automation, and Response) platforms. IAM permissions are critical for ensuring automated actions themselves are secure and operate with least privilege.",
+                tools: "AWS EventBridge, AWS Lambda, AWS Systems Manager Automation, AWS Security Hub (Custom Actions), Amazon GuardDuty, AWS Config, AWS WAF, AWS CloudTrail, AWS KMS, PagerDuty, Opsgenie, SOAR platforms (Splunk SOAR, Cortex XSOAR)."
+            },
+            'security-log-management': {
+                name: "Security Log Management",
+                purpose: "To effectively collect, centralize, parse, store, analyze, and retain security-relevant log data from all sources (applications, infrastructure, security services) for threat detection, incident response, compliance auditing, and forensic investigations.",
+                features: [
+                    { title: "Centralized Log Aggregation", desc: "Collecting logs from diverse sources (e.g., AWS CloudTrail, VPC Flow Logs, DNS logs, S3 access logs, application security logs, GuardDuty findings) into a single, scalable, and secure repository." },
+                    { title: "Structured Logging & Parsing", desc: "Transforming raw, unstructured log data into structured formats (e.g., JSON) by parsing key fields and enriching with contextual metadata (e.g., user ID, resource ID, request ID). This enables more efficient searching and analysis." },
+                    { title: "Real-time Stream Processing", desc: "Processing log streams in real-time to immediately identify suspicious activities, policy violations, or anomalies, triggering alerts and automated responses." },
+                    { title: "Long-term Retention & Immutability", desc: "Storing security logs for extended periods (e.g., years) in an immutable fashion (e.g., WORM-enabled S3 buckets) to meet regulatory compliance requirements and support deep forensic analysis without risk of tampering." },
+                    { title: "Powerful Search & Analytics", desc: "Providing advanced querying, filtering, and analytical capabilities to quickly identify specific security events, track attacker movements, perform root cause analysis, and generate audit reports from massive log datasets." },
+                    { title: "Anomaly Detection & Behavioral Analytics", desc: "Applying machine learning to identify unusual patterns or deviations from normal behavior in log data that may indicate a security threat or compromise." }
+                ],
+                examples: [
+                    "Routing all AWS CloudTrail logs, VPC Flow Logs, and Amazon S3 access logs to a centralized Amazon S3 bucket, then streaming them to Amazon OpenSearch Service for real-time indexing and analysis via Kibana dashboards.",
+                    "An organization streams application security logs to Amazon Kinesis Data Firehose, which then delivers them to Splunk Cloud for correlation with other security events and long-term retention.",
+                    "Using CloudWatch Logs Insights to query application logs for patterns indicative of a brute-force attack (e.g., multiple failed login attempts from a single IP address) and setting a CloudWatch Alarm if the threshold is exceeded.",
+                    "Implementing a log aggregation solution that collects security logs from EC2 instances running security agents and feeds them into AWS Security Hub for centralized finding management."
+                ],
+                technicalDetails: "Security log management relies on a scalable data pipeline involving log collectors/agents (e.g., CloudWatch Agent, Fluentd), streaming services (Kinesis Data Streams/Firehose), storage (S3, OpenSearch Service), and analysis/visualization tools (OpenSearch Dashboards, Kibana, Splunk). Proper IAM policies for log ingestion and access are critical for security. It's often a component of a larger SIEM solution.",
+                tools: "Amazon CloudWatch Logs, AWS CloudTrail, Amazon S3, Amazon OpenSearch Service (formerly Elasticsearch Service), Amazon Kinesis Data Firehose, Splunk, Datadog Log Management, Sumo Logic, Elastic Stack (ELK), Fluentd, Logstash, AWS Security Hub (for findings)."
+            },
+            'vulnerability-management': {
+                name: "Vulnerability Management",
+                purpose: "To continuously identify, assess, prioritize, and remediate security vulnerabilities across an organization's IT assets (applications, infrastructure, networks, cloud environments) to reduce the overall attack surface and risk exposure.",
+                features: [
+                    { title: "Asset Discovery & Inventory", desc: "Continuously identifying and cataloging all IT assets (e.g., EC2 instances, S3 buckets, Lambda functions, network devices, applications) within the environment to ensure comprehensive vulnerability coverage." },
+                    { title: "Vulnerability Scanning & Assessment", desc: "Regularly scanning assets for known vulnerabilities (CVEs), misconfigurations, and compliance deviations using automated vulnerability scanners (e.g., Amazon Inspector, Nessus)." },
+                    { title: "Risk Prioritization & Contextualization", desc: "Prioritizing identified vulnerabilities based on their severity, exploitability, potential business impact, and asset criticality. This ensures that the most impactful vulnerabilities are addressed first." },
+                    { title: "Remediation & Patch Management", desc: "Implementing strategies for fixing vulnerabilities, which includes applying security patches, updating software versions, reconfiguring systems, or implementing compensating controls. Automation (e.g., AWS Systems Manager Patch Manager) is key." },
+                    { title: "Continuous Monitoring & Reporting", desc: "Continuously monitoring the vulnerability posture of the environment, tracking remediation progress, and generating reports for stakeholders and auditors to demonstrate risk reduction." },
+                    { title: "Integration with DevSecOps Pipeline", desc: "Embedding vulnerability scanning into the CI/CD pipeline (e.g., SAST, SCA, container image scanning) to identify and address vulnerabilities as early as possible ('shift left')." }
+                ],
+                examples: [
+                    "Using Amazon Inspector to automatically scan new EC2 instances and container images for software vulnerabilities and common exposures. Findings are sent to AWS Security Hub for centralized management.",
+                    "An organization uses AWS Systems Manager Patch Manager to automatically apply critical security updates to all production EC2 instances on a weekly basis during a maintenance window.",
+                    "A security team leverages a vulnerability management platform (e.g., Qualys, Tenable.io) to identify and track vulnerabilities across their entire cloud and on-premises infrastructure, integrating with Jira for remediation task assignment.",
+                    "Integrating Snyk into a GitHub Actions workflow to detect vulnerable open-source dependencies in a web application's codebase and automatically create pull requests to update them to a secure version."
+                ],
+                technicalDetails: "Vulnerability management is an ongoing cycle that requires continuous effort. It leverages vulnerability databases (NVD, proprietary), scanning tools, and integration with asset management, patch management, and CI/CD systems. AWS services like Amazon Inspector, AWS Config, AWS Systems Manager, and AWS Security Hub are fundamental for building a comprehensive vulnerability management program in the cloud.",
+                tools: "Amazon Inspector, AWS Config, AWS Systems Manager (Patch Manager), AWS Security Hub, Qualys, Tenable.io (Nessus), Rapid7 InsightVM, Snyk, GitLab Vulnerability Management."
+            },
+            'siem': {
+                name: "SIEM & Log Correlation",
+                purpose: "To aggregate, normalize, and analyze security events and logs from various sources across an organization's IT infrastructure (endpoints, networks, applications, cloud environments) in real-time. It correlates events to detect advanced threats, facilitate incident response, and ensure compliance.",
+                features: [
+                    {
+                        title: "Log & Event Aggregation",
+                        desc: "Collects security-relevant logs and events from a wide array of sources, including firewalls, intrusion detection systems (IDS), servers (OS logs), applications, cloud services (e.g., AWS CloudTrail, VPC Flow Logs), and endpoint security solutions into a centralized platform.",
+                        howToSteps: [
+                            "**1. Centralize AWS Logs:** Configure AWS CloudTrail, VPC Flow Logs, and other service logs (e.g., S3 access logs, Route 53 logs) to be delivered to a centralized Amazon S3 bucket. Ensure bucket policies are secure.",
+                            "**2. Stream Logs to OpenSearch Service:** Use AWS Kinesis Data Firehose to stream these logs from S3 or CloudWatch Logs to an Amazon OpenSearch Service domain (AWS's managed Elasticsearch).",
+                            "**3. Ingest Findings into Security Hub:** Enable AWS Security Hub to aggregate findings from services like Amazon GuardDuty, Amazon Inspector, and AWS Config. Security Hub acts as a 'mini-SIEM' by centralizing and normalizing findings.",
+                            "**4. Create OpenSearch Dashboards/Kibana Dashboards:** Use OpenSearch Dashboards (or Kibana for self-managed Elasticsearch) to create visualizations and dashboards for your ingested log data. For example, dashboards for IAM activity, network flow, or security findings.",
+                            "**5. Set up CloudWatch Alarms for Security Hub:** Configure Amazon EventBridge rules to send high-severity Security Hub findings to a CloudWatch Alarm, which can then trigger SNS notifications to your security team."
+                        ]
+                    },
+                    { title: "Log Normalization & Parsing", desc: "Transforms raw, heterogeneous log data into a standardized format, parsing out key fields to enable consistent searching, correlation, and analysis across different data sources." },
+                    { title: "Correlation Rules & Threat Detection", desc: "Applies advanced rules and algorithms to correlate seemingly unrelated security events across different logs and timeframes, identifying complex attack patterns, insider threats, and sophisticated cyberattacks that individual logs might miss." },
+                    { title: "Security Analytics & Machine Learning", desc: "Uses security analytics, machine learning, and behavioral analytics to detect anomalies, suspicious user behavior (UEBA), and emerging threats without relying solely on predefined signatures." },
+                    { title: "Real-time Alerting & Incident Response", desc: "Generates real-time alerts for critical security events or correlated threat patterns, often integrating with incident response platforms (e.g., PagerDuty, AWS Systems Manager Incident Manager) to facilitate rapid containment and remediation." },
+                    { title: "Compliance & Reporting", desc: "Provides capabilities for generating reports on security posture, compliance with regulatory standards (e.g., GDPR, HIPAA, PCI DSS), and audit trails of security incidents." }
+                ],
+                examples: [
+                    "An organization sends all their AWS CloudTrail logs, VPC Flow Logs, GuardDuty findings, and application security logs to Amazon OpenSearch Service. Their security team uses OpenSearch Dashboards (Kibana) to visualize user activity patterns and receives alerts if a user attempts to access resources from a new, unusual geographic location.",
+                    "Integrating a SIEM solution (e.g., Splunk) with AWS, ingesting logs from all AWS services and on-premises infrastructure. The SIEM correlates a failed login attempt on an EC2 instance with a suspicious API call in CloudTrail from the same user, flagging a potential compromised account.",
+                    "Using AWS Security Hub to centralize all security findings. An Amazon EventBridge rule then triggers an automated response if a critical finding (e.g., a publicly exposed sensitive S3 bucket) is detected, while also sending it to the SIEM for broader context."
+                ],
+                technicalDetails: "SIEM solutions are complex systems comprising data ingestion, storage, processing, analytics, and reporting components. In AWS, this often involves services like CloudTrail, CloudWatch Logs, Kinesis, S3, and OpenSearch Service. Managed SIEM services (e.g., Splunk Cloud, IBM QRadar on Cloud) or building a custom SIEM on AWS using native services are common approaches. AWS Security Hub and Amazon GuardDuty can provide capabilities typically found in SIEMs.",
+                tools: "Splunk, IBM QRadar, Microsoft Sentinel, Elastic Stack (Elasticsearch, Logstash, Kibana), Sumo Logic, Exabeam, Securonix, Amazon OpenSearch Service, AWS Security Hub, Amazon GuardDuty, AWS CloudTrail, Amazon CloudWatch Logs, Amazon Kinesis."
+            },
+            'cspm': {
+                name: "Cloud Security Posture Management (CSPM)",
+                purpose: "To continuously monitor, assess, and evaluate the security configurations and compliance posture of cloud resources against security best practices, industry standards, and regulatory requirements. It identifies misconfigurations, compliance deviations, and strengthens cloud security.",
+                features: [
+                    { title: "Continuous Configuration Assessment", desc: "Continuously scans cloud configurations (e.g., IAM policies, S3 bucket settings, network security groups, database encryption) against a comprehensive library of security best practices (e.g., CIS Benchmarks, AWS Foundational Security Best Practices) and custom organizational policies." },
+                    { title: "Misconfiguration Detection", desc: "Identifies common cloud misconfigurations that lead to vulnerabilities, such as publicly exposed S3 buckets, overly permissive IAM roles, unencrypted data stores, or insecure network settings." },
+                    { title: "Compliance Reporting & Mapping", desc: "Maps detected misconfigurations and security findings directly to specific controls in various compliance frameworks (e.g., PCI DSS, HIPAA, GDPR, SOC 2, ISO 27001), simplifying audit preparation and demonstrating compliance." },
+                    { title: "Risk Prioritization & Remediation Guidance", desc: "Prioritizes findings based on severity, exploitability, and potential impact, providing actionable recommendations for remediation. Some CSPM tools offer automated remediation capabilities." },
+                    { title: "Anomaly & Drift Detection", desc: "Detects deviations from an established secure baseline ('configuration drift') and alerts on new or unauthorized changes that could introduce security risks." },
+                    { title: "Multi-Cloud & Hybrid Cloud Support", desc: "Many CSPM solutions offer capabilities to monitor security posture across multiple cloud providers (AWS, Azure, GCP) and hybrid environments, providing a unified view." }
+                ],
+                examples: [
+                    "Using AWS Security Hub with the CIS AWS Foundations Benchmark enabled to continuously monitor all AWS accounts for compliance. If an S3 bucket is made public, Security Hub flags a 'Critical' finding, prompting immediate investigation and remediation.",
+                    "An organization deploys a Conformance Pack in AWS Config across all their development and production accounts to automatically enforce a baseline of security and operational best practices, such as ensuring all EBS volumes are encrypted.",
+                    "A security operations center uses a third-party CSPM tool (e.g., Wiz, Orca Security) to get a real-time, consolidated view of all misconfigurations and security risks across their multi-cloud environment, prioritizing remediation efforts based on business impact.",
+                    "Implementing automated remediation rules in AWS Config to automatically revoke public access to any newly created S3 bucket if it's found to be non-compliant."
+                ],
+                technicalDetails: "CSPM solutions typically leverage cloud provider APIs and native services (like AWS Config, CloudTrail, Security Hub) to gather configuration data. They maintain extensive knowledge bases of security best practices and compliance requirements. They are a core component of cloud security and DevSecOps, helping to automate security governance. AWS Security Hub is AWS's native CSPM service.",
+                tools: "AWS Security Hub, AWS Config, Wiz, Orca Security, Lacework, Prisma Cloud (by Palo Alto Networks), Check Point CloudGuard, Microsoft Defender for Cloud."
+            },
+            'threat-detection': {
+                name: "Threat Detection",
+                purpose: "To identify and alert on malicious activities, unauthorized access, suspicious behaviors, and potential cyberattacks targeting an organization's systems, applications, and data in real-time or near real-time.",
+                features: [
+                    { title: "Signature-Based Detection", desc: "Identifies known threats by matching patterns, signatures, or indicators of compromise (IOCs) against network traffic, log data, or file contents. This is effective for widely known malware or attack patterns." },
+                    { title: "Anomaly & Behavioral Detection", desc: "Uses machine learning and statistical analysis to establish a baseline of 'normal' behavior for users, applications, and networks. It then identifies deviations from this baseline as potential threats, effective against zero-day attacks or novel attack techniques." },
+                    { title: "Threat Intelligence Integration", desc: "Enriches detection capabilities by incorporating external threat intelligence feeds (e.g., known malicious IP addresses, command-and-control domains, malware hashes) to identify and block emerging threats." },
+                    { title: "Network Threat Detection", desc: "Monitors network traffic (e.g., VPC Flow Logs, packet inspection) for suspicious activity like port scanning, brute-force attacks, data exfiltration, or communication with known malicious IPs." },
+                    { title: "Host-Based Detection", desc: "Monitors individual servers or endpoints for malicious processes, unauthorized file modifications, privilege escalation attempts, and suspicious system calls." },
+                    { title: "Cloud-Native Threat Detection", desc: "Leverages cloud provider-specific services designed for threat detection across cloud environments (e.g., Amazon GuardDuty, Azure Security Center, Google Cloud Security Command Center)." }
+                ],
+                examples: [
+                    "Amazon GuardDuty detects 'Stealth:EC2/BitcoinMining' activity on an EC2 instance, indicating a potential compromise. This finding is immediately sent to AWS Security Hub and triggers an alert.",
+                    "An Intrusion Detection System (IDS) monitoring network traffic within a VPC detects a known SQL injection signature targeting a web server and sends an alert to the security team.",
+                    "AWS Macie discovers that sensitive customer data (e.g., credit card numbers) is stored unencrypted in an Amazon S3 bucket, flagging a potential data security risk.",
+                    "A security operations center uses Splunk Enterprise Security to correlate alerts from multiple sources (firewalls, EDR, CloudTrail) to identify a sophisticated multi-stage attack that would otherwise go unnoticed."
+                ],
+                technicalDetails: "Threat detection relies on a combination of technologies including IDS/IPS, NIDS/HIDS, SIEM, UEBA, and specialized cloud-native services. AWS offers Amazon GuardDuty for intelligent threat detection, AWS Macie for data discovery, and AWS WAF for web application protection. Effective threat detection requires robust logging and monitoring infrastructure.",
+                tools: "Amazon GuardDuty, AWS Macie, AWS WAF, AWS Security Hub, Splunk (with Splunk ES), IBM QRadar, Microsoft Sentinel, Palo Alto Networks (various products), CrowdStrike, Carbon Black, Snort, Suricata."
+            },
+            'waf-ddos': {
+                name: "WAF & DDoS Protection",
+                purpose: "To protect web applications and network infrastructure from common web exploits (WAF) and distributed denial-of-service (DDoS) attacks (DDoS Protection), ensuring availability, security, and performance for online services.",
+                features: [
+                    { title: "Web Application Firewall (WAF)", desc: "Filters, monitors, and blocks HTTP traffic to and from a web application, protecting against common web vulnerabilities like SQL injection, Cross-Site Scripting (XSS), cross-site request forgery, and other OWASP Top 10 risks. It operates at Layer 7 (application layer)." },
+                    { title: "DDoS Protection (Layer 3/4 & Layer 7)", desc: "Mitigates Distributed Denial-of-Service (DDoS) attacks by absorbing or deflecting malicious traffic, preventing it from overwhelming network infrastructure (Layer 3/4) or application servers (Layer 7). Ensures application availability during attacks." },
+                    { title: "Customizable Rules & Managed Rules", desc: "Allows creation of custom rules based on IP addresses, HTTP headers, URI strings, or other request attributes. Also provides managed rule sets (e.g., OWASP Top 10 rules, common Linux/Windows exploits) that are automatically updated by the vendor." },
+                    { title: "Rate Limiting & Bot Control", desc: "Ability to configure rules to limit the rate of requests from specific IP addresses or to block known malicious bots, preventing brute-force attacks, credential stuffing, and excessive resource consumption." },
+                    { title: "Visibility & Logging", desc: "Provides detailed logs of blocked requests and detected threats, enabling security teams to analyze attack patterns and refine WAF rules. Integrates with logging and monitoring solutions (e.g., CloudWatch Logs)." },
+                    { title: "Integration with Load Balancers/CDNs", desc: "Typically deployed in front of web applications, integrating with load balancers (e.g., AWS Application Load Balancer), API Gateways, or Content Delivery Networks (CDNs like AWS CloudFront)." }
+                ],
+                examples: [
+                    "Attaching AWS WAF to an Amazon CloudFront distribution to protect a public-facing web application from SQL injection and XSS attacks. Managed rule sets are enabled, and custom rules block specific malicious IP ranges.",
+                    "An e-commerce website uses AWS Shield Advanced for DDoS protection. During a large-scale volumetric DDoS attack, Shield automatically detects and mitigates the attack at the network edge, ensuring continuous availability of the website.",
+                    "Configuring AWS WAF to block requests originating from known TOR exit nodes or IP addresses that have previously shown malicious behavior in other security logs.",
+                    "An API Gateway is protected by AWS WAF rules that enforce request body size limits and check for suspicious patterns in JSON payloads, preventing certain API-based injection attacks."
+                ],
+                technicalDetails: "WAFs operate by inspecting HTTP/HTTPS traffic and applying a set of rules to block or allow requests. DDoS protection leverages network infrastructure and traffic analysis techniques to absorb and filter malicious traffic. AWS WAF is a managed web application firewall, and AWS Shield provides managed DDoS protection (Standard for all customers, Advanced for higher protection and cost). These services are deployed at the edge of the AWS network.",
+                tools: "AWS WAF, AWS Shield (Standard/Advanced), Cloudflare, Akamai, Imperva, F5 BIG-IP (WAF module), Nginx (with WAF modules), ModSecurity (open-source WAF)."
+            },
+            'security-auditing': {
+                name: "Security Auditing",
+                purpose: "To systematically review and examine an organization's security controls, processes, and systems to ensure they are effective, compliant with policies and regulations, and provide adequate protection against cyber threats. It verifies the effectiveness of security measures.",
+                features: [
+                    { title: "Compliance Audits", desc: "Assessing adherence to external regulatory requirements (e.g., HIPAA, PCI DSS, GDPR, SOC 2, ISO 27001) or internal organizational security policies. This involves reviewing evidence, configurations, and processes." },
+                    { title: "Log & Event Review", desc: "Analyzing security logs (e.g., AWS CloudTrail, VPC Flow Logs, application logs) to identify suspicious activities, unauthorized access attempts, and anomalies, reconstructing events for forensic purposes." },
+                    { title: "Configuration Reviews", desc: "Examining the security configurations of cloud resources (e.g., IAM policies, S3 bucket settings, security groups) against established baselines and best practices to identify misconfigurations. AWS Config and Security Hub assist here." },
+                    { title: "Vulnerability Assessments & Penetration Test Reviews", desc: "Reviewing the results of vulnerability scans and penetration tests, ensuring that identified weaknesses are properly documented, prioritized, and remediated according to risk." },
+                    { title: "Access Control Reviews", desc: "Periodically reviewing user access rights and permissions (e.g., IAM roles and policies) to ensure adherence to the principle of least privilege and remove stale or excessive permissions." },
+                    { title: "Evidence Collection & Reporting", desc: "Gathering and documenting evidence of security controls and processes for auditors. Generating reports on security posture, compliance status, and remediation efforts. AWS Audit Manager simplifies this." }
+                ],
+                examples: [
+                    "An external auditor uses AWS Audit Manager to collect evidence automatically from AWS CloudTrail, AWS Config, and AWS Security Hub to demonstrate compliance with SOC 2 Type 2 requirements.",
+                    "A security team conducts a quarterly review of all IAM policies in their AWS accounts to ensure that no overly permissive policies have been introduced and that all users adhere to MFA requirements.",
+                    "Reviewing AWS CloudTrail logs to verify that all administrative actions in the production environment were performed by authorized personnel and followed the proper change management procedures.",
+                    "A compliance team uses AWS Config Conformance Packs to continuously monitor their AWS environment against CIS Benchmarks and generates reports for internal security audits."
+                ],
+                technicalDetails: "Security auditing involves both automated tools and manual review. It relies heavily on comprehensive logging (CloudTrail), configuration assessment (Config), and centralized security findings (Security Hub). AWS Audit Manager helps automate the collection of evidence for various compliance frameworks. Integration with DevSecOps ensures that auditability is built into the pipeline.",
+                tools: "AWS CloudTrail, AWS Config, AWS Security Hub, AWS Audit Manager, AWS IAM Access Analyzer, Third-party GRC (Governance, Risk, and Compliance) tools, SIEM solutions."
+            },
+            'regulatory-compliance': {
+                name: "Regulatory Compliance",
+                purpose: "To ensure that an organization's IT systems, applications, data handling practices, and operational processes adhere to external laws, regulations, and industry standards (e.g., GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001). This avoids legal penalties and builds trust.",
+                features: [
+                    { title: "Compliance Framework Mapping", desc: "Mapping specific cloud configurations, application features, and operational processes to individual controls and requirements within relevant regulatory frameworks. This provides clarity on what needs to be implemented for compliance." },
+                    { title: "Automated Evidence Collection", desc: "Leveraging cloud services (e.g., AWS CloudTrail, AWS Config) and tools (e.g., AWS Audit Manager) to automatically collect and organize evidence of compliance, reducing manual effort during audits." },
+                    { title: "Policy as Code for Compliance", desc: "Defining compliance policies as code that can be automatically enforced (e.g., 'all data classified as PII must be encrypted at rest') and continuously monitored for deviations." },
+                    { title: "Data Residency & Sovereignty", desc: "Ensuring that data is stored and processed within specific geographic regions as required by local laws and regulations (e.g., GDPR requiring EU data to stay in EU). AWS regions facilitate this." },
+                    { title: "Access Control & Data Segregation", desc: "Implementing robust Identity and Access Management (IAM) controls and network segregation (e.g., VPCs, subnets) to ensure only authorized entities can access sensitive data, as mandated by many regulations." },
+                    { title: "Incident Reporting Requirements", desc: "Establishing processes to comply with mandatory incident reporting requirements, including timelines and data breach notification procedures, often specified by regulations like GDPR or HIPAA." }
+                ],
+                examples: [
+                    "An organization deploying a new application handling European customer data configures all AWS resources (EC2, RDS, S3) to reside in the `eu-central-1` (Frankfurt) region to comply with GDPR data residency requirements.",
+                    "For PCI DSS compliance, the team ensures that their payment processing application running on AWS uses AWS WAF rules, network segmentation (VPC with security groups), encryption at rest (KMS for S3/RDS), and that all relevant logs are sent to a SIEM for continuous monitoring.",
+                    "Using AWS Audit Manager to generate a report demonstrating compliance with HIPAA's security rule, automatically gathering evidence from CloudTrail logs, AWS Config rules, and other service configurations.",
+                    "Implementing data classification and tagging for sensitive data in S3 buckets, and then using AWS Macie to detect if sensitive data is ever stored in unencrypted buckets, violating compliance."
+                ],
+                technicalDetails: "Regulatory compliance often requires a comprehensive approach covering people, processes, and technology. Cloud providers like AWS offer services and certifications (e.g., SOC, ISO, PCI, HIPAA BAA) that facilitate compliance but ultimately the customer is responsible for compliance 'in the cloud'. Services like AWS Config, CloudTrail, Security Hub, and Audit Manager are crucial tools. Legal and security teams must collaborate closely.",
+                tools: "AWS Audit Manager, AWS Config (Conformance Packs, Rules), AWS CloudTrail, AWS Security Hub, AWS KMS, AWS IAM, AWS WAF, AWS Shield, Compliance frameworks (GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001)."
+            },
+            'data-protection': {
+                name: "Data Protection & Privacy",
+                purpose: "To implement controls and processes that safeguard sensitive data throughout its lifecycle (at rest, in transit, in use) from unauthorized access, modification, disclosure, or destruction, while also ensuring adherence to privacy regulations and user rights.",
+                features: [
+                    { title: "Encryption at Rest", desc: "Encrypting data when it is stored on disks, databases, or storage services (e.g., Amazon S3, EBS, RDS, DynamoDB). This prevents unauthorized access to data even if the underlying storage is compromised. AWS KMS is often used for key management." },
+                    { title: "Encryption in Transit", desc: "Encrypting data as it moves across networks (e.g., between clients and servers, between microservices, within VPCs). This involves using TLS/SSL for HTTP traffic, VPNs, or AWS PrivateLink to secure communication channels." },
+                    { title: "Granular Access Control (Least Privilege)", desc: "Implementing fine-grained access controls (e.g., IAM policies, S3 bucket policies, database permissions) to ensure that only authorized users or services can access specific data, and only for the purposes required." },
+                    { title: "Data Loss Prevention (DLP)", desc: "Using tools and processes to prevent sensitive data from leaving the controlled environment (e.g., accidental sharing of PII via email, uploading sensitive files to unauthorized cloud storage). AWS Macie helps with S3." },
+                    { title: "Data Anonymization/Pseudonymization", desc: "Techniques to transform or mask sensitive data (e.g., hashing, tokenization, redaction) to protect individual privacy while still allowing for analysis or testing where full sensitive data isn't needed." },
+                    { title: "Data Masking for Non-Production", desc: "Obscuring or replacing sensitive data with realistic but fake data in development, testing, and staging environments to protect real customer data from exposure outside of production." }
+                ],
+                examples: [
+                    "All Amazon S3 buckets storing customer PII are configured with server-side encryption using AWS KMS, and bucket policies explicitly deny public access.",
+                    "An internal application connects to an Amazon RDS database over an encrypted SSL/TLS connection, and the database itself is configured with encryption at rest.",
+                    "Using AWS Macie to discover if any S3 buckets contain sensitive data (e.g., credit card numbers, national IDs) that is not properly encrypted or is publicly accessible, triggering alerts for remediation.",
+                    "Configuring an API Gateway endpoint to only accept HTTPS traffic and authenticating requests using IAM authorization or Cognito, protecting data in transit.",
+                    "Applying data masking to a copy of the production database for development and testing environments, ensuring developers and testers work with realistic data without exposing actual customer PII."
+                ],
+                technicalDetails: "Data protection involves a combination of cryptographic controls, access controls, network security, and data governance practices. AWS provides native encryption capabilities across many services (S3, EBS, RDS, DynamoDB, Lambda, EFS) and a robust key management service (AWS KMS). AWS Macie helps discover and protect sensitive data in S3. Data classification is a prerequisite for effective data protection.",
+                tools: "AWS KMS (Key Management Service), Amazon S3 (Encryption, Bucket Policies), Amazon RDS (Encryption), AWS IAM, AWS Macie, AWS PrivateLink, AWS WAF, VPN, TLS/SSL, Tokenization solutions."
+            },
+            'iam-devsecops': {
+                name: "IAM & Access Control",
+                purpose: "To securely manage identities and control access to AWS resources, ensuring that only authorized users and services can perform specific actions on specific resources under defined conditions. This is fundamental for enforcing the principle of least privilege in a DevSecOps context.",
+                features: [
+                    { title: "Least Privilege Access", desc: "Granting users, roles, and applications only the minimum necessary permissions to perform their intended functions. This significantly reduces the blast radius in case an identity is compromised." },
+                    { title: "IAM Roles for AWS Services", desc: "Using IAM roles for AWS services (e.g., EC2 instances, Lambda functions, CodeBuild projects) to access other AWS resources. This eliminates the need for long-term access keys on instances and provides temporary, automatically rotated credentials." },
+                    { title: "Multi-Factor Authentication (MFA)", desc: "Enforcing MFA for all privileged users (e.g., root account, administrators, security personnel) and sensitive actions. This adds an extra layer of security beyond just a password." },
+                    { title: "Centralized Identity Management", desc: "Integrating with enterprise identity providers (e.g., Active Directory, Okta) via AWS IAM Identity Center (SSO) to centralize user management and provide a consistent login experience across multiple AWS accounts." },
+                    { title: "Access Key Rotation & Auditing", desc: "Regularly rotating long-term access keys for IAM users (if used) and auditing CloudTrail logs for unusual API activity or unauthorized access attempts related to IAM credentials." },
+                    { title: "IAM Access Analyzer", desc: "Proactively identifying resources (e.g., S3 buckets, IAM roles) that are shared externally, helping to prevent unintended public or cross-account access due to misconfigurations." },
+                    { title: "Policy Validation & Simulation", desc: "Using tools like IAM Policy Simulator to test the effectiveness of IAM policies before deployment, ensuring they grant only the intended permissions." }
+                ],
+                examples: [
+                    "Creating an IAM role for an AWS CodeBuild project that only allows it to pull code from a specific AWS CodeCommit repository and push a Docker image to a designated Amazon ECR repository, adhering to least privilege.",
+                    "Implementing AWS IAM Identity Center to allow developers to log into all their development AWS accounts using their corporate Active Directory credentials, simplifying access management and enforcing central policies.",
+                    "An AWS Lambda function assumes an IAM role with precise permissions to read from one DynamoDB table and write to another, preventing it from accessing or modifying any other resources.",
+                    "Regularly running IAM Access Analyzer to detect if any IAM roles or S3 bucket policies have been inadvertently configured to allow public access or cross-account access that is not explicitly approved."
+                ],
+                technicalDetails: "AWS IAM is a foundational service for security in AWS. It's crucial to understand IAM users, groups, roles, and policies, and how they interact. The principle of least privilege, temporary credentials, and automated auditing (via CloudTrail) are core IAM best practices in DevSecOps. Policy evaluation logic (explicit deny, explicit allow, implicit deny) is fundamental.",
+                tools: "AWS IAM, AWS IAM Identity Center (formerly AWS SSO), AWS STS, AWS CLI, AWS SDKs, IAM Access Analyzer, IAM Policy Simulator, AWS CloudTrail, Third-party identity providers."
+            }
+        };
+
+        let currentActiveBranch = null; // Tracks the currently active main branch
+
+        /**
+         * Toggles the visibility of sub-services (categories) within a main branch.
+         * Closes other open branches when a new one is opened.
+         * @param {string} branchId - The ID of the branch element to toggle.
+         */
+        function toggleBranch(branchId) {
+            const subServices = document.getElementById(branchId);
+            // If there's an active branch and it's not the one just clicked, close it
+            if (currentActiveBranch && currentActiveBranch !== subServices) {
+                currentActiveBranch.classList.remove('active');
+            }
+            // Toggle the 'active' class for the clicked branch's sub-services
+            subServices.classList.toggle('active');
+            // Update the currentActiveBranch variable
+            currentActiveBranch = subServices.classList.contains('active') ? subServices : null;
+        }
+
+        /**
+         * Displays the detailed information about a DevSecOps category/AWS service in a modal.
+         * @param {string} categoryId - The ID of the category to display.
+         * @param {string} initialFeatureTitle - Optional: The title of a specific feature to show initially.
+         */
+        function showCategoryDetails(categoryId, initialFeatureTitle = null) {
+            const data = devSecOpsData[categoryId];
+            if (!data) return; // Exit if category data is not found
+
+            const modalContent = document.getElementById('modalContent');
+            
+            // Store the current category and features for navigation
+            modalContent.dataset.currentCategoryId = categoryId;
+            modalContent.dataset.features = JSON.stringify(data.features.map(f => f.title));
+
+            // Generate Features HTML with feature-tag and feature-details
+            const featuresHtml = data.features.map(feature => `
+                <span class="feature-tag" onclick="toggleFeatureDetails('${categoryId}', '${feature.title}')">${feature.title}</span>
+            `).join('');
+
+            const featureDetailsHtml = data.features.map((feature, index) => {
+                const featureCleanId = feature.title.replace(/[\s\/.-]/g, ''); // Clean ID for direct access
+                const howToStepsHtml = feature.howToSteps ? `
+                    <div class="how-to-steps">
+                        <h3>💡 How-to Steps:</h3>
+                        <ol>
+                            ${feature.howToSteps.map(step => `<li>${step}</li>`).join('')}
+                        </ol>
+                    </div>
+                ` : ''; // Only render if howToSteps exist
+
+                return `
+                    <div id="feature-details-${categoryId}-${featureCleanId}" class="feature-details">
+                        <div class="sub-feature">
+                            <div class="sub-feature-title">${feature.title}</div>
+                            <div class="sub-feature-desc">${feature.desc}</div>
+                            ${feature.awsRelevance ? `<p class="feature-nav" style="margin-top:10px;"><strong>AWS Relevance:</strong> ${feature.awsRelevance}</p>` : ''}
+                        </div>
+                        ${howToStepsHtml} <!-- Include How-to Steps here -->
+                        <div class="feature-nav">
+                            <button ${index === 0 ? 'disabled' : ''} onclick="navigateFeature('${categoryId}', ${index - 1})">Previous Feature</button>
+                            <span>${index + 1} / ${data.features.length}</span>
+                            <button ${index === data.features.length - 1 ? 'disabled' : ''} onclick="navigateFeature('${categoryId}', ${index + 1})">Next Feature</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Populate the modal with category details
+            modalContent.innerHTML = `
+                <h2>${data.name}</h2>
+                <p class="category-desc">${data.purpose}</p>
+                <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                    <button class="llm-action-button" onclick="summarizeCategoryPurpose('${data.name}', '${data.purpose}', this)">Summarize Purpose ✨</button>
+                    <button class="llm-action-button" onclick="generateMoreExamples('${data.name}', \`${JSON.stringify(data.examples)}\`, this)">Suggest More Examples ✨</button>
+                    <button class="llm-action-button" onclick="explainTechnicalDetails('${data.name}', '${data.technicalDetails}', this)">Explain Technical Details ✨</button>
+                </div>
+                <div id="llm-category-output" class="llm-output-area" style="display: none;"></div>
+                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.1);">
+
+                <h3>🌟 Key Features</h3>
+                <div class="features" id="feature-tags-container">
+                    ${featuresHtml}
+                </div>
+                ${featureDetailsHtml}
+                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.1);">
+
+                <h3>🎯 Examples / Use Cases</h3>
+                <div class="scenario-box">
+                    <ul class="use-cases-list">
+                        ${data.examples.map(example => `<li>${example}</li>`).join('')}
+                    </ul>
+                </div>
+                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.1);">
+
+                <h3>💻 Technical Details</h3>
+                <div class="tech-stack-list">
+                    <p>${data.technicalDetails}</p>
+                </div>
+                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.1);">
+
+                <h3>🛠️ Common Tools</h3>
+                <div class="pricing-info-box">
+                    <p>${data.tools}</p>
+                </div>
+            `;
+            document.getElementById('categoryModal').style.display = 'block'; // Show the modal
+
+            // Automatically show the first feature details or a specified one
+            if (data.features.length > 0) {
+                const featureToShow = initialFeatureTitle || data.features[0].title;
+                toggleFeatureDetails(categoryId, featureToShow);
+            }
+        }
+
+        /**
+         * Toggles the visibility of specific feature details within the category modal.
+         * Ensures only one feature detail section is open at a time.
+         * @param {string} categoryId - The ID of the current category.
+         * @param {string} featureTitle - The title of the feature to toggle.
+         */
+        function toggleFeatureDetails(categoryId, featureTitle) {
+            // Clean ID for consistency with how it's generated
+            const featureCleanId = featureTitle.replace(/[\s\/.-]/g, '');
+            const featureId = `feature-details-${categoryId}-${featureCleanId}`;
+            const featureDetailsElement = document.getElementById(featureId);
+
+            // Get all feature tags and feature details elements within the current modal
+            const allFeatureDetailsInModal = document.querySelectorAll('#modalContent .feature-details');
+            const allFeatureTagsInModal = document.querySelectorAll('#modalContent .feature-tag');
+
+            // Deactivate all tags and hide all details initially
+            allFeatureTagsInModal.forEach(tag => tag.classList.remove('active-tag'));
+            allFeatureDetailsInModal.forEach(element => element.classList.remove('active'));
+
+            // Activate the clicked tag and show its corresponding details
+            const clickedTag = document.querySelector(`#feature-tags-container .feature-tag[onclick*="toggleFeatureDetails('${categoryId}', '${featureTitle}')"]`);
+            if (clickedTag) {
+                clickedTag.classList.add('active-tag');
+            }
+            if (featureDetailsElement) {
+                featureDetailsElement.classList.add('active');
+            }
+        }
+
+        /**
+         * Navigates to the previous or next feature within the currently open category modal.
+         * @param {string} categoryId - The ID of the current category.
+         * @param {number} newIndex - The index of the feature to navigate to.
+         */
+        function navigateFeature(categoryId, newIndex) {
+            const modalContent = document.getElementById('modalContent');
+            const features = JSON.parse(modalContent.dataset.features);
+
+            if (newIndex >= 0 && newIndex < features.length) {
+                const newFeatureTitle = features[newIndex];
+                toggleFeatureDetails(categoryId, newFeatureTitle);
+            }
+        }
+
+
+        /**
+         * Closes the category details modal.
+         */
+        function closeModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+            document.getElementById('modalContent').innerHTML = ''; // Clear modal content when closing
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('categoryModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        // LLM specific functions
+        /**
+         * Summarizes the given category purpose using the Gemini API.
+         * @param {string} categoryName - The name of the DevSecOps category.
+         * @param {string} purpose - The category purpose to summarize.
+         * @param {HTMLElement} buttonElement - The button element that triggered the call.
+         */
+        async function summarizeCategoryPurpose(categoryName, purpose, buttonElement) {
+            const prompt = `Summarize the purpose of "${categoryName}" in DevSecOps and AWS security concisely in 2-3 sentences:\n\n"${purpose}"`;
+            await callGeminiAPI(prompt, 'llm-category-output', buttonElement);
+        }
+
+        /**
+         * Generates new examples for a given DevSecOps category/AWS service using the Gemini API.
+         * @param {string} categoryName - The name of the DevSecOps category.
+         * @param {string} existingExamplesString - JSON string of existing examples.
+         * @param {HTMLElement} buttonElement - The button element that triggered the call.
+         */
+        async function generateMoreExamples(categoryName, existingExamplesString, buttonElement) {
+            const existingExamples = JSON.parse(existingExamplesString).join(', ');
+            const prompt = `Given the DevSecOps/AWS security category "${categoryName}" with existing examples: "${existingExamples}", suggest 2-3 additional distinct real-world examples or use cases in bullet point format, specifically highlighting AWS relevance if applicable.`;
+            await callGeminiAPI(prompt, 'llm-category-output', buttonElement);
+        }
+
+        /**
+         * Explains the technical details for a given DevSecOps category/AWS service using the Gemini API.
+         * @param {string} categoryName - The name of the DevSecOps category.
+         * @param {string} technicalDetails - The existing technical details.
+         * @param {HTMLElement} buttonElement - The button element that triggered the call.
+         */
+        async function explainTechnicalDetails(categoryName, technicalDetails, buttonElement) {
+            const prompt = `Elaborate on the technical details for the DevSecOps/AWS security feature "${categoryName}" based on this information: "${technicalDetails}". Explain how it fundamentally works and any relevant underlying technologies or concepts. Keep it concise (3-5 sentences), focusing on AWS where relevant.`;
+            await callGeminiAPI(prompt, 'llm-category-output', buttonElement);
+        }
+
+        /**
+         * Calls the Gemini API with a given prompt and displays the response.
+         * @param {string} prompt - The text prompt to send to the LLM.
+         * @param {string} outputElementId - The ID of the HTML element where the response should be displayed.
+         * @param {HTMLElement} buttonElement - The button element that triggered the call, to manage its state.
+         */
+        async function callGeminiAPI(prompt, outputElementId, buttonElement) {
+            const outputElement = document.getElementById(outputElementId);
+            const originalButtonText = buttonElement.innerHTML; // Store original button text
+
+            outputElement.style.display = 'block'; // Ensure output area is visible
+            outputElement.innerHTML = '<div class="loading-indicator"></div> Loading AI response...'; // Show loading
+
+            buttonElement.disabled = true; // Disable button during API call
+            buttonElement.innerHTML = `<div class="loading-indicator"></div> Thinking...`; // Change button text to show loading
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will automatically provide the API key here.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    outputElement.innerHTML = text; // Display the response
+                } else {
+                    outputElement.innerHTML = 'Error: Could not get a valid response from the AI. Unexpected structure.';
+                }
+            } catch (error) {
+                outputElement.innerHTML = `Error: Failed to connect to AI. Details: ${error.message}`;
+            } finally {
+                buttonElement.innerHTML = originalButtonText; // Restore button text
+                buttonElement.disabled = false; // Re-enable button
+            }
+        }
+
+        /**
+         * Fetches and displays the latest DevSecOps and AWS Security news using Gemini AI (simulated).
+         */
+        async function fetchDevSecOpsNews() {
+            const newsOutputElement = document.getElementById('news-list');
+            newsOutputElement.innerHTML = '<div class="loading-indicator"></div> Fetching latest DevSecOps & AWS security news via Gemini AI...';
+
+            const prompt = `Find and summarize at least 10 recent news articles (published within the last 3-6 months) related to DevSecOps and AWS Security topics (e.g., new AWS security services, secure coding best practices, cloud security posture management, incident response automation, supply chain security). For each article, provide the title, a 1-2 sentence summary, and a placeholder URL. Ensure the summaries are concise and informative.`;
+            
+            try {
+                // Simulate a call to a backend service that would perform the deep search with Gemini/Google Search.
+                const simulatedNewsResponse = await new Promise(resolve => {
+                    setTimeout(() => {
+                        // Dummy data as if returned from a Gemini-powered search backend.
+                        const articles = [
+                            { title: "AWS Security Hub Integrates New Partner Findings for Enhanced Visibility", summary: "AWS Security Hub has expanded its integrations, now accepting security findings from more third-party solutions, giving customers a more comprehensive view of their security posture.", url: "https://example.com/security-hub-integrations" },
+                            { title: "Shift-Left Security: Best Practices for SAST in CI/CD Pipelines", summary: "A new guide outlines how to effectively integrate Static Application Security Testing (SAST) early in the development lifecycle to catch vulnerabilities before deployment, with a focus on AWS CodeBuild.", url: "https://example.com/sast-ci-cd-aws" },
+                            { title: "Amazon GuardDuty Announces New Malware Protection Feature", summary: "Amazon GuardDuty has rolled out a new capability to detect malware on EC2 instances using file scanning, enhancing its continuous threat detection services.", url: "https://example.com/guardduty-malware" },
+                            { title: "Understanding and Mitigating Software Supply Chain Risks on AWS", summary: "An in-depth article explores various attack vectors in the software supply chain and how AWS services like CodeCommit, ECR, and KMS can be leveraged for stronger defenses.", url: "https://example.com/aws-supply-chain-security" },
+                            { title: "Automated Incident Response with AWS Lambda and EventBridge", summary: "Learn how organizations are building serverless automated incident response playbooks on AWS using Lambda functions triggered by CloudWatch Events and Security Hub findings.", url: "https://example.com/automated-ir-aws" },
+                            { title: "AWS re:Inforce 2024 Highlights: Key Security Announcements", summary: "A summary of the most significant security announcements and updates from AWS re:Inforce 2024, focusing on new services and features for cloud security.", url: "https://example.com/reinforce-security-recap" },
+                            { title: "Policy as Code Adoption Accelerates for Cloud Governance", summary: "The trend of defining security and compliance policies as code is gaining traction, enabling automated enforcement across AWS environments using tools like OPA and AWS Config.", url: "https://example.com/policy-as-code-governance" },
+                            { title: "Securing Container Workloads with Amazon EKS Best Practices", summary: "New security best practices and configurations for running containerized applications on Amazon EKS, covering network security, IAM roles for service accounts, and image scanning.", url: "https://example.com/eks-security-best-practices" },
+                            { title: "The Role of AI/ML in Next-Gen Cloud Threat Detection", summary: "Discusses how artificial intelligence and machine learning are being increasingly used in cloud security services, including AWS GuardDuty and Macie, to identify sophisticated threats.", url: "https://example.com/ai-ml-threat-detection" },
+                            { title: "Simplifying Compliance Audits with AWS Audit Manager Enhancements", summary: "AWS Audit Manager has received updates that further streamline the process of collecting evidence for various compliance frameworks, making audits less burdensome for AWS users.", url: "https://example.com/audit-manager-enhancements" }
+                        ];
+                        resolve({ articles });
+                    }, 1500); // Simulate 1.5 second network delay
+                });
+
+                if (simulatedNewsResponse.articles && simulatedNewsResponse.articles.length > 0) {
+                    newsOutputElement.innerHTML = simulatedNewsResponse.articles.map(article => `
+                        <li class="news-item">
+                            <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                            <p>${article.summary}</p>
+                            <p style="font-size: 0.75rem; color: #ccc;">Source: ${article.source || 'Various'} | Published: ${article.date || 'Recent'}</p>
+                        </li>
+                    `).join('');
+                } else {
+                    newsOutputElement.innerHTML = '<p>No DevSecOps & AWS security news found at this time. Please try again later.</p>';
+                }
+            } catch (error) {
+                newsOutputElement.innerHTML = `<p style="color: #ffcccc;">Error fetching news: ${error.message}. Displaying placeholder data.</p>`;
+            }
+        }
+
+        /**
+         * Performs a search using Gemini AI and displays the result in the floating search area.
+         */
+        async function performAISearch() {
+            const searchInput = document.getElementById('ai-search-input');
+            const searchOutput = document.getElementById('ai-search-output');
+            const searchButton = document.getElementById('ai-search-button');
+            const userQuery = searchInput.value.trim();
+
+            if (!userQuery) {
+                searchOutput.innerHTML = '<p style="color: #ffcccc;">Please enter a search query.</p>';
+                searchOutput.style.display = 'block';
+                return;
+            }
+
+            const prompt = `As a concise AI search assistant focused *only* on DevSecOps and AWS Security topics (e.g., SAST, DAST, secrets management, IAM, GuardDuty, Security Hub, incident response, compliance), provide a relevant and helpful answer to the following query: "${userQuery}". Keep the answer to a maximum of 3-4 sentences. If the query is outside the scope of DevSecOps or AWS Security, state that politely.`;
+            await callGeminiAPI(prompt, 'ai-search-output', searchButton);
+        }
+
+        // Draggable functionality for the floating search bar
+        let isDragging = false;
+        let offset = { x: 0, y: 0 };
+        const floatingSearchElement = document.getElementById('floatingAISearch');
+
+        floatingSearchElement.addEventListener('mousedown', (e) => {
+            // Only start dragging if the bar is not expanded or if the click is on the toggle button itself
+            if (!floatingSearchElement.classList.contains('expanded') || e.target.closest('.search-toggle-button')) {
+                isDragging = true;
+                offset = {
+                    x: e.clientX - floatingSearchElement.getBoundingClientRect().left,
+                    y: e.clientY - floatingSearchElement.getBoundingClientRect().top
+                };
+                floatingSearchElement.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            // Calculate new position
+            let newX = e.clientX - offset.x;
+            let newY = e.clientY - offset.y;
+
+            // Get viewport dimensions to constrain dragging
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            const elementWidth = floatingSearchElement.offsetWidth;
+            const elementHeight = floatingSearchElement.offsetHeight;
+
+            // Constrain newX to stay within viewport bounds
+            newX = Math.max(0, Math.min(newX, viewportWidth - elementWidth));
+            // Constrain newY to stay within viewport bounds
+            newY = Math.max(0, Math.min(newY, viewportHeight - elementHeight));
+
+            // Set position using left/top (overriding right/bottom)
+            floatingSearchElement.style.left = `${newX}px`;
+            floatingSearchElement.style.top = `${newY}px`;
+            floatingSearchElement.style.right = 'auto'; // Disable right/bottom positioning when dragging via left/top
+            floatingSearchElement.style.bottom = 'auto';
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            floatingSearchElement.style.cursor = floatingSearchElement.classList.contains('expanded') ? 'auto' : 'grab';
+        });
+
+        /**
+         * Toggles the visibility and expanded state of the floating AI search bar.
+         * Also handles dynamic positioning (left/right) based on current location.
+         */
+        function toggleFloatingSearch() {
+            const floatingSearch = document.getElementById('floatingAISearch');
+            const searchIcon = document.getElementById('searchIcon');
+
+            // Get current position before toggling the class
+            const currentLeft = floatingSearch.getBoundingClientRect().left;
+            const viewportWidth = window.innerWidth;
+
+            floatingSearch.classList.toggle('expanded');
+
+            if (floatingSearch.classList.contains('expanded')) {
+                searchIcon.textContent = '✖'; // Change icon to close
+                document.getElementById('ai-search-input').focus(); // Focus on input when expanded
+
+                // Determine whether to open to the left or right
+                if (currentLeft > (viewportWidth / 2)) {
+                    // It's on the right half, open to the left
+                    floatingSearch.style.right = '20px';
+                    floatingSearch.style.left = 'auto'; // Ensure left is auto
+                } else {
+                    // It's on the left half, open to the right
+                    floatingSearch.style.left = '20px';
+                    floatingSearch.style.right = 'auto'; // Ensure right is auto
+                }
+                // Ensure top is maintained or set if not dragged
+                if (floatingSearch.style.top === 'auto' || floatingSearch.style.top === '') {
+                    floatingSearch.style.bottom = '20px';
+                    floatingSearch.style.top = 'auto';
+                }
+
+            } else {
+                searchIcon.textContent = '✨'; // Change icon to default
+                document.getElementById('ai-search-output').style.display = 'none'; // Hide output when collapsed
+                document.getElementById('ai-search-output').innerHTML = ''; // Clear output when collapsed
+                document.getElementById('ai-search-input').value = ''; // Clear input when collapsed
+
+                // Reset position to default bottom-right on collapse
+                floatingSearch.style.right = '20px';
+                floatingSearch.style.bottom = '20px';
+                floatingSearch.style.left = 'auto';
+                floatingSearch.style.top = 'auto';
+            }
+        }
+
+        // Initialize fetching news on page load
+        document.addEventListener('DOMContentLoaded', fetchDevSecOpsNews);
+
+        // Remove onclick from central node as it does nothing in this version
+        document.querySelector('.central-node').onclick = null;
+    </script>
+</body>
+</html>
