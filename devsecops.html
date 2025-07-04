@@ -330,6 +330,45 @@
             margin-left: 20px;
             padding-left: 0;
         }
+        .troubleshooting-section {
+            background: rgba(255, 99, 71, 0.1); /* Tomato red tint for errors */
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 99, 71, 0.3);
+        }
+        .troubleshooting-section h3 {
+            color: #FF6347; /* Tomato */
+            margin-bottom: 10px;
+        }
+        .troubleshooting-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .troubleshooting-item:last-child {
+            border-bottom: none;
+        }
+        .troubleshooting-item h4 {
+            color: #FACC15; /* Yellow accent */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .troubleshooting-item p {
+            font-size: 0.9rem;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+        .troubleshooting-item ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+        .troubleshooting-item ul li {
+            margin-bottom: 3px;
+        }
+
 
         .pricing-info-box {
             background: rgba(100, 116, 139, 0.2); /* Slate color for tool list */
@@ -401,53 +440,6 @@
         }
         @-webkit-animation {
             to { -webkit-transform: rotate(360deg); }
-        }
-
-        /* News Section */
-        .news-section {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 25px;
-            color: white;
-            width: 100%;
-            margin-top: 30px;
-            border-radius: 12px;
-        }
-
-        .news-section h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #EF4444; /* Red accent for security news */
-            text-align: center;
-        }
-
-        .news-item {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .news-item:last-child {
-            border-bottom: none;
-        }
-
-        .news-item h3 {
-            font-size: 1.2rem;
-            color: #A78BFA; /* Purple accent */
-            margin-bottom: 5px;
-        }
-
-        .news-item p {
-            font-size: 0.9rem;
-            color: #e2e8f0;
-        }
-
-        .news-item a {
-            color: #FACC15; /* Yellow accent */
-            text-decoration: underline;
-            font-size: 0.85rem;
         }
 
         /* Floating Search Bar Styles - Hexagon Shape */
@@ -606,9 +598,6 @@
             }
             .floating-search-content .search-bar-container {
                 flex-direction: column;
-            }
-            .news-section {
-                padding: 15px;
             }
             .central-node {
                 font-size: 1.2rem;
@@ -856,15 +845,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- News Letter Section -->
-            <div class="news-section">
-                <h2>Recent DevSecOps & AWS Security News</h2>
-                <ul id="news-list" style="list-style: none; padding: 0;">
-                    <!-- News items will be loaded here by JavaScript -->
-                    <li><div class="loading-indicator"></div> Loading latest DevSecOps & AWS security news...</li>
-                </ul>
-            </div>
         </div>
     </div>
 
@@ -912,7 +892,25 @@
                     "An architect designing a multi-tenant SaaS application uses threat modeling to ensure tenant data isolation, secure inter-tenant communication, and prevent privilege escalation across tenants."
                 ],
                 technicalDetails: "Threat modeling can be done manually or with the aid of specialized tools. Methodologies like STRIDE, DREAD, PASTA, and OWASP Top 10 are commonly used. In an AWS context, it involves considering the security of AWS services themselves, IAM policies, network configurations (VPCs, Security Groups), data encryption, and logging mechanisms from a threat perspective.",
-                tools: "Microsoft Threat Modeling Tool, OWASP Threat Dragon, IriusRisk, Lucidchart (for DFDs), AWS Well-Architected Framework (Security Pillar)."
+                tools: "Microsoft Threat Modeling Tool, OWASP Threat Dragon, IriusRisk, Lucidchart (for DFDs), AWS Well-Architected Framework (Security Pillar).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Incomplete Threat Identification",
+                        solution: "Ensure all system components, data flows, and trust boundaries are accurately mapped. Use a structured approach like STRIDE or PASTA. Involve diverse team members (dev, ops, security) for broader perspective. Revisit the model periodically.",
+                        parameters: [
+                            { name: "STRIDE", purpose: "Threat categorization framework", values: "Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege" },
+                            { name: "DFD (Data Flow Diagram)", purpose: "Visualizing data movement", values: "External Entities, Processes, Data Stores, Data Flows" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Overlooking AWS-specific Threats",
+                        solution: "Focus on misconfigurations specific to AWS services. Review IAM policies for least privilege, S3 bucket policies for public access, security group rules for excessive openness, and default encryption settings. Leverage AWS Well-Architected Framework security pillar.",
+                        parameters: [
+                            { name: "IAM Policy", purpose: "Permissions for users/roles", values: "`Effect: Allow|Deny`, `Action: s3:*`, `Resource: *` (too broad)" },
+                            { name: "Security Group", purpose: "Virtual firewall for instances", values: "`Inbound/Outbound Rules`: `Port: 22`, `Source: 0.0.0.0/0` (open to public)" }
+                        ]
+                    }
+                ]
             },
             'security-requirements': {
                 name: "Security Requirements",
@@ -932,7 +930,24 @@
                     "Requirement: 'All access to production AWS environments must be via IAM roles with temporary credentials, and all actions must be logged in AWS CloudTrail and sent to a centralized S3 bucket for auditing.'"
                 ],
                 technicalDetails: "Security requirements are derived from threat modeling, risk assessments, and compliance obligations. They should be clear, unambiguous, measurable, and testable. They form the basis for security test cases and influence architectural decisions and coding practices. AWS Well-Architected Framework's Security Pillar provides guidance on operational security, identity, detection, infrastructure protection, and data protection.",
-                tools: "Jira (for tracking), Confluence (for documentation), Regulatory standards (NIST, ISO 27001), AWS Well-Architected Framework."
+                tools: "Jira (for tracking), Confluence (for documentation), Regulatory standards (NIST, ISO 27001), AWS Well-Architected Framework.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Ambiguous or Untestable Requirements",
+                        solution: "Ensure requirements are SMART (Specific, Measurable, Achievable, Relevant, Time-bound). Translate high-level policies into concrete, testable statements. Example: 'Data must be secure' -> 'All customer PII in S3 must be encrypted using AES-256 with KMS CMKs.'",
+                        parameters: [
+                            { name: "Testability", purpose: "Ability to verify requirement fulfillment", values: "Boolean (Yes/No), Measurable metrics (e.g., '99.9% uptime')" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Misalignment with Compliance Frameworks",
+                        solution: "Map each security requirement directly to specific controls in relevant compliance frameworks (e.g., GDPR Article 32, HIPAA § 164.312). Use compliance matrices to track coverage and gaps. Leverage AWS Audit Manager for evidence collection.",
+                        parameters: [
+                            { name: "Compliance Standard", purpose: "Regulatory or industry framework", values: "GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001" },
+                            { name: "Control ID", purpose: "Specific control within a framework", values: "e.g., PCI DSS 3.2.1" }
+                        ]
+                    }
+                ]
             },
             'architecture-review': {
                 name: "Secure Architecture Review",
@@ -952,7 +967,24 @@
                     "Assessing the disaster recovery plan for a critical application to ensure that recovery point objectives (RPO) and recovery time objectives (RTO) align with business continuity requirements, including security considerations during recovery."
                 ],
                 technicalDetails: "Secure architecture reviews are typically performed by security architects or senior security engineers. They require deep understanding of system architecture, cloud security patterns, common vulnerabilities, and compliance requirements. AWS provides the Well-Architected Framework's Security Pillar and various security services (IAM, VPC, GuardDuty, Security Hub, Config) that are essential considerations during such reviews.",
-                tools: "AWS Well-Architected Framework, OWASP Application Security Verification Standard (ASVS), Security Design Patterns, Architectural Diagrams (e.g., Lucidchart, Draw.io), AWS Solution Architectures."
+                tools: "AWS Well-Architected Framework, OWASP Application Security Verification Standard (ASVS), Security Design Patterns, Architectural Diagrams (e.g., Lucidchart, Draw.io), AWS Solution Architectures.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Overly Permissive IAM Roles in Design",
+                        solution: "Ensure IAM roles and policies adhere to the principle of least privilege. Review `Action: '*'` and `Resource: '*'` statements. Use IAM Access Analyzer and Policy Simulator during design to identify and rectify overly broad permissions.",
+                        parameters: [
+                            { name: "IAM Policy Statements", purpose: "Define permissions", values: "`Effect`: `Allow`|`Deny`, `Action`: Specific API calls (e.g., `s3:GetObject`), `Resource`: ARN of specific resource (e.g., `arn:aws:s3:::my-bucket/*`)" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Insecure Network Configuration (e.g., Security Groups)",
+                        solution: "Verify Security Group and Network ACL rules. Avoid `0.0.0.0/0` for critical ports (e.g., 22, 3389, database ports). Implement strict ingress/egress rules. Use VPC Flow Logs to monitor traffic patterns.",
+                        parameters: [
+                            { name: "Security Group Rule", purpose: "Network access control", values: "`Type`: `Custom TCP Rule`, `Port Range`: `22`, `Source`: `0.0.0.0/0` (all traffic)" },
+                            { name: "VPC Flow Logs", purpose: "Captures IP traffic", values: "`LogDestinationType`: `s3`|`cloud-watch-logs`, `TrafficType`: `ACCEPT`|`REJECT`|`ALL`" }
+                        ]
+                    }
+                ]
             },
             'compliance-by-design': {
                 name: "Compliance by Design",
@@ -971,7 +1003,25 @@
                     "Using AWS Config Conformance Packs to automatically deploy a set of AWS Config rules that enforce adherence to the CIS AWS Foundations Benchmark across all development and production accounts, ensuring a secure baseline."
                 ],
                 technicalDetails: "Compliance by Design requires a shift in mindset to treat compliance as a design principle. It leverages cloud-native services for security (IAM, KMS, VPC, S3 security features) and governance (Config, CloudTrail, Security Hub, Audit Manager) to automate controls and evidence collection. It often overlaps with DevSecOps practices like Policy as Code and Secure IaC.",
-                tools: "AWS Config, AWS CloudTrail, AWS Security Hub, AWS Audit Manager, AWS KMS, AWS IAM, Open Policy Agent (OPA), Privacy by Design principles."
+                tools: "AWS Config, AWS CloudTrail, AWS Security Hub, AWS Audit Manager, AWS KMS, AWS IAM, Open Policy Agent (OPA), Privacy by Design principles.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: False Negatives in Automated Compliance Checks",
+                        solution: "Regularly review and update compliance rules (AWS Config Rules, OPA policies) to cover new services or configurations. Combine automated checks with periodic manual audits and penetration testing to catch gaps.",
+                        parameters: [
+                            { name: "AWS Config Rule", purpose: "Evaluates AWS resource configurations", values: "`SourceIdentifier`: `S3_BUCKET_PUBLIC_READ_PROHIBITED`, `Scope`: `Resources`" },
+                            { name: "OPA Policy", purpose: "Declarative policy for various systems", values: "Rego language, e.g., `deny { input.resource.public == true }`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Data Residency Violations",
+                        solution: "Strictly enforce regional deployment for data processing and storage services (e.g., S3 buckets, RDS instances). Use AWS Organization Service Control Policies (SCPs) to restrict allowed regions for certain accounts.",
+                        parameters: [
+                            { name: "AWS Region", purpose: "Geographic area for AWS services", values: "`us-east-1`, `eu-central-1`" },
+                            { name: "Service Control Policy (SCP)", purpose: "Controls permissions in AWS Organizations", values: "`Deny` on `ec2:RunInstances` if `aws:RequestedRegion` is not in allowed list" }
+                        ]
+                    }
+                ]
             },
             'secure-coding': {
                 name: "Secure Coding Practices",
@@ -991,7 +1041,25 @@
                     "Implementing `helmet.js` in a Node.js Express application to automatically set various HTTP headers that enhance security, such as X-Content-Type-Options, X-Frame-Options, and Strict-Transport-Security."
                 ],
                 technicalDetails: "Secure coding relies on adherence to secure development guidelines (e.g., OWASP Secure Coding Practices, CERT Secure Coding Standards), regular training for developers, and integration with static analysis tools. In AWS, leveraging AWS SDKs for secure interactions, using IAM roles for least privilege, and utilizing services like AWS Secrets Manager for credential management are key.",
-                tools: "OWASP Secure Coding Practices, CERT Secure Coding Standards, OWASP Top 10, Code analysis tools (SAST, SCA), AWS IAM, AWS Secrets Manager, Application frameworks (Spring Security, Django, Rails security features)."
+                tools: "OWASP Secure Coding Practices, CERT Secure Coding Standards, OWASP Top 10, Code analysis tools (SAST, SCA), AWS IAM, AWS Secrets Manager, Application frameworks (Spring Security, Django, Rails security features).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: SQL Injection Vulnerabilities",
+                        solution: "Always use parameterized queries or Prepared Statements. Never concatenate user input directly into SQL queries. Utilize ORM frameworks that handle this automatically. Implement strict input validation.",
+                        parameters: [
+                            { name: "SQL Query", purpose: "Database command", values: "`SELECT * FROM users WHERE name = 'user'` (vulnerable), `SELECT * FROM users WHERE name = ?` (safe)" },
+                            { name: "Input Validation", purpose: "Checking input data", values: "Data type, length, allowed characters (e.g., regex), whitelist" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Hardcoded Secrets in Code",
+                        solution: "Never hardcode credentials or sensitive data. Use AWS Secrets Manager or Systems Manager Parameter Store. Retrieve secrets at runtime via SDKs or environment variables. Integrate secrets management into CI/CD.",
+                        parameters: [
+                            { name: "AWS Secrets Manager", purpose: "Securely stores secrets", values: "`GetSecretValue` API call, Secret ARN" },
+                            { name: "Environment Variables", purpose: "Runtime configuration", values: "`DB_PASSWORD`, `API_KEY` (should be injected, not hardcoded)" }
+                        ]
+                    }
+                ]
             },
             'sast': {
                 name: "Static Application Security Testing (SAST)",
@@ -1018,7 +1086,25 @@
                     "Using GitHub Actions to run a Snyk Code scan on every push to a frontend JavaScript repository, identifying XSS vulnerabilities and insecure API calls in the React components."
                 ],
                 technicalDetails: "SAST tools analyze source code by building abstract syntax trees (ASTs) and performing control flow and data flow analysis to identify predefined patterns of vulnerabilities. They can generate false positives, requiring tuning and human review. AWS CodeGuru Security uses machine learning and automated reasoning to identify common security flaws in Java and Python code.",
-                tools: "AWS CodeGuru Security, SonarQube, Checkmarx CxSAST, Fortify Static Code Analyzer (SCA), Veracode Static Analysis, GitLab SAST, Snyk Code, Bandit (Python), ESLint (JavaScript with security plugins)."
+                tools: "AWS CodeGuru Security, SonarQube, Checkmarx CxSAST, Fortify Static Code Analyzer (SCA), Veracode Static Analysis, GitLab SAST, Snyk Code, Bandit (Python), ESLint (JavaScript with security plugins).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: High False Positive Rates",
+                        solution: "Tune SAST tool rulesets to be more context-aware. Prioritize critical and high-severity findings. Integrate SAST early in development so developers can fix issues quickly, reducing technical debt. Supplement with manual code reviews.",
+                        parameters: [
+                            { name: "Rule Severity", purpose: "Impact of vulnerability", values: "Critical, High, Medium, Low, Informational" },
+                            { name: "Custom Rules", purpose: "Specific patterns for your codebase", values: "Regex, Abstract Syntax Tree (AST) patterns" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Integration with CI/CD Failures",
+                        solution: "Verify SAST tool's integration with your CI/CD platform (e.g., CodeBuild `buildspec.yml`, Jenkinsfile). Ensure correct API keys/tokens and proper environmental variables are set. Check build logs for SAST specific errors. Ensure sufficient build agent resources.",
+                        parameters: [
+                            { name: "API Key/Token", purpose: "Authentication for SAST tool", values: "Sensitive string, usually managed by secrets manager" },
+                            { name: "Build Environment", purpose: "Software/dependencies for SAST scan", values: "Language version, specific libraries, memory/CPU allocation" }
+                        ]
+                    }
+                ]
             },
             'sca': {
                 name: "Software Composition Analysis (SCA)",
@@ -1038,7 +1124,25 @@
                     "A container image scanned by Amazon ECR identifies an operating system vulnerability in a base layer, prompting the team to rebuild the image with a patched base."
                 ],
                 technicalDetails: "SCA tools work by parsing package manager files (e.g., `package.json`, `pom.xml`, `requirements.txt`), locking files (`yarn.lock`, `package-lock.json`), or by binary scanning compiled artifacts. They maintain large databases of known open-source vulnerabilities. AWS does not have a direct SCA service but Amazon Inspector for EC2 and ECR provides vulnerability scanning that can cover OS and some application component vulnerabilities.",
-                tools: "Snyk, Dependabot (GitHub Native), OWASP Dependency-Check, WhiteSource, Black Duck by Synopsys, Sonatype Nexus Lifecycle, Mend (formerly WhiteSource), Amazon Inspector (for container image OS vulnerabilities)."
+                tools: "Snyk, Dependabot (GitHub Native), OWASP Dependency-Check, WhiteSource, Black Duck by Synopsys, Sonatype Nexus Lifecycle, Mend (formerly WhiteSource), Amazon Inspector (for container image OS vulnerabilities).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Missing or Incomplete Dependency Detection",
+                        solution: "Ensure SCA tool is configured to scan all relevant dependency files (e.g., `package.json`, `pom.xml`, `requirements.txt`, `Dockerfile`). Verify build process doesn't exclude specific components. Some tools require a 'build' step to fully resolve transitive dependencies.",
+                        parameters: [
+                            { name: "Scan Scope", purpose: "Files/directories to analyze", values: "Root directory, specific dependency manifest files" },
+                            { name: "Transitive Dependencies", purpose: "Dependencies of dependencies", values: "Recursive analysis (often automatically included)" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Outdated Vulnerability Databases",
+                        solution: "Verify that the SCA tool's vulnerability database is regularly updated. For self-hosted tools, ensure connectivity to external vulnerability feeds. Configure scheduled scans to pick up new CVEs on existing components.",
+                        parameters: [
+                            { name: "Vulnerability Database Sync", purpose: "Frequency of database updates", values: "Daily, Hourly, On-demand" },
+                            { name: "CVE ID", purpose: "Common Vulnerabilities and Exposures identifier", values: "e.g., `CVE-2021-44228` (Log4Shell)" }
+                        ]
+                    }
+                ]
             },
             'ide-security': {
                 name: "IDE Security Integrations",
@@ -1058,7 +1162,25 @@
                     "The AWS Toolkit for VS Code helps developers easily retrieve secrets from AWS Secrets Manager for local testing, reinforcing the practice of not storing secrets in code."
                 ],
                 technicalDetails: "IDE security integrations typically involve plugins or extensions that run lightweight static analysis engines locally. They leverage vulnerability databases for dependencies and pattern matching for secure coding practices and secrets. While not AWS services themselves, they are crucial for shifting security left in a DevSecOps context. AWS CodeGuru Security's findings can be viewed in some IDEs through integrations.",
-                tools: "Snyk IDE Plugins (VS Code, IntelliJ), SonarLint (IDE companion to SonarQube), GitGuardian, TruffleHog (for secrets), AWS Toolkit (for AWS service interaction), Bandit (Python linter)."
+                tools: "Snyk IDE Plugins (VS Code, IntelliJ), SonarLint (IDE companion to SonarQube), GitGuardian, TruffleHog (for secrets), AWS Toolkit (for AWS service interaction), Bandit (Python linter).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: IDE Plugin Not Functioning/Scanning",
+                        solution: "Check if the plugin is correctly installed and enabled in the IDE's extensions/plugins settings. Ensure the IDE has the necessary permissions (e.g., network access). Restart the IDE. Verify project configuration files (e.g., `.snyk`) are correct.",
+                        parameters: [
+                            { name: "Plugin Version", purpose: "Compatibility with IDE", values: "Specific version numbers (e.g., `Snyk v1.2.3`)" },
+                            { name: "IDE Settings", purpose: "Configuration for plugin behavior", values: "API token, scan triggers (on save, on type)" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Overwhelming or Irrelevant Alerts",
+                        solution: "Configure the plugin's severity filters to show only critical/high findings initially. Disable specific rules that are not relevant to your project. Use a `.gitignore`-like file to exclude non-code files from scanning. Provide developer training on triaging alerts.",
+                        parameters: [
+                            { name: "Severity Filter", purpose: "Minimum alert level to display", values: "High, Medium, Low, Info" },
+                            { name: "Exclusion Paths", purpose: "Files/directories to ignore", values: "`node_modules/`, `test/`, `dist/`" }
+                        ]
+                    }
+                ]
             },
             'secrets-management': {
                 name: "Secrets Management",
@@ -1078,7 +1200,26 @@
                     "A CI/CD pipeline (e.g., AWS CodePipeline) securely fetches temporary credentials from AWS Secrets Manager to perform deployments, rather than using long-lived access keys."
                 ],
                 technicalDetails: "Secrets management solutions leverage cryptographic services (e.g., AWS KMS) for encryption. They often use IAM roles (for AWS services) or identity-based authentication (for human users) to control access. Dynamic secrets and automated rotation often involve a Lambda function or a custom script interacting with both the secret manager and the target service (e.g., RDS, Redshift). AWS Secrets Manager and Systems Manager Parameter Store are key AWS services.",
-                tools: "AWS Secrets Manager, AWS Systems Manager Parameter Store (for non-secret configurations), HashiCorp Vault, CyberArk Conjur, Doppler, Kubernetes Secrets (with external secret stores), GitGuardian (for detecting leaked secrets)."
+                tools: "AWS Secrets Manager, AWS Systems Manager Parameter Store (for non-secret configurations), HashiCorp Vault, CyberArk Conjur, Doppler, Kubernetes Secrets (with external secret stores), GitGuardian (for detecting leaked secrets).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Application Fails to Retrieve Secrets (Permission Denied)",
+                        solution: "Verify the IAM role attached to the application/service has `secretsmanager:GetSecretValue` permission for the specific secret ARN. Check KMS key policy if CMK is used, ensuring the IAM role is allowed to `kms:Decrypt`. Test with IAM Policy Simulator.",
+                        parameters: [
+                            { name: "IAM Action", purpose: "Specific permission for Secrets Manager", values: "`secretsmanager:GetSecretValue`" },
+                            { name: "Resource ARN", purpose: "Unique identifier for the secret", values: "`arn:aws:secretsmanager:REGION:ACCOUNT_ID:secret:SECRET_NAME`" },
+                            { name: "KMS Action", purpose: "Specific permission for KMS key", values: "`kms:Decrypt`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Automated Secret Rotation Failure",
+                        solution: "Check the rotation Lambda function logs for errors. Ensure the Lambda function's IAM role has permissions to rotate the secret and interact with the target database/service. Verify network connectivity between Lambda and the database. Test rotation manually if possible.",
+                        parameters: [
+                            { name: "Lambda Execution Role", purpose: "Permissions for the rotation function", values: "`secretsmanager:RotateSecret`, `rds:RotateDBCluster/InstancePassword`" },
+                            { name: "Rotation Interval", purpose: "Frequency of secret rotation", values: "e.g., `30d` (30 days)" }
+                        ]
+                    }
+                ]
             },
             'secure-build-pipelines': {
                 name: "Secure Build Pipelines",
@@ -1098,7 +1239,25 @@
                     "Using AWS Systems Manager Parameter Store to inject non-secret configuration values into the build environment, and AWS Secrets Manager for sensitive credentials, ensuring they are never stored in plain text."
                 ],
                 technicalDetails: "Secure build pipelines leverage automation, least privilege, and integration of security tools. CI/CD platforms provide mechanisms for defining build environments and steps. AWS CodeBuild allows fine-grained control over build environments, network access, and IAM roles, making it suitable for secure builds. Concepts like 'build reproducible' and 'binary provenance' are becoming increasingly important for supply chain security.",
-                tools: "AWS CodeBuild (with IAM, VPC integration), Amazon ECR (Image Scanning), AWS Secrets Manager, AWS Systems Manager Parameter Store, SAST tools, SCA tools, Notary, TUF (The Update Framework)."
+                tools: "AWS CodeBuild (with IAM, VPC integration), Amazon ECR (Image Scanning), AWS Secrets Manager, AWS Systems Manager Parameter Store, SAST tools, SCA tools, Notary, TUF (The Update Framework).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Build Failure Due to Security Gate (SAST/SCA)",
+                        solution: "Review the SAST/SCA scan report linked in the build logs. Identify the specific vulnerability that triggered the failure. Remediate the code or update the vulnerable dependency. Configure appropriate 'fail on severity' thresholds in your security tool.",
+                        parameters: [
+                            { name: "Severity Threshold", purpose: "Minimum severity to fail build", values: "`CRITICAL`, `HIGH`" },
+                            { name: "Vulnerability ID", purpose: "Unique identifier for detected flaw", values: "e.g., `CWE-89` (SQL Injection), `CVE-XXXX-YYYY`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Compromised Build Agent",
+                        solution: "Ensure build agents are ephemeral and provisioned for each build. Use least privilege IAM roles for build agents. Implement network segmentation for build environments (e.g., isolated VPC subnets). Regularly scan build agent images for vulnerabilities.",
+                        parameters: [
+                            { name: "Agent IAM Role", purpose: "Permissions for build agent", values: "Minimal required permissions, no `*` on `Resource`" },
+                            { name: "VPC Configuration", purpose: "Network isolation", values: "`Subnet ID`, `Security Group ID`" }
+                        ]
+                    }
+                ]
             },
             'image-scanning': {
                 name: "Container Image Scanning",
@@ -1126,7 +1285,25 @@
                     "During development, a developer pushes an image to a private Docker registry. The registry's built-in scanning detects an outdated library with a critical vulnerability, and the CI tool prevents the next deployment stage until the image is fixed."
                 ],
                 technicalDetails: "Container image scanning tools parse container image manifests and layer contents, identifying installed packages and software. They query vulnerability databases (e.g., NVD, proprietary databases) for matches. Amazon ECR Enhanced Scanning leverages Amazon Inspector for more comprehensive vulnerability management. It's a critical component of container security and supply chain security.",
-                tools: "Amazon ECR (Enhanced Scanning via Amazon Inspector), Clair, Trivy, Anchore, Docker Scout, Snyk Container, Twistlock (Palo Alto Networks), Aqua Security, GitLab Container Scanning."
+                tools: "Amazon ECR (Enhanced Scanning via Amazon Inspector), Clair, Trivy, Anchore, Docker Scout, Snyk Container, Twistlock (Palo Alto Networks), Aqua Security, GitLab Container Scanning.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: High Number of Vulnerabilities in Image",
+                        solution: "Prioritize fixing critical and high-severity CVEs first. Update base images regularly (e.g., to latest Amazon Linux AMI, Alpine). Minimize layers in Dockerfiles. Remove unnecessary software packages. For application dependencies, use SCA tools to find and update vulnerable libraries.",
+                        parameters: [
+                            { name: "Base Image", purpose: "Foundation of Docker image", values: "`ubuntu:latest`, `amazonlinux:2`, `node:18-alpine`" },
+                            { name: "Dockerfile Layers", purpose: "Instructions in Dockerfile", values: "Each `RUN`, `COPY`, `ADD` command creates a layer" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: ECR Image Scan Not Triggering/Completing",
+                        solution: "Ensure Enhanced Scanning is enabled for the specific ECR repository. Check IAM permissions for the principal pushing the image to ECR, ensuring it has `ecr:StartImageScan`. Monitor CloudWatch Logs for any ECR scan errors.",
+                        parameters: [
+                            { name: "Scan Configuration", purpose: "Settings for ECR scanning", values: "`Enhanced scanning`, `Basic scanning`" },
+                            { name: "ECR Push Permissions", purpose: "IAM permissions for pushing images", values: "`ecr:BatchCheckLayerAvailability`, `ecr:PutImage`, `ecr:UploadLayerPart`" }
+                        ]
+                    }
+                ]
             },
             'supply-chain-security': {
                 name: "Software Supply Chain Security",
@@ -1146,7 +1323,25 @@
                     "Adopting a 'zero trust' approach to CI/CD, where every step in the pipeline requires explicit authorization and verification, regardless of its location."
                 ],
                 technicalDetails: "Software supply chain security is a multi-faceted problem addressing threats like dependency confusion, typosquatting, credential stuffing, and compromised build systems. Technologies like SBOM (Software Bill of Materials), SLSA (Supply-chain Levels for Software Artifacts), and cryptographic signing (e.g., Sigstore, Notary) are emerging standards. AWS services like CodeCommit, CodeBuild, ECR, KMS, IAM, and Security Hub are crucial building blocks.",
-                tools: "Snyk, Black Duck, Notary, Sigstore/Cosign, AWS CodeCommit, AWS CodeBuild, Amazon ECR, AWS KMS, GitLab CI/CD, GitHub Actions, Dependabot."
+                tools: "Snyk, Black Duck, Notary, Sigstore/Cosign, AWS CodeCommit, AWS CodeBuild, Amazon ECR, AWS KMS, GitLab CI/CD, GitHub Actions, Dependabot.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Untrusted Dependencies Introduced",
+                        solution: "Implement SCA tools in CI/CD to scan all dependencies for known vulnerabilities. Use trusted private package registries. Enforce dependency signing/checksum verification. Educate developers on 'typosquatting' and 'dependency confusion' risks.",
+                        parameters: [
+                            { name: "Package Registry", purpose: "Source of dependencies", values: "NPM Public Registry, Artifactory (private), Nexus (private)" },
+                            { name: "Checksum Verification", purpose: "Ensures integrity of downloaded files", values: "SHA256 hash comparison" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Compromised CI/CD Pipeline/Build Server",
+                        solution: "Isolate CI/CD environments with strong network segmentation. Implement least privilege for CI/CD tools' access to other resources. Enable auditing on CI/CD logs. Use immutable infrastructure for build agents. Rotate CI/CD credentials frequently.",
+                        parameters: [
+                            { name: "CI/CD IAM Role", purpose: "Permissions of CI/CD pipeline", values: "Highly restricted, time-bound, least privilege" },
+                            { name: "Audit Logging", purpose: "Records activity for review", values: "CloudTrail, Jenkins audit logs, GitLab audit events" }
+                        ]
+                    }
+                ]
             },
             'dast': {
                 name: "Dynamic Application Security Testing (DAST)",
@@ -1165,7 +1360,25 @@
                     "Using PortSwigger Burp Suite's automated scanner to discover vulnerabilities on a public-facing web portal after a major feature release."
                 ],
                 technicalDetails: "DAST tools perform HTTP/HTTPS requests to probe the application and analyze responses for security indicators. They often use fuzzing, crawling, and attack vector generation techniques. DAST complements SAST by finding different classes of vulnerabilities, especially runtime issues and configuration problems. It requires a deployed, running instance of the application. AWS doesn't have a direct DAST service but AWS WAF (Web Application Firewall) can protect against some web exploits that DAST tools test for.",
-                tools: "OWASP ZAP, Burp Suite Professional (Scanner), Acunetix, IBM AppScan, Qualys Web Application Scanning, Rapid7 InsightAppSec, Detectify."
+                tools: "OWASP ZAP, Burp Suite Professional (Scanner), Acunetix, IBM AppScan, Qualys Web Application Scanning, Rapid7 InsightAppSec, Detectify.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Limited Scan Coverage (DAST Misses Vulnerabilities)",
+                        solution: "Ensure the DAST scanner can fully crawl the application, including authenticated areas. Provide authenticated login credentials to the scanner. Configure dynamic URL parsing if JavaScript is heavily used. Supplement DAST with IAST or manual pen-testing.",
+                        parameters: [
+                            { name: "Authentication Method", purpose: "How scanner logs in", values: "Form-based, Header-based, OAuth, Session cookies" },
+                            { name: "Crawling Depth", purpose: "How deep scanner explores links", values: "Number of clicks, time limit" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: False Positives/Noise in DAST Reports",
+                        solution: "Tune the DAST scanner's rulesets to be specific to your application's technologies. Manually verify critical findings. Understand the difference between informational findings and exploitable vulnerabilities. Integrate with WAF to block common attacks at the edge, reducing DAST noise.",
+                        parameters: [
+                            { name: "Scan Policy", purpose: "Rulesets enabled for scan", values: "OWASP Top 10, PCI DSS, SQL Injection focus" },
+                            { name: "Exclusion Rules", purpose: "URLs or parameters to ignore", values: "Logout endpoints, static assets" }
+                        ]
+                    }
+                ]
             },
             'iast': {
                 name: "Interactive Application Security Testing (IAST)",
@@ -1183,7 +1396,25 @@
                     "Using HCL AppScan on a web application. The IAST component monitors internal application behavior while a DAST component performs external scans, providing a combined, highly accurate vulnerability report."
                 ],
                 technicalDetails: "IAST tools inject bytecode/runtime agents into the application server. They monitor HTTP traffic, API calls, database queries, and system calls. They combine elements of both static (code analysis) and dynamic (runtime observation) techniques. While AWS doesn't have a direct IAST service, applications running on EC2, ECS, or EKS can be instrumented with third-party IAST agents.",
-                tools: "Contrast Security, HCL AppScan, Veracode IAST, Checkmarx CxIAST, Rapid7 InsightAppSec (with IAST capabilities), Synopsys SeekOut (formerly Black Duck IAST)."
+                tools: "Contrast Security, HCL AppScan, Veracode IAST, Checkmarx CxIAST, Rapid7 InsightAppSec (with IAST capabilities), Synopsys SeekOut (formerly Black Duck IAST).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: IAST Agent Not Instrumenting Application",
+                        solution: "Verify the IAST agent is correctly configured for your application's runtime (JVM arguments, Node.js preload, etc.). Ensure agent files are accessible and permissions are correct. Check application startup logs for IAST-related errors. Verify network connectivity to the IAST server/dashboard.",
+                        parameters: [
+                            { name: "Agent Configuration", purpose: "Settings for IAST agent", values: "JVM options (`-javaagent`), environment variables (`NODE_OPTIONS`)" },
+                            { name: "Runtime Version", purpose: "Compatibility with agent", values: "Java version, Node.js version, .NET Core version" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Performance Overhead from IAST",
+                        solution: "Monitor application performance metrics (CPU, memory, latency) with IAST enabled. Consider optimizing IAST configuration to reduce overhead (e.g., exclude non-critical modules from instrumentation). Run IAST primarily in non-production environments to avoid production impact. Evaluate a different IAST vendor if issues persist.",
+                        parameters: [
+                            { name: "Instrumentation Scope", purpose: "Parts of code to monitor", values: "Full application, specific modules/packages" },
+                            { name: "Performance Metrics", purpose: "Indicators of system load", values: "CPU Utilization, Memory Usage, Request Latency" }
+                        ]
+                    }
+                ]
             },
             'penetration-testing': {
                 name: "Penetration Testing",
@@ -1203,7 +1434,25 @@
                     "Performing a mobile application penetration test to identify vulnerabilities related to insecure data storage on the device, insecure communication with backend APIs, and reverse engineering challenges."
                 ],
                 technicalDetails: "Penetration testing involves reconnaissance, scanning, vulnerability analysis, exploitation, and post-exploitation. It can be black-box (no prior knowledge), white-box (full knowledge of system), or gray-box (partial knowledge). Ethical hacking tools (e.g., Burp Suite, Metasploit, Nmap) are used. AWS customers must get explicit permission from AWS before conducting penetration tests against their AWS infrastructure (unless using services like AWS Inspector which are designed for this purpose).",
-                tools: "Burp Suite Pro, Metasploit, Nmap, Nessus, Aircrack-ng, Wireshark, Manual testing, AWS offers specific guidelines for permitted penetration testing activities."
+                tools: "Burp Suite Pro, Metasploit, Nmap, Nessus, Aircrack-ng, Wireshark, Manual testing, AWS offers specific guidelines for permitted penetration testing activities.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Pentest Blocked by WAF/IPS",
+                        solution: "Coordinate with the security team to temporarily whitelist the penetration tester's IP addresses or adjust WAF/IPS rules during the test. Ensure the WAF is in 'logging' or 'detection' mode, not 'blocking' mode, to allow testers to proceed.",
+                        parameters: [
+                            { name: "Whitelisted IP", purpose: "IP address allowed to bypass security rules", values: "Specific IP or CIDR range (e.g., `192.0.2.1/32`)" },
+                            { name: "WAF Rule Action", purpose: "What WAF does with traffic", values: "`BLOCK`, `ALLOW`, `COUNT`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Scope Creep During Pentest",
+                        solution: "Define a very clear scope (IP ranges, URLs, applications, AWS accounts) in the Statement of Work (SOW) before testing begins. Any out-of-scope findings should be reported but not actively exploited without explicit approval and scope amendment. Use AWS account IDs or specific resource ARNs for precise scoping.",
+                        parameters: [
+                            { name: "Test Scope", purpose: "Boundaries of the test", values: "IP addresses, DNS names, AWS Account IDs, Application URLs" },
+                            { name: "Authorization Letter", purpose: "Formal permission for testing", values: "Signed document specifying scope, dates, and contacts" }
+                        ]
+                    }
+                ]
             },
             'fuzz-testing': {
                 name: "Fuzz Testing",
@@ -1223,7 +1472,25 @@
                     "AWS Device Farm offers built-in 'fuzz testing' for mobile applications, generating random user inputs to find crashes or issues on real devices."
                 ],
                 technicalDetails: "Fuzzing techniques vary from dumb (random) fuzzing to smart (protocol-aware, grammar-based) and coverage-guided fuzzing. It's effective at finding obscure bugs and vulnerabilities that might be missed by other testing methods. Integration with CI/CD involves running fuzzers against newly built components. AWS doesn't have a direct fuzzing service for applications but provides compute resources (EC2, Lambda, CodeBuild) to run open-source or commercial fuzzers.",
-                tools: "American Fuzzy Lop (AFL), LibFuzzer, Peach Fuzzer, OWASP ZAP (Fuzzing features), Boofuzz, OpenAPI Fuzzer, AWS Device Farm (for mobile app fuzzing)."
+                tools: "American Fuzzy Lop (AFL), LibFuzzer, Peach Fuzzer, OWASP ZAP (Fuzzing features), Boofuzz, OpenAPI Fuzzer, AWS Device Farm (for mobile app fuzzing).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Fuzzer Not Finding Bugs (Low Effectiveness)",
+                        solution: "Ensure the fuzzer is 'smart' enough for the target (e.g., protocol-aware fuzzing for APIs). Increase fuzzing duration and computational resources. Implement coverage-guided fuzzing to explore more code paths. Provide good 'seed' inputs to the fuzzer.",
+                        parameters: [
+                            { name: "Fuzzing Strategy", purpose: "How inputs are generated", values: "Random, Mutation-based, Grammar-based, Coverage-guided" },
+                            { name: "Test Duration", purpose: "Length of fuzzing session", values: "Hours, Days, Weeks" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Fuzzing Performance Impact on Target System",
+                        solution: "Run fuzzing in isolated, non-production environments. Implement rate limiting on the fuzzer or the target application's entry points. Scale up the target system's resources (e.g., EC2 instance type) during fuzzing. Use dedicated test instances.",
+                        parameters: [
+                            { name: "Target Environment", purpose: "Where the application under test runs", values: "Staging, QA, Dedicated Fuzzing Environment" },
+                            { name: "Fuzzing Rate", purpose: "Number of inputs per second", values: "Requests per second (RPS), Mutations per second (MPS)" }
+                        ]
+                    }
+                ]
             },
             'rasp': {
                 name: "Runtime Application Self-Protection (RASP)",
@@ -1242,7 +1509,25 @@
                     "An organization uses a RASP solution to provide continuous, real-time protection for their critical web applications against new and evolving threats, reducing reliance on frequent patching or external WAF rules for every vulnerability."
                 ],
                 technicalDetails: "RASP operates at the application layer, using instrumentation or bytecode manipulation to hook into the application's execution flow. It can protect against OWASP Top 10 vulnerabilities. It complements WAFs by providing deeper, inside-the-application protection. Key vendors offer SDKs or agents for various programming languages/runtimes. AWS does not have a native RASP service but third-party RASP solutions can be deployed on AWS compute services.",
-                tools: "Contrast Security, Imperva RASP, Fortify AppDefense, Checkmarx CxRASP, Data Theorem, SQreen."
+                tools: "Contrast Security, Imperva RASP, Fortify AppDefense, Checkmarx CxRASP, Data Theorem, SQreen.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: RASP Blocking Legitimate Traffic (False Positives)",
+                        solution: "Review RASP logs to identify the specific rules triggered by legitimate traffic. Tune RASP policies by whitelisting trusted IP ranges, specific URLs, or known application behavior. Start in 'monitoring' or 'alert-only' mode before enabling full 'blocking'.",
+                        parameters: [
+                            { name: "Rule Action", purpose: "What RASP does when rule is met", values: "`BLOCK`, `ALERT`, `LOG`" },
+                            { name: "Policy Tuning", purpose: "Adjusting RASP rules", values: "Whitelisting, Rule exclusion, Sensitivity settings" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: RASP Agent Stability/Performance Issues",
+                        solution: "Ensure the RASP agent version is compatible with your application's runtime and libraries. Monitor application CPU, memory, and latency for any degradation. If issues arise, try updating the agent or consulting vendor support. Consider agentless security if RASP overhead is too high.",
+                        parameters: [
+                            { name: "Agent Version", purpose: "Software version of RASP agent", values: "Specific release numbers" },
+                            { name: "Resource Consumption", purpose: "Impact on application resources", values: "CPU (%), Memory (MB), Latency (ms)" }
+                        ]
+                    }
+                ]
             },
             'secure-config-management': {
                 name: "Secure Configuration Management",
@@ -1272,7 +1557,25 @@
                     "Automating the hardening of Amazon Linux EC2 instances based on CIS benchmarks using Ansible playbooks, ensuring consistency across the fleet."
                 ],
                 technicalDetails: "Secure configuration management leverages tools that can enforce 'desired state' configurations. It often integrates with IaC tools (e.g., CloudFormation, Terraform) to provision initial secure infrastructure. AWS Config continuously assesses compliance against rules, and AWS Systems Manager provides automation capabilities for configuring instances. AWS Security Hub aggregates findings from Config for a centralized view.",
-                tools: "AWS Config, AWS Systems Manager (State Manager, Run Command, Patch Manager), Ansible, Chef, Puppet, SaltStack, HashiCorp Consul, Open Policy Agent (OPA)."
+                tools: "AWS Config, AWS Systems Manager (State Manager, Run Command, Patch Manager), Ansible, Chef, Puppet, SaltStack, HashiCorp Consul, Open Policy Agent (OPA).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Configuration Drift Goes Undetected",
+                        solution: "Ensure AWS Config is enabled globally or for all relevant regions/resource types. Verify that Config Rules are correctly defined and evaluating resources. Check CloudWatch Events/Security Hub for suppressed alerts. Review Config Recorder status.",
+                        parameters: [
+                            { name: "AWS Config Recorder", purpose: "Records configuration changes", values: "`Status`: `ON`|`OFF`, `RecordingGroup`: `ALL_SUPPORTED_RESOURCES`" },
+                            { name: "Evaluation Frequency", purpose: "How often rules are checked", values: "`Continuous`, `Daily`, `Weekly`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Automated Remediation Fails",
+                        solution: "Examine logs for the Systems Manager Automation document or Lambda function triggered by Config. Verify IAM permissions for the remediation action. Ensure the target resource exists and is in a state that allows remediation. Test remediation steps manually.",
+                        parameters: [
+                            { name: "Automation Document", purpose: "Defines remediation steps", values: "`DocumentName`, `AutomationAssumeRole`" },
+                            { name: "SSM Run Command", purpose: "Executes commands on EC2 instances", values: "`DocumentName`: `AWS-RunShellScript`, `Target`: `InstanceIds`, `Parameters`: `commands`" }
+                        ]
+                    }
+                ]
             },
             'secure-iac': {
                 name: "Secure Infrastructure as Code (IaC)",
@@ -1292,7 +1595,25 @@
                     "An Open Policy Agent (OPA) policy prevents any CloudFormation stack from being deployed if it includes an IAM policy with `Effect: Allow` and `Action: '*'` on `Resource: '*'`, enforcing least privilege."
                 ],
                 technicalDetails: "Secure IaC builds on the principles of Infrastructure as Code but adds a strong security focus. It involves using linting, static analysis, and policy enforcement tools to validate templates. AWS services like CloudFormation, CDK, IAM, KMS, and Config are fundamental. Services like AWS Security Hub can aggregate findings from IaC scanning tools.",
-                tools: "AWS CloudFormation, AWS CDK, HashiCorp Terraform, Pulumi, Checkov, Terrascan, tfsec, Cloud Custodian, Open Policy Agent (OPA), AWS Config (Rules, Conformance Packs)."
+                tools: "AWS CloudFormation, AWS CDK, HashiCorp Terraform, Pulumi, Checkov, Terrascan, tfsec, Cloud Custodian, Open Policy Agent (OPA), AWS Config (Rules, Conformance Packs).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: IaC Deployment Fails Due to Policy Violations",
+                        solution: "Review the output from your IaC static analysis tool (e.g., Checkov, Terrascan) or Policy as Code engine (OPA, Sentinel). Modify the IaC template to adhere to the defined security policies. Understand and fix the policy violation before re-attempting deployment.",
+                        parameters: [
+                            { name: "Policy Rule ID", purpose: "Identifier for the violated policy", values: "e.g., `CKV_AWS_18` (S3 bucket public access)" },
+                            { name: "Template Parameter", purpose: "Input variable for IaC template", values: "e.g., `BucketName`, `PublicAccessBlock` (true/false)" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Misconfigurations Deployed Despite IaC Scanning",
+                        solution: "Ensure your IaC scanning tool's rulesets are up-to-date and comprehensive. Verify that the scanning step is mandatory in your CI/CD pipeline (e.g., fails the build). Supplement automated scans with manual architecture reviews. Ensure IaC templates are the single source of truth.",
+                        parameters: [
+                            { name: "Scanner Version", purpose: "Software version of IaC scanner", values: "Latest release for security patches/rule updates" },
+                            { name: "CI/CD Gate", purpose: "Condition for pipeline progression", values: "`Exit code != 0` for scan failure" }
+                        ]
+                    }
+                ]
             },
             'policy-as-code': {
                 name: "Policy as Code",
@@ -1312,7 +1633,25 @@
                     "A custom AWS Lambda-backed Config Rule ensures that newly created IAM users are immediately put into a specific IAM group and have MFA enabled."
                 ],
                 technicalDetails: "Policy as Code leverages policy engines (like OPA, Sentinel) that evaluate policies against input data (e.g., JSON representation of an IaC template, API request payload) and return a decision (allow/deny). AWS Config Rules provide native policy enforcement for AWS resources. It's a fundamental concept for enabling automated governance and compliance in cloud environments.",
-                tools: "Open Policy Agent (OPA) / Rego, HashiCorp Sentinel, AWS Config (Rules, Conformance Packs), Cloud Custodian, Kyverno (for Kubernetes), Git (for version control)."
+                tools: "Open Policy Agent (OPA) / Rego, HashiCorp Sentinel, AWS Config (Rules, Conformance Packs), Cloud Custodian, Kyverno (for Kubernetes), Git (for version control).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Policy Denying Legitimate Actions (False Positives)",
+                        solution: "Carefully review the policy definition (e.g., Rego code, Config Rule parameters). Test the policy using a simulator (e.g., OPA playground, AWS Config Rule dry run) with various inputs. Refine the policy to allow necessary exceptions or use more specific conditions. Implement gradual rollout of new policies.",
+                        parameters: [
+                            { name: "Policy Evaluation", purpose: "Determines Allow/Deny", values: "Input data (JSON), Policy logic" },
+                            { name: "OPA Decision", purpose: "Result of OPA evaluation", values: "`allow`, `deny`, `violation`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Policy Not Enforced or Ignored",
+                        solution: "Verify that the policy enforcement point (e.g., Kubernetes admission controller, CI/CD gate, AWS Config) is correctly configured and active. Check logs of the policy engine for errors during evaluation. Ensure the policy is applied to the correct scope (e.g., correct AWS accounts, Kubernetes namespaces).",
+                        parameters: [
+                            { name: "Enforcement Point", purpose: "Where policy is checked", values: "CI/CD Pipeline, Admission Controller, AWS API Gateway" },
+                            { name: "Policy Scope", purpose: "Resources/contexts policy applies to", values: "AWS Account ID, Kubernetes Namespace, S3 Bucket ARN" }
+                        ]
+                    }
+                ]
             },
             'immutable-infrastructure': {
                 name: "Immutable Infrastructure",
@@ -1332,7 +1671,25 @@
                     "A security patch for the operating system means creating a new base AMI, rebuilding all application AMIs on top of it, and then deploying the entirely new immutable infrastructure."
                 ],
                 technicalDetails: "Immutable infrastructure relies heavily on Infrastructure as Code (IaC) tools (e.g., CloudFormation, Terraform) for provisioning and configuration management tools (e.g., Packer for AMI creation, Docker for container images) for building artifacts. Deployment strategies like blue/green or canary deployments are essential for smooth transitions. AWS services like EC2 Auto Scaling, ECS, EKS, Lambda, and AWS CodeDeploy are ideal for implementing immutable infrastructure patterns.",
-                tools: "Packer, Docker, AMI (Amazon Machine Image), AWS EC2 Auto Scaling, Amazon ECS, Amazon EKS, AWS Lambda, AWS CodeDeploy, Terraform, CloudFormation."
+                tools: "Packer, Docker, AMI (Amazon Machine Image), AWS EC2 Auto Scaling, Amazon ECS, Amazon EKS, AWS Lambda, AWS CodeDeploy, Terraform, CloudFormation.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Slow Image Baking/Deployment Times",
+                        solution: "Optimize your image build process (e.g., Packer, Dockerfile). Minimize the number of layers and dependencies. Use multi-stage Docker builds. Leverage pre-built base images. Optimize deployment strategies (e.g., smaller batches for canary deployments).",
+                        parameters: [
+                            { name: "Image Build Time", purpose: "Time to create a new AMI/Docker image", values: "Minutes to hours" },
+                            { name: "Deployment Strategy", purpose: "How new infrastructure is rolled out", values: "Blue/Green, Canary, Rolling Update" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Failed Deployments Due to Image Issues",
+                        solution: "Implement robust image testing (unit, integration, security scans) before deployment. Ensure the golden AMI/Docker image is thoroughly validated. Use automated rollback mechanisms if deployment fails (e.g., AWS CodeDeploy rollbacks). Check instance/container startup logs for errors.",
+                        parameters: [
+                            { name: "AMI ID", purpose: "Identifier for Amazon Machine Image", values: "`ami-0abcdef1234567890`" },
+                            { name: "Docker Image Tag", purpose: "Version identifier for Docker image", values: "`my-app:1.0.0`, `my-app:latest`" }
+                        ]
+                    }
+                ]
             },
             'security-monitoring': {
                 name: "Security Monitoring",
@@ -1352,7 +1709,26 @@
                     "Setting up CloudWatch Alarms on specific CloudTrail events, such as `CreateUser` or `DeleteRole`, to detect unauthorized IAM changes."
                 ],
                 technicalDetails: "Security monitoring relies on a combination of logging, metrics, event management, and specialized security services. Key AWS services include CloudTrail, CloudWatch Logs, GuardDuty, Inspector, Macie, WAF, Security Hub, and KMS. Often, this data is fed into a SIEM (Security Information and Event Management) system for correlation and long-term analysis. Automation is key to scaling effective security monitoring.",
-                tools: "AWS CloudTrail, Amazon CloudWatch Logs, Amazon GuardDuty, Amazon Inspector, Amazon Macie, AWS WAF, AWS Security Hub, Amazon OpenSearch Service (for SIEM), Splunk, Datadog Security Monitoring, Sumo Logic, Elastic Stack (ELK)."
+                tools: "AWS CloudTrail, Amazon CloudWatch Logs, Amazon GuardDuty, Amazon Inspector, Amazon Macie, AWS WAF, AWS Security Hub, Amazon OpenSearch Service (for SIEM), Splunk, Datadog Security Monitoring, Sumo Logic, Elastic Stack (ELK).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Missing or Incomplete Security Logs",
+                        solution: "Verify log sources are correctly configured (e.g., CloudTrail enabled for all regions/accounts, VPC Flow Logs enabled for all VPCs). Check IAM permissions for log delivery to S3/CloudWatch. Ensure log agents (if used) are running and configured properly. Review log ingestion pipeline (Kinesis, Firehose) for errors.",
+                        parameters: [
+                            { name: "CloudTrail Trail Status", purpose: "Is CloudTrail logging active?", values: "`IsLogging`: `true`" },
+                            { name: "VPC Flow Log Status", purpose: "Is VPC Flow Logs enabled?", values: "`FlowLogStatus`: `ACTIVE`" },
+                            { name: "Log Destination", purpose: "Where logs are sent", values: "S3 Bucket ARN, CloudWatch Log Group ARN" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Alert Fatigue (Too Many Non-Actionable Alerts)",
+                        solution: "Refine alerting thresholds and conditions. Prioritize alerts based on severity and business impact. Consolidate similar alerts. Suppress known benign activities. Leverage machine learning-based anomaly detection to reduce signature-based noise. Implement SOAR to automate responses for low-severity alerts.",
+                        parameters: [
+                            { name: "Alert Severity", purpose: "Criticality of the alert", values: "CRITICAL, HIGH, MEDIUM, LOW" },
+                            { name: "Threshold Value", purpose: "Value that triggers an alert", values: "e.g., `FailedLoginAttempts > 5 in 5 minutes`" }
+                        ]
+                    }
+                ]
             },
             'incident-response-devsecops': {
                 name: "Automated Incident Response",
@@ -1372,7 +1748,25 @@
                     "Using AWS Systems Manager Incident Manager with a runbook that, upon detection of a high-severity threat, automatically creates snapshots of affected EC2 instances and sends a PagerDuty alert to the on-call security engineer."
                 ],
                 technicalDetails: "Automated incident response relies on a robust event-driven architecture, typically using AWS EventBridge, CloudWatch Alarms, and AWS Security Hub findings as triggers. AWS Lambda functions and Systems Manager Automation documents are key for executing remediation logic. This is a core capability of SOAR (Security Orchestration, Automation, and Response) platforms. IAM permissions are critical for ensuring automated actions themselves are secure and operate with least privilege.",
-                tools: "AWS EventBridge, AWS Lambda, AWS Systems Manager Automation, AWS Security Hub (Custom Actions), Amazon GuardDuty, AWS Config, AWS WAF, AWS CloudTrail, AWS KMS, PagerDuty, Opsgenie, SOAR platforms (Splunk SOAR, Cortex XSOAR)."
+                tools: "AWS EventBridge, AWS Lambda, AWS Systems Manager Automation, AWS Security Hub (Custom Actions), Amazon GuardDuty, AWS Config, AWS WAF, AWS CloudTrail, AWS KMS, PagerDuty, Opsgenie, SOAR platforms (Splunk SOAR, Cortex XSOAR).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Automated Response Fails or Incomplete",
+                        solution: "Review logs of the Lambda function or Systems Manager Automation document for errors. Verify IAM permissions of the response action. Ensure the event trigger (e.g., GuardDuty finding, CloudWatch Event) is correctly configured and routing to the response function. Test playbooks in a non-production environment.",
+                        parameters: [
+                            { name: "Lambda Function Logs", purpose: "Debugging automated actions", values: "CloudWatch Logs" },
+                            { name: "EventBridge Rule Pattern", purpose: "Defines event that triggers action", values: "JSON pattern for `source`, `detail-type`, `detail`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Over-Isolation of Resources (False Positive Response)",
+                        solution: "Refine detection rules to reduce false positives. Implement a human approval step for high-impact automated actions, especially in production. Ensure the automated response logic has 'undo' capabilities. Regularly review and test automated playbooks.",
+                        parameters: [
+                            { name: "Response Action Scope", purpose: "What resources are affected by automation", values: "Specific EC2 instance, Security Group, IAM user" },
+                            { name: "Approval Workflow", purpose: "Human intervention for automation", values: "Manual approval step in CodePipeline, Slack/Jira integration for approval" }
+                        ]
+                    }
+                ]
             },
             'security-log-management': {
                 name: "Security Log Management",
@@ -1392,7 +1786,25 @@
                     "Implementing a log aggregation solution that collects security logs from EC2 instances running security agents and feeds them into AWS Security Hub for centralized finding management."
                 ],
                 technicalDetails: "Security log management relies on a scalable data pipeline involving log collectors/agents (e.g., CloudWatch Agent, Fluentd), streaming services (Kinesis Data Streams/Firehose), storage (S3, OpenSearch Service), and analysis/visualization tools (OpenSearch Dashboards, Kibana, Splunk). Proper IAM policies for log ingestion and access are critical for security. It's often a component of a larger SIEM solution.",
-                tools: "Amazon CloudWatch Logs, AWS CloudTrail, Amazon S3, Amazon OpenSearch Service (formerly Elasticsearch Service), Amazon Kinesis Data Firehose, Splunk, Datadog Log Management, Sumo Logic, Elastic Stack (ELK), Fluentd, Logstash, AWS Security Hub (for findings)."
+                tools: "Amazon CloudWatch Logs, AWS CloudTrail, Amazon S3, Amazon OpenSearch Service (formerly Elasticsearch Service), Amazon Kinesis Data Firehose, Splunk, Datadog Log Management, Sumo Logic, Elastic Stack (ELK), Fluentd, Logstash, AWS Security Hub (for findings).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Incomplete Log Data in SIEM/Analysis Tool",
+                        solution: "Verify log sources are configured to send logs to the central destination (e.g., CloudTrail to S3, CloudWatch Logs subscriptions). Check data ingestion pipeline (Kinesis, Firehose) for failures or throttling. Ensure IAM permissions allow log delivery. Confirm log parsing rules are correctly applied in your SIEM.",
+                        parameters: [
+                            { name: "Log Source Configuration", purpose: "Settings for generating and sending logs", values: "CloudTrail `IsMultiRegionTrail`: `true`, `IncludeGlobalServiceEvents`: `true`" },
+                            { name: "IAM Role for Log Delivery", purpose: "Permissions for services to write logs", values: "`logs:CreateLogStream`, `logs:PutLogEvents`, `s3:PutObject`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: High Cost of Log Storage/Analysis",
+                        solution: "Implement granular log retention policies based on compliance needs. Use cost-effective storage tiers (e.g., S3 Glacier Deep Archive for long-term audit logs). Filter out noisy/non-essential logs at the source. Optimize OpenSearch Service domain size/instance types. Consider log aggregation strategies to reduce volume.",
+                        parameters: [
+                            { name: "S3 Lifecycle Policy", purpose: "Automated movement of objects to different storage classes", values: "Transition after `30` days to `GLACIER`" },
+                            { name: "CloudWatch Log Retention", purpose: "How long logs are kept", values: "`Never expire`, `1 day`, `1 year`" }
+                        ]
+                    }
+                ]
             },
             'vulnerability-management': {
                 name: "Vulnerability Management",
@@ -1412,7 +1824,25 @@
                     "Integrating Snyk into a GitHub Actions workflow to detect vulnerable open-source dependencies in a web application's codebase and automatically create pull requests to update them to a secure version."
                 ],
                 technicalDetails: "Vulnerability management is an ongoing cycle that requires continuous effort. It leverages vulnerability databases (NVD, proprietary), scanning tools, and integration with asset management, patch management, and CI/CD systems. AWS services like Amazon Inspector, AWS Config, AWS Systems Manager, and AWS Security Hub are fundamental for building a comprehensive vulnerability management program in the cloud.",
-                tools: "Amazon Inspector, AWS Config, AWS Systems Manager (Patch Manager), AWS Security Hub, Qualys, Tenable.io (Nessus), Rapid7 InsightVM, Snyk, GitLab Vulnerability Management."
+                tools: "Amazon Inspector, AWS Config, AWS Systems Manager (Patch Manager), AWS Security Hub, Qualys, Tenable.io (Nessus), Rapid7 InsightVM, Snyk, GitLab Vulnerability Management.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Incomplete Asset Discovery",
+                        solution: "Ensure vulnerability scanners have proper network access to all assets (e.g., security group rules, network ACLs). Integrate with cloud asset inventory services (AWS Config, Cloud Asset Inventory). Ensure agents are installed on all relevant instances. Periodically run credentialed scans to ensure access.",
+                        parameters: [
+                            { name: "Discovery Scope", purpose: "Range of IPs/Accounts to scan", values: "CIDR range, AWS Account ID, AWS Region" },
+                            { name: "Scanner Credentials", purpose: "Authentication for scanner access", values: "IAM role, SSH key, API key" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Prioritization Challenges (Too Many Vulnerabilities)",
+                        solution: "Focus on vulnerabilities with high severity AND high exploitability AND high asset criticality. Implement CVSS scoring. Leverage threat intelligence to understand active exploits. Integrate with business context (e.g., data sensitivity, internet exposure) to prioritize. Automate patching for high-priority items.",
+                        parameters: [
+                            { name: "CVSS Score", purpose: "Common Vulnerability Scoring System", values: "Base Score (0-10), Temporal Score, Environmental Score" },
+                            { name: "Asset Criticality", purpose: "Business impact if asset compromised", values: "High, Medium, Low" }
+                        ]
+                    }
+                ]
             },
             'siem': {
                 name: "SIEM & Log Correlation",
@@ -1441,7 +1871,25 @@
                     "Using AWS Security Hub to centralize all security findings. An Amazon EventBridge rule then triggers an automated response if a critical finding (e.g., a publicly exposed sensitive S3 bucket) is detected, while also sending it to the SIEM for broader context."
                 ],
                 technicalDetails: "SIEM solutions are complex systems comprising data ingestion, storage, processing, analytics, and reporting components. In AWS, this often involves services like CloudTrail, CloudWatch Logs, Kinesis, S3, and OpenSearch Service. Managed SIEM services (e.g., Splunk Cloud, IBM QRadar on Cloud) or building a custom SIEM on AWS using native services are common approaches. AWS Security Hub and Amazon GuardDuty can provide capabilities typically found in SIEMs.",
-                tools: "Splunk, IBM QRadar, Microsoft Sentinel, Elastic Stack (Elasticsearch, Logstash, Kibana), Sumo Logic, Exabeam, Securonix, Amazon OpenSearch Service, AWS Security Hub, Amazon GuardDuty, AWS CloudTrail, Amazon CloudWatch Logs, Amazon Kinesis."
+                tools: "Splunk, IBM QRadar, Microsoft Sentinel, Elastic Stack (Elasticsearch, Logstash, Kibana), Sumo Logic, Exabeam, Securonix, Amazon OpenSearch Service, AWS Security Hub, Amazon GuardDuty, AWS CloudTrail, Amazon CloudWatch Logs, Amazon Kinesis.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Data Ingestion Failures to SIEM",
+                        solution: "Verify log source configuration (e.g., CloudTrail/CloudWatch logging to S3/Kinesis). Check network connectivity from log sources to SIEM. Ensure SIEM ingestors/agents are healthy and have necessary IAM permissions. Review SIEM internal logs for parsing errors or dropped events.",
+                        parameters: [
+                            { name: "Log Format", purpose: "Structure of incoming logs", values: "JSON, CSV, Syslog" },
+                            { name: "Ingestion Rate", purpose: "Volume of logs processed per second", values: "Events Per Second (EPS)" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Ineffective Correlation Rules (Missing Threats)",
+                        solution: "Regularly review and update correlation rules based on new threat intelligence and observed attack patterns. Test rules against historical data to ensure they fire correctly. Investigate alerts that were missed by existing rules. Leverage machine learning capabilities if available for anomaly detection.",
+                        parameters: [
+                            { name: "Correlation Logic", purpose: "Conditions for linking events", values: "Time window, common fields (User ID, IP Address), event types" },
+                            { name: "Threat Intelligence Feed", purpose: "External data on known threats", values: "Malicious IPs, IOCs" }
+                        ]
+                    }
+                ]
             },
             'cspm': {
                 name: "Cloud Security Posture Management (CSPM)",
@@ -1461,7 +1909,25 @@
                     "Implementing automated remediation rules in AWS Config to automatically revoke public access to any newly created S3 bucket if it's found to be non-compliant."
                 ],
                 technicalDetails: "CSPM solutions typically leverage cloud provider APIs and native services (like AWS Config, CloudTrail, Security Hub) to gather configuration data. They maintain extensive knowledge bases of security best practices and compliance requirements. They are a core component of cloud security and DevSecOps, helping to automate security governance. AWS Security Hub is AWS's native CSPM service.",
-                tools: "AWS Security Hub, AWS Config, Wiz, Orca Security, Lacework, Prisma Cloud (by Palo Alto Networks), Check Point CloudGuard, Microsoft Defender for Cloud."
+                tools: "AWS Security Hub, AWS Config, Wiz, Orca Security, Lacework, Prisma Cloud (by Palo Alto Networks), Check Point CloudGuard, Microsoft Defender for Cloud.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: CSPM Missing Resources/Accounts",
+                        solution: "Ensure all relevant AWS accounts are correctly onboarded/connected to the CSPM tool (e.g., linked to Security Hub, cross-account IAM role configured). Verify that the CSPM has sufficient IAM permissions to list and describe all resource types. Check for regional blind spots if not deployed multi-region.",
+                        parameters: [
+                            { name: "AWS Account ID", purpose: "Unique identifier for an AWS account", values: "12-digit number" },
+                            { name: "CSPM IAM Role", purpose: "Permissions for CSPM to access AWS resources", values: "`ReadOnlyAccess`, specific `config:*`, `securityhub:*` actions" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: High Volume of Low-Priority Findings",
+                        solution: "Tune CSPM rulesets to align with your organization's risk tolerance. Suppress findings for known acceptable exceptions (document and justify). Prioritize findings based on criticality and potential impact. Focus on fixing critical/high misconfigurations first. Automate remediation for common low-severity issues.",
+                        parameters: [
+                            { name: "Finding Severity", purpose: "Risk level of the security finding", values: "CRITICAL, HIGH, MEDIUM, LOW, INFORMATIONAL" },
+                            { name: "Standard (Benchmark)", purpose: "Compliance or best practice framework", values: "CIS AWS Foundations Benchmark, PCI DSS" }
+                        ]
+                    }
+                ]
             },
             'threat-detection': {
                 name: "Threat Detection",
@@ -1481,7 +1947,25 @@
                     "A security operations center uses Splunk Enterprise Security to correlate alerts from multiple sources (firewalls, EDR, CloudTrail) to identify a sophisticated multi-stage attack that would otherwise go unnoticed."
                 ],
                 technicalDetails: "Threat detection relies on a combination of technologies including IDS/IPS, NIDS/HIDS, SIEM, UEBA, and specialized cloud-native services. AWS offers Amazon GuardDuty for intelligent threat detection, AWS Macie for data discovery, and AWS WAF for web application protection. Effective threat detection requires robust logging and monitoring infrastructure.",
-                tools: "Amazon GuardDuty, AWS Macie, AWS WAF, AWS Security Hub, Splunk (with Splunk ES), IBM QRadar, Microsoft Sentinel, Palo Alto Networks (various products), CrowdStrike, Carbon Black, Snort, Suricata."
+                tools: "Amazon GuardDuty, AWS Macie, AWS WAF, AWS Security Hub, Splunk (with Splunk ES), IBM QRadar, Microsoft Sentinel, Palo Alto Networks (various products), CrowdStrike, Carbon Black, Snort, Suricata.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Undetected Threats (False Negatives)",
+                        solution: "Ensure all relevant log sources are feeding into your detection systems (CloudTrail, VPC Flow Logs, application logs). Update threat intelligence feeds regularly. Tune anomaly detection baselines. Supplement automated detection with proactive threat hunting and periodic penetration tests. Review network visibility gaps.",
+                        parameters: [
+                            { name: "GuardDuty Data Sources", purpose: "Data inputs for GuardDuty analysis", values: "VPC Flow Logs, CloudTrail Event Logs, DNS Logs, Kubernetes Audit Logs" },
+                            { name: "Threat Intelligence Feeds", purpose: "Sources of known bad indicators", values: "AWS GuardDuty Managed Threat Intel, custom IP lists" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Overload of Alerts (Alert Fatigue)",
+                        solution: "Prioritize alerts based on severity and business impact. Tune detection rules to reduce noise from expected activities. Integrate with SOAR for automated triage and response of low-severity alerts. Review and adjust alert thresholds for behavioral analytics. Use suppression rules for known benign patterns.",
+                        parameters: [
+                            { name: "Finding Severity", purpose: "Criticality of the threat detection", values: "High, Medium, Low" },
+                            { name: "Anomaly Threshold", purpose: "Deviation from baseline to trigger alert", values: "Statistical deviation, specific metric bounds" }
+                        ]
+                    }
+                ]
             },
             'waf-ddos': {
                 name: "WAF & DDoS Protection",
@@ -1501,7 +1985,26 @@
                     "An API Gateway is protected by AWS WAF rules that enforce request body size limits and check for suspicious patterns in JSON payloads, preventing certain API-based injection attacks."
                 ],
                 technicalDetails: "WAFs operate by inspecting HTTP/HTTPS traffic and applying a set of rules to block or allow requests. DDoS protection leverages network infrastructure and traffic analysis techniques to absorb and filter malicious traffic. AWS WAF is a managed web application firewall, and AWS Shield provides managed DDoS protection (Standard for all customers, Advanced for higher protection and cost). These services are deployed at the edge of the AWS network.",
-                tools: "AWS WAF, AWS Shield (Standard/Advanced), Cloudflare, Akamai, Imperva, F5 BIG-IP (WAF module), Nginx (with WAF modules), ModSecurity (open-source WAF)."
+                tools: "AWS WAF, AWS Shield (Standard/Advanced), Cloudflare, Akamai, Imperva, F5 BIG-IP (WAF module), Nginx (with WAF modules), ModSecurity (open-source WAF).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: WAF Blocking Legitimate Users (False Positives)",
+                        solution: "Review WAF logs (CloudWatch Logs) to identify which rules are triggering on legitimate traffic. Refine rule conditions to be more precise (e.g., exclude specific URLs, user agents, or IP ranges). If using managed rules, consider disabling specific rules causing false positives. Start with 'Count' action before 'Block'.",
+                        parameters: [
+                            { name: "Rule Action", purpose: "What WAF does with traffic", values: "`BLOCK`, `ALLOW`, `COUNT`" },
+                            { name: "IP Set", purpose: "List of IP addresses for rules", values: "Specific IPs, CIDR blocks" },
+                            { name: "Rule Condition", purpose: "Criteria for rule match", values: "String match, Regex match, Size constraint" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: DDoS Attack Still Impacting Application",
+                        solution: "Ensure your DDoS protection service (e.g., AWS Shield Advanced) is configured for the target resource. Verify that DNS resolution is pointing to the protected endpoint (e.g., CloudFront, ALB). Review DDoS metrics in CloudWatch to understand attack vectors. Ensure sufficient backend application scaling (Auto Scaling Group, ECS capacity) to absorb residual traffic.",
+                        parameters: [
+                            { name: "Resource ARN", purpose: "Identifier of protected AWS resource", values: "`arn:aws:elasticloadbalancing:REGION:ACCOUNT_ID:loadbalancer/app/NAME`" },
+                            { name: "Mitigation Strategy", purpose: "How DDoS is handled", values: "Automatic, Manual (for Shield Advanced)" }
+                        ]
+                    }
+                ]
             },
             'security-auditing': {
                 name: "Security Auditing",
@@ -1521,7 +2024,25 @@
                     "A compliance team uses AWS Config Conformance Packs to continuously monitor their AWS environment against CIS Benchmarks and generates reports for internal security audits."
                 ],
                 technicalDetails: "Security auditing involves both automated tools and manual review. It relies heavily on comprehensive logging (CloudTrail), configuration assessment (Config), and centralized security findings (Security Hub). AWS Audit Manager helps automate the collection of evidence for various compliance frameworks. Integration with DevSecOps ensures that auditability is built into the pipeline.",
-                tools: "AWS CloudTrail, AWS Config, AWS Security Hub, AWS Audit Manager, AWS IAM Access Analyzer, Third-party GRC (Governance, Risk, and Compliance) tools, SIEM solutions."
+                tools: "AWS CloudTrail, AWS Config, AWS Security Hub, AWS Audit Manager, AWS IAM Access Analyzer, Third-party GRC (Governance, Risk, and Compliance) tools, SIEM solutions.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Incomplete Audit Trail (Missing Logs)",
+                        solution: "Verify CloudTrail is enabled in all regions and covers all AWS accounts (organization trail). Ensure logs are delivered to an immutable S3 bucket. Check CloudWatch Logs for any log delivery errors. Verify that application/OS level logging is correctly configured and feeding into your centralized log management solution.",
+                        parameters: [
+                            { name: "CloudTrail Logging Status", purpose: "Is CloudTrail enabled and recording events?", values: "`IsLogging`: `true`" },
+                            { name: "S3 Bucket Policy", purpose: "Permissions for S3 bucket to receive logs", values: "Allows `s3:PutObject` from CloudTrail/CloudWatch service principal" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Difficulty Generating Compliance Reports",
+                        solution: "Ensure your audit management tool (e.g., AWS Audit Manager) is correctly configured for the target framework. Verify that required data sources (CloudTrail, Config) are connected and populating findings. Review framework mapping to ensure all controls have associated evidence. Consider breaking down large reports into smaller, manageable sections.",
+                        parameters: [
+                            { name: "Audit Framework", purpose: "Standard being audited against", values: "SOC 2, HIPAA, PCI DSS, ISO 27001" },
+                            { name: "Assessment Report", purpose: "Output of Audit Manager", values: "ZIP file containing evidence folders" }
+                        ]
+                    }
+                ]
             },
             'regulatory-compliance': {
                 name: "Regulatory Compliance",
@@ -1541,7 +2062,25 @@
                     "Implementing data classification and tagging for sensitive data in S3 buckets, and then using AWS Macie to detect if sensitive data is ever stored in unencrypted buckets, violating compliance."
                 ],
                 technicalDetails: "Regulatory compliance often requires a comprehensive approach covering people, processes, and technology. Cloud providers like AWS offer services and certifications (e.g., SOC, ISO, PCI, HIPAA BAA) that facilitate compliance but ultimately the customer is responsible for compliance 'in the cloud'. Services like AWS Config, CloudTrail, Security Hub, and Audit Manager are crucial tools. Legal and security teams must collaborate closely.",
-                tools: "AWS Audit Manager, AWS Config (Conformance Packs, Rules), AWS CloudTrail, AWS Security Hub, AWS KMS, AWS IAM, AWS WAF, AWS Shield, Compliance frameworks (GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001)."
+                tools: "AWS Audit Manager, AWS Config (Conformance Packs, Rules), AWS CloudTrail, AWS Security Hub, AWS KMS, AWS IAM, AWS WAF, AWS Shield, Compliance frameworks (GDPR, HIPAA, PCI DSS, SOC 2, ISO 27001).",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Non-Compliance with Data Residency Rules",
+                        solution: "Strictly define and enforce AWS region usage based on data classification and regulatory requirements. Use AWS Organization Service Control Policies (SCPs) to explicitly deny resource creation in unauthorized regions. Regularly audit resource locations using AWS Config.",
+                        parameters: [
+                            { name: "AWS Region", purpose: "Geographic location of data centers", values: "e.g., `us-east-1`, `eu-central-1`" },
+                            { name: "Service Control Policy (SCP)", purpose: "Granular control over AWS service access", values: "`Effect: Deny`, `Action: *`, `NotResource: *`, `Condition: StringNotEquals`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Manual Audit Evidence Collection is Burdensome",
+                        solution: "Leverage AWS Audit Manager to automate evidence collection from integrated AWS services (CloudTrail, Config, Security Hub). Ensure required data sources are enabled and logs are retained for the necessary period. Define custom controls in Audit Manager for non-automated evidence.",
+                        parameters: [
+                            { name: "Audit Manager Framework", purpose: "Pre-built or custom collection of controls", values: "PCI DSS, HIPAA, CIS Benchmarks" },
+                            { name: "Data Source", purpose: "Source of evidence for Audit Manager", values: "CloudTrail, AWS Config, AWS Security Hub" }
+                        ]
+                    }
+                ]
             },
             'data-protection': {
                 name: "Data Protection & Privacy",
@@ -1562,7 +2101,25 @@
                     "Applying data masking to a copy of the production database for development and testing environments, ensuring developers and testers work with realistic data without exposing actual customer PII."
                 ],
                 technicalDetails: "Data protection involves a combination of cryptographic controls, access controls, network security, and data governance practices. AWS provides native encryption capabilities across many services (S3, EBS, RDS, DynamoDB, Lambda, EFS) and a robust key management service (AWS KMS). AWS Macie helps discover and protect sensitive data in S3. Data classification is a prerequisite for effective data protection.",
-                tools: "AWS KMS (Key Management Service), Amazon S3 (Encryption, Bucket Policies), Amazon RDS (Encryption), AWS IAM, AWS Macie, AWS PrivateLink, AWS WAF, VPN, TLS/SSL, Tokenization solutions."
+                tools: "AWS KMS (Key Management Service), Amazon S3 (Encryption, Bucket Policies), Amazon RDS (Encryption), AWS IAM, AWS Macie, AWS PrivateLink, AWS WAF, VPN, TLS/SSL, Tokenization solutions.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: Unencrypted Data Found in S3 Buckets",
+                        solution: "Enable default encryption for all S3 buckets (e.g., SSE-S3 or SSE-KMS). Implement S3 Bucket Policies that deny uploads of unencrypted objects. Use AWS Config rules (`s3-bucket-default-encryption-enabled`) or AWS Macie to detect unencrypted sensitive data. Remediate existing unencrypted objects.",
+                        parameters: [
+                            { name: "S3 Default Encryption", purpose: "Automatic encryption for new objects", values: "`AES256` (SSE-S3), `aws:kms` (SSE-KMS)" },
+                            { name: "S3 Bucket Policy", purpose: "Access control for S3 buckets", values: "`Deny` for `s3:PutObject` if `aws:kms:SSE` is `false`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Data Exfiltration via Unauthorized Access",
+                        solution: "Implement strict least privilege IAM policies. Use S3 Block Public Access on all accounts/buckets. Monitor CloudTrail logs for unusual API calls (e.g., `s3:GetObject` from unknown IPs). Employ AWS Macie for sensitive data discovery and DLP. Implement network segmentation and egress filtering.",
+                        parameters: [
+                            { name: "S3 Block Public Access", purpose: "Prevents public access to S3 buckets", values: "`BlockPublicAcls`: `true`, `BlockPublicPolicy`: `true`" },
+                            { name: "CloudTrail Event", purpose: "Record of API calls", values: "`eventName`: `GetObject`, `sourceIpAddress`, `userIdentity`" }
+                        ]
+                    }
+                ]
             },
             'iam-devsecops': {
                 name: "IAM & Access Control",
@@ -1583,7 +2140,25 @@
                     "Regularly running IAM Access Analyzer to detect if any IAM roles or S3 bucket policies have been inadvertently configured to allow public access or cross-account access that is not explicitly approved."
                 ],
                 technicalDetails: "AWS IAM is a foundational service for security in AWS. It's crucial to understand IAM users, groups, roles, and policies, and how they interact. The principle of least privilege, temporary credentials, and automated auditing (via CloudTrail) are core IAM best practices in DevSecOps. Policy evaluation logic (explicit deny, explicit allow, implicit deny) is fundamental.",
-                tools: "AWS IAM, AWS IAM Identity Center (formerly AWS SSO), AWS STS, AWS CLI, AWS SDKs, IAM Access Analyzer, IAM Policy Simulator, AWS CloudTrail, Third-party identity providers."
+                tools: "AWS IAM, AWS IAM Identity Center (formerly AWS SSO), AWS STS, AWS CLI, AWS SDKs, IAM Access Analyzer, IAM Policy Simulator, AWS CloudTrail, Third-party identity providers.",
+                troubleshooting: [
+                    {
+                        issue: "Issue: 'Access Denied' Errors for AWS Resources",
+                        solution: "Check the IAM policy attached to the user, role, or resource accessing the service. Use IAM Policy Simulator to test the specific action and resource. Review CloudTrail logs for the exact `AccessDenied` event details (e.g., `errorCode`, `errorMessage`). Ensure the principal has both `Allow` for the action and no `Explicit Deny`.",
+                        parameters: [
+                            { name: "IAM Policy", purpose: "Defines allowed/denied actions", values: "JSON document with `Effect`, `Action`, `Resource`" },
+                            { name: "CloudTrail Event", purpose: "API call details", values: "`eventName`, `userIdentity`, `errorCode`, `errorMessage`" }
+                        ]
+                    },
+                    {
+                        issue: "Issue: Overly Permissive IAM Policies Remain Undetected",
+                        solution: "Regularly use IAM Access Analyzer to identify external and public access to your resources. Implement AWS Config rules to check for common IAM best practice violations. Review IAM roles and policies manually for `*` in actions or resources. Automate IAM policy reviews in CI/CD using tools like `parliament`.",
+                        parameters: [
+                            { name: "Access Analyzer Finding", purpose: "Identified external access path", values: "`type`: `EXTERNAL_PRINCIPAL`, `resourceType`: `AWS::S3::Bucket`, `principal`" },
+                            { name: "Policy Evaluation Logic", purpose: "How IAM decides access", values: "Least privilege, explicit deny always wins" }
+                        ]
+                    }
+                ]
             }
         };
 
@@ -1654,6 +2229,28 @@
                 `;
             }).join('');
 
+            // Generate Troubleshooting HTML
+            const troubleshootingHtml = data.troubleshooting ? `
+                <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.1);">
+                <div class="troubleshooting-section">
+                    <h3>🛠️ Errors, Issues & Troubleshooting</h3>
+                    ${data.troubleshooting.map(item => `
+                        <div class="troubleshooting-item">
+                            <h4>Issue: ${item.issue}</h4>
+                            <p><strong>Solution:</strong> ${item.solution}</p>
+                            ${item.parameters && item.parameters.length > 0 ? `
+                                <p><strong>Relevant Parameters:</strong></p>
+                                <ul>
+                                    ${item.parameters.map(param => `
+                                        <li><strong>${param.name}:</strong> ${param.purpose} (Values: <em>${param.values}</em>)</li>
+                                    `).join('')}
+                                </ul>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
             // Populate the modal with category details
             modalContent.innerHTML = `
                 <h2>${data.name}</h2>
@@ -1691,6 +2288,8 @@
                 <div class="pricing-info-box">
                     <p>${data.tools}</p>
                 </div>
+
+                ${troubleshootingHtml} <!-- Insert the new troubleshooting section here -->
             `;
             document.getElementById('categoryModal').style.display = 'block'; // Show the modal
 
@@ -1849,72 +2448,7 @@
                 buttonElement.disabled = false; // Re-enable button
             }
         }
-
-        /**
-         * Fetches and displays the latest DevSecOps and AWS Security news using Gemini AI (simulated).
-         */
-        async function fetchDevSecOpsNews() {
-            const newsOutputElement = document.getElementById('news-list');
-            newsOutputElement.innerHTML = '<div class="loading-indicator"></div> Fetching latest DevSecOps & AWS security news via Gemini AI...';
-
-            const prompt = `Find and summarize at least 10 recent news articles (published within the last 3-6 months) related to DevSecOps and AWS Security topics (e.g., new AWS security services, secure coding best practices, cloud security posture management, incident response automation, supply chain security). For each article, provide the title, a 1-2 sentence summary, and a placeholder URL. Ensure the summaries are concise and informative.`;
-            
-            try {
-                // Simulate a call to a backend service that would perform the deep search with Gemini/Google Search.
-                const simulatedNewsResponse = await new Promise(resolve => {
-                    setTimeout(() => {
-                        // Dummy data as if returned from a Gemini-powered search backend.
-                        const articles = [
-                            { title: "AWS Security Hub Integrates New Partner Findings for Enhanced Visibility", summary: "AWS Security Hub has expanded its integrations, now accepting security findings from more third-party solutions, giving customers a more comprehensive view of their security posture.", url: "https://example.com/security-hub-integrations" },
-                            { title: "Shift-Left Security: Best Practices for SAST in CI/CD Pipelines", summary: "A new guide outlines how to effectively integrate Static Application Security Testing (SAST) early in the development lifecycle to catch vulnerabilities before deployment, with a focus on AWS CodeBuild.", url: "https://example.com/sast-ci-cd-aws" },
-                            { title: "Amazon GuardDuty Announces New Malware Protection Feature", summary: "Amazon GuardDuty has rolled out a new capability to detect malware on EC2 instances using file scanning, enhancing its continuous threat detection services.", url: "https://example.com/guardduty-malware" },
-                            { title: "Understanding and Mitigating Software Supply Chain Risks on AWS", summary: "An in-depth article explores various attack vectors in the software supply chain and how AWS services like CodeCommit, ECR, and KMS can be leveraged for stronger defenses.", url: "https://example.com/aws-supply-chain-security" },
-                            { title: "Automated Incident Response with AWS Lambda and EventBridge", summary: "Learn how organizations are building serverless automated incident response playbooks on AWS using Lambda functions triggered by CloudWatch Events and Security Hub findings.", url: "https://example.com/automated-ir-aws" },
-                            { title: "AWS re:Inforce 2024 Highlights: Key Security Announcements", summary: "A summary of the most significant security announcements and updates from AWS re:Inforce 2024, focusing on new services and features for cloud security.", url: "https://example.com/reinforce-security-recap" },
-                            { title: "Policy as Code Adoption Accelerates for Cloud Governance", summary: "The trend of defining security and compliance policies as code is gaining traction, enabling automated enforcement across AWS environments using tools like OPA and AWS Config.", url: "https://example.com/policy-as-code-governance" },
-                            { title: "Securing Container Workloads with Amazon EKS Best Practices", summary: "New security best practices and configurations for running containerized applications on Amazon EKS, covering network security, IAM roles for service accounts, and image scanning.", url: "https://example.com/eks-security-best-practices" },
-                            { title: "The Role of AI/ML in Next-Gen Cloud Threat Detection", summary: "Discusses how artificial intelligence and machine learning are being increasingly used in cloud security services, including AWS GuardDuty and Macie, to identify sophisticated threats.", url: "https://example.com/ai-ml-threat-detection" },
-                            { title: "Simplifying Compliance Audits with AWS Audit Manager Enhancements", summary: "AWS Audit Manager has received updates that further streamline the process of collecting evidence for various compliance frameworks, making audits less burdensome for AWS users.", url: "https://example.com/audit-manager-enhancements" }
-                        ];
-                        resolve({ articles });
-                    }, 1500); // Simulate 1.5 second network delay
-                });
-
-                if (simulatedNewsResponse.articles && simulatedNewsResponse.articles.length > 0) {
-                    newsOutputElement.innerHTML = simulatedNewsResponse.articles.map(article => `
-                        <li class="news-item">
-                            <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-                            <p>${article.summary}</p>
-                            <p style="font-size: 0.75rem; color: #ccc;">Source: ${article.source || 'Various'} | Published: ${article.date || 'Recent'}</p>
-                        </li>
-                    `).join('');
-                } else {
-                    newsOutputElement.innerHTML = '<p>No DevSecOps & AWS security news found at this time. Please try again later.</p>';
-                }
-            } catch (error) {
-                newsOutputElement.innerHTML = `<p style="color: #ffcccc;">Error fetching news: ${error.message}. Displaying placeholder data.</p>`;
-            }
-        }
-
-        /**
-         * Performs a search using Gemini AI and displays the result in the floating search area.
-         */
-        async function performAISearch() {
-            const searchInput = document.getElementById('ai-search-input');
-            const searchOutput = document.getElementById('ai-search-output');
-            const searchButton = document.getElementById('ai-search-button');
-            const userQuery = searchInput.value.trim();
-
-            if (!userQuery) {
-                searchOutput.innerHTML = '<p style="color: #ffcccc;">Please enter a search query.</p>';
-                searchOutput.style.display = 'block';
-                return;
-            }
-
-            const prompt = `As a concise AI search assistant focused *only* on DevSecOps and AWS Security topics (e.g., SAST, DAST, secrets management, IAM, GuardDuty, Security Hub, incident response, compliance), provide a relevant and helpful answer to the following query: "${userQuery}". Keep the answer to a maximum of 3-4 sentences. If the query is outside the scope of DevSecOps or AWS Security, state that politely.`;
-            await callGeminiAPI(prompt, 'ai-search-output', searchButton);
-        }
-
+        
         // Draggable functionality for the floating search bar
         let isDragging = false;
         let offset = { x: 0, y: 0 };
@@ -2010,8 +2544,24 @@
             }
         }
 
-        // Initialize fetching news on page load
-        document.addEventListener('DOMContentLoaded', fetchDevSecOpsNews);
+        /**
+         * Performs a search using Gemini AI and displays the result in the floating search area.
+         */
+        async function performAISearch() {
+            const searchInput = document.getElementById('ai-search-input');
+            const searchOutput = document.getElementById('ai-search-output');
+            const searchButton = document.getElementById('ai-search-button');
+            const userQuery = searchInput.value.trim();
+
+            if (!userQuery) {
+                searchOutput.innerHTML = '<p style="color: #ffcccc;">Please enter a search query.</p>';
+                searchOutput.style.display = 'block';
+                return;
+            }
+
+            const prompt = `As a concise AI search assistant focused *only* on DevSecOps and AWS Security topics (e.g., SAST, DAST, secrets management, IAM, GuardDuty, Security Hub, incident response, compliance), provide a relevant and helpful answer to the following query: "${userQuery}". Keep the answer to a maximum of 3-4 sentences. If the query is outside the scope of DevSecOps or AWS Security, state that politely.`;
+            await callGeminiAPI(prompt, 'ai-search-output', searchButton);
+        }
 
         // Remove onclick from central node as it does nothing in this version
         document.querySelector('.central-node').onclick = null;

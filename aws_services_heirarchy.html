@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Services Hierarchy Chart</title>
+    <!-- Tailwind CSS for modern styling and responsiveness -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- D3.js library for powerful data visualization, including tree layouts -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Google Fonts - Inter for a clean, modern typeface -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for the body and overall container */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light gray background */
+            color: #334155; /* Dark slate text */
+            overflow: hidden; /* Prevent body scroll, let SVG handle pan */
+            margin: 0;
+            padding: 0;
+        }
+        /* Main container to hold header, chart, and description panel */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Full viewport height */
+            overflow: hidden;
+            max-width:100% !important
+        }
+        /* Header styling */
+        .header {
+            background-color: #1e293b; /* Dark slate background */
+            color: #f8fafc; /* Off-white text */
+            padding: 1rem 2rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        /* Search bar styling */
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .search-bar input {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #64748b;
+            background-color: #f8fafc;
+            color: #1e293b;
+            width: 200px;
+        }
+        .search-bar button {
+            padding: 0.5rem 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .search-bar button:hover {
+            background-color: #2563eb;
+        }
+
+        /* Breadcrumb styling */
+        .breadcrumbs {
+            padding: 0.75rem 1rem;
+            background-color: #cbd5e1; /* Light gray-blue */
+            color: #475569; /* Darker gray-blue */
+            font-size: 0.875rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .breadcrumbs span {
+            margin: 0 0.25rem;
+        }
+        .breadcrumbs a {
+            color: #1e40af; /* Darker blue for links */
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+        .breadcrumbs .current-node {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Export buttons container */
+        .export-options {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .export-options button {
+            padding: 0.5rem 1rem;
+            background-color: #10b981; /* Green-500 */
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .export-options button:hover {
+            background-color: #059669; /* Green-600 */
+        }
+
+
+        /* Area for chart and description, uses flexbox */
+        .content-area {
+            flex-grow: 1; /* Takes remaining vertical space */
+            display: flex;
+            flex-direction: column; /* Default to column for mobile layout */
+            overflow: hidden;
+        }
+        /* Chart container styling */
+        .chart-container {
+            flex-grow: 1; /* Takes remaining space within content-area */
+            background-color: #ffffff; /* White background */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Soft shadow */
+            margin: 1rem;
+            overflow: hidden; /* Ensures SVG stays within bounds */
+            position: relative; /* Needed for absolute positioning of tooltips */
+        }
+        /* Description panel styling */
+        .description-panel {
+            background-color: #e2e8f0; /* Light blue-gray background */
+            border-radius: 0.75rem; /* Rounded corners */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Soft shadow */
+            margin: 1rem;
+            padding: 1.5rem;
+            width: auto; /* Full width on mobile */
+            max-height: 30vh; /* Limit height on mobile to prevent overflow */
+            overflow-y: auto; /* Enable vertical scrolling if content exceeds max-height */
+            transition: all 0.3s ease-in-out; /* Smooth transition for active state */
+            opacity: 0; /* Hidden by default */
+            transform: translateY(20px); /* Slightly offset for animation */
+            pointer-events: none; /* Prevents interaction when hidden */
+            display: flex; /* Use flexbox for content and button */
+            flex-direction: column;
+        }
+        /* Active state for description panel - visible and interactive */
+        .description-panel.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Responsive layout for desktop (min-width: 1024px) */
+        @media (min-width: 1024px) {
+            .content-area {
+                flex-direction: row; /* Change to row for side-by-side layout */
+            }
+            .chart-container {
+                flex: 3; /* Chart takes 3 parts of available space */
+                margin-right: 0.5rem;
+            }
+            .description-panel {
+                flex: 1; /* Description panel takes 1 part of available space */
+                margin-left: 0.5rem;
+                max-height: none; /* Remove height limit on desktop */
+            }
+        }
+
+        /* D3 Tree Specific Styling */
+        /* Node circles */
+        .node circle {
+            fill: #60a5fa; /* Blue-500 */
+            stroke: #3b82f6; /* Blue-600 */
+            stroke-width: 2px;
+            cursor: pointer; /* Indicates interactivity */
+            transition: fill 0.2s ease-in-out; /* Smooth color transition on hover/click */
+        }
+        /* Styling for the root node circle */
+        .node circle.root {
+            fill: #ef4444; /* Red-500 */
+            stroke: #dc2626; /* Red-600 */
+        }
+        /* Styling for collapsed node circles (indicating hidden children) */
+        .node circle.collapsed {
+            fill: #a8a29e; /* Stone-400 */
+            stroke: #78716c; /* Stone-500 */
+        }
+        /* Node text labels */
+        .node text {
+            font-size: 10px;
+            fill: #1f2937; /* Gray-800 */
+            text-anchor: middle; /* Center text horizontally */
+            pointer-events: none; /* Allows mouse events to pass through to the circle */
+            font-weight: 600; /* Semi-bold text */
+        }
+        /* Styling for the links (connecting lines between nodes) */
+        .link {
+            fill: none;
+            stroke: #94a3b8; /* Slate-400 */
+            stroke-width: 1.5px;
+            opacity: 0.7;
+        }
+        /* Tooltip for node names on hover */
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            background: #1e293b; /* Dark slate background */
+            color: white;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none; /* Prevents tooltip from interfering with mouse events */
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.2s; /* Smooth fade-in/out */
+            z-index: 1000; /* Ensures tooltip appears on top */
+        }
+
+        /* Styles for the full content modal */
+        #full-content-modal.hidden {
+            display: none;
+        }
+        #full-content-modal {
+            /* Tailwind classes handle most of this now, but explicitly setting display */
+            display: flex;
+        }
+        /* Ensure modal content scrolls if too long */
+        #modal-body {
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        /* Highlight for searched node */
+        .node.highlight circle {
+            stroke: #f97316; /* Orange-500 */
+            stroke-width: 4px;
+            animation: pulse-highlight 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-highlight {
+            from {
+                stroke-opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                stroke-opacity: 0.5;
+                transform: scale(1.1);
+            }
+        }
+
+        /* Custom message box for alerts */
+        #message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 10000;
+            display: none; /* Hidden by default */
+            text-align: center;
+            font-size: 1rem;
+            color: #334155;
+        }
+        #message-box button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="text-3xl font-bold">AWS Services Hierarchy Chart</h1>
+            <p class="text-sm text-gray-300 mt-1">Explore the vast landscape of Amazon Web Services, categorized for easy navigation and understanding.</p>
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search service name..." class="focus:ring-blue-500 focus:border-blue-500">
+                <button id="search-button">Search</button>
+            </div>
+            <div class="export-options">
+                <button id="export-svg-button">Export SVG</button>
+            </div>
+        </header>
+
+        <div id="breadcrumbs" class="breadcrumbs">
+            <!-- Breadcrumbs will be dynamically inserted here -->
+        </div>
+
+        <div class="content-area">
+            <!-- Container for the D3.js tree visualization -->
+            <div class="chart-container">
+                <svg id="tree-chart" class="w-full h-full"></svg>
+            </div>
+            <!-- Panel to display detailed descriptions of selected nodes -->
+            <div id="description-panel" class="description-panel">
+                <h2 id="description-title" class="text-xl font-semibold mb-2 text-gray-800">Select a Service</h2>
+                <p id="description-content" class="text-gray-700 text-sm">Click on any service or category in the hierarchy chart to view its detailed explanation.</p>
+                <!-- "Read More" button and "Copy Markdown" button will be appended here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Content Modal -->
+    <div id="full-content-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl lg:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <h3 id="modal-title" class="text-xl font-bold text-gray-800"></h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            </div>
+            <div id="modal-body" class="p-4 flex-grow overflow-y-auto text-gray-700 text-sm">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box -->
+    <div id="message-box" class="hidden">
+        <p id="message-content"></p>
+        <button id="message-ok-button">OK</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Data from aws services details.txt
+        const serviceDetailsText = `Category	Service	Sub-Class/Variant	Primary Function	Real-Time Use Case	Cost Key Points	Limitations	Threshold	Availability	Managed Status	AWS GUI Navigation
+Compute	Amazon EC2	General Purpose (e.g., t3.micro)	Cost-effective virtual servers	Small-scale web hosting	~$0.01/hr (t3.micro)	Limited CPU/memory	1,000 instances/region (default)	Global, specific instance types vary by region	Unmanaged	Services > EC2 > Instances > Launch instances > Choose AMI > Select t3.micro under Instance type > Configure VPC (prerequisite: VPC must exist) > Launch
+	Amazon EC2	Compute Optimized (e.g., c5.xlarge)	High-performance compute tasks	Batch processing, gaming	~$0.17/hr (c5.xlarge)	Higher cost, overkill for basic tasks	1,000 instances/region (default)	Global, specific instance types vary by region	Unmanaged	Services > EC2 > Instances > Launch instances > Choose AMI > Select c5.xlarge under Instance type > Configure VPC (prerequisite: VPC must exist) > Launch
+	AWS Lambda	Standard	Serverless compute for event-driven tasks	Real-time IoT data processing	$0.20/M requests, $0.00001667/GB-sec	15-min execution limit	10,000 concurrent executions/region	Global	Managed	Services > Lambda > Create function > Author from scratch > Configure runtime and IAM role (prerequisite: IAM role with Lambda permissions) > Create
+	AWS Lambda	Provisioned Concurrency	Pre-warmed serverless compute	Low-latency app backends	$0.000004583/GB-sec + base cost	Expensive for sporadic use	10,000 concurrent provisions/region	Global	Managed	Services > Lambda > Functions > Select function > Configuration > Provisioned Concurrency > Add > Set concurrency > Save (prerequisite: Function must already exist)
+	Amazon ECS	EC2 Launch Type	Container orchestration on EC2	Microservices on custom infra	Costs for EC2 resources	Requires EC2 management	10,000 tasks per service (default)	Global	Unmanaged	Services > ECS > Clusters > Create cluster > EC2 Linux + Networking > Configure EC2 instance type and VPC (prerequisite: VPC and EC2 instances must be set up) > Create
+	Amazon ECS	Fargate Launch Type	Serverless container orchestration	Containerized apps without servers	$0.04048/vCPU-hr, $0.004445/GB-hr	Less control over infra	10,000 tasks per service (default)	Global	Managed	Services > ECS > Clusters > Create cluster > Networking only (Fargate) > Configure task definitions and VPC (prerequisite: VPC must exist) > Create
+	Amazon EKS	Managed Node Groups	Managed Kubernetes clusters	Enterprise Kubernetes deployment	$0.10/hr per cluster + EC2 costs	Complex setup	100 pods per node (default)	Global	Managed	Services > EKS > Clusters > Create cluster > Configure cluster name and VPC (prerequisite: VPC, subnets, and IAM roles for EKS) > Add managed node group > Launch
+	Amazon EKS	Self-Managed Nodes	Custom Kubernetes clusters	Specialized workloads	EC2 costs only	Requires manual management	100 pods per node (default)	Global	Unmanaged	Services > EKS > Clusters > Create cluster > Configure cluster name and VPC (prerequisite: VPC, subnets, and IAM roles for EKS) > Add self-managed node group via CLI/API (special case: CLI/API required for self-managed nodes) > Launch
+	AWS Fargate	Spot	Cost-optimized serverless containers	Batch jobs with interruptions	Up to 70% off standard rates	Risk of termination	4 vCPUs, 30 GB memory per task	Global	Managed	Services > ECS > Clusters > Create cluster > Networking only (Fargate) > Task definition > Select Fargate Spot (prerequisite: VPC must exist) > Create
+	AWS Fargate	On-Demand	Reliable serverless containers	Critical app deployments	$0.04048/vCPU-hr, $0.004445/GB-hr	Higher cost than Spot	4 vCPUs, 30 GB memory per task	Global	Managed	Services > ECS > Clusters > Create cluster > Networking only (Fargate) > Task definition > Select Fargate On-Demand (prerequisite: VPC must exist) > Create
+	AWS Batch	Array Jobs	Batch processing with job arrays	Parallel data processing	Costs for EC2/Fargate resources	Complex job dependencies	24,000 jobs in queue (default)	Global	Managed	Services > Batch > Job definitions > Create > Select Array job > Configure compute environment (prerequisite: Compute environment must be set up) > Save
+	AWS Batch	Single Jobs	Individual batch job execution	One-off ML training	Costs for EC2/Fargate resources	Less efficient for arrays	24,000 jobs in queue (default)	Global	Managed	Services > Batch > Job definitions > Create > Select Single job > Configure compute environment (prerequisite: Compute environment must be set up) > Save
+	Elastic Beanstalk	Web Server	Web app deployment	E-commerce site hosting	Costs for EC2/ELB resources	Limited customization	75 apps, 1,000 versions (default)	Global	Managed	Services > Elastic Beanstalk > Create application > Web server environment > Upload code (prerequisite: Code package ready) > Configure VPC (prerequisite: VPC must exist) > Launch
+	Elastic Beanstalk	Worker Tier	Background task processing	Queue-based task handling	Costs for EC2/ELB resources	Requires SQS integration	75 apps, 1,000 versions (default)	Global	Managed	Services > Elastic Beanstalk > Create application > Worker environment > Configure SQS queue (prerequisite: SQS queue must exist) > Configure VPC (prerequisite: VPC must exist) > Launch
+Storage	Amazon S3	Standard	High-performance object storage	Websites, content distribution	~$0.023/GB/month, no retrieval fees	Not cost-effective for infrequent access	5 TB max per object, no limit	Global	Managed	Services > S3 > Create bucket > Select Standard storage class > Configure permissions > Create
+	Amazon S3	Standard-IA	Lower-cost infrequent access storage	Backups, disaster recovery	~$0.0125/GB/month, $0.01/GB retrieval	30-day minimum storage	128 KB min, 5 TB max	Global	Managed	Services > S3 > Create bucket > Select Standard-IA storage class > Configure permissions > Create
+	Amazon S3	Intelligent-Tiering	Auto-tiering for cost optimization	Data lakes, user content	~$0.023-$0.004/GB/month, $0.0025/1K monitoring	Less effective for small objects	128 KB min, 5 TB max	Global	Managed	Services > S3 > Create bucket > Select Intelligent-Tiering storage class > Configure permissions > Create
+	Amazon S3	Glacier Instant Retrieval	Archive with instant retrieval	Medical imaging	~$0.004/GB/month, $0.03/GB retrieval	Expensive for frequent access	40 KB min, 5 TB max	Global	Managed	Services > S3 > Create bucket > Select Glacier Instant Retrieval storage class > Configure permissions > Create
+	Amazon S3	Glacier Flexible Retrieval	Archival with flexible retrieval	Compliance data	~$0.0036/GB/month, $0.02-$0.0025/GB retrieval	1 min-12 hr retrieval	40 KB min, 5 TB max	Global	Managed	Services > S3 > Create bucket > Select Glacier Flexible Retrieval storage class > Configure permissions > Create
+	Amazon S3	Glacier Deep Archive	Lowest-cost archival storage	Regulatory archives	~$0.00099/GB/month, $0.025/GB retrieval	12-48 hr retrieval	40 KB min, 5 TB max	Global	Managed	Services > S3 > Create bucket > Select Glacier Deep Archive storage class > Configure permissions > Create
+	Amazon EBS	gp3	General-purpose SSD	App data on EC2	~$0.08/GB/month, $0.005-$0.015/IOPS	Zone-specific	16 TiB max, 16,000 IOPS	Regional (varies by AZ)	Managed	Services > EC2 > Volumes > Create volume > Select gp3 > Configure size and IOPS > Select Availability Zone (prerequisite: EC2 instance in same AZ to attach) > Create
+	Amazon EBS	io2	High-performance SSD	Database storage	~$0.125/GB/month, $0.065-$0.095/IOPS	Higher cost	64 TiB max, 256,000 IOPS	Regional (varies by AZ)	Managed	Services > EC2 > Volumes > Create volume > Select io2 > Configure size and IOPS > Select Availability Zone (prerequisite: EC2 instance in same AZ to attach) > Create
+	Amazon EBS	st1	Throughput-optimized HDD	Big data analytics	~$0.045/GB/month, no IOPS	Not for low-latency	16 TiB max, 500 MiB/s	Regional (varies by AZ)	Managed	Services > EC2 > Volumes > Create volume > Select st1 > Configure size > Select Availability Zone (prerequisite: EC2 instance in same AZ to attach) > Create
+	Amazon EBS	sc1	Cold HDD for infrequent access	Archival on EC2	~$0.015/GB/month, no IOPS	High latency	16 TiB max, 250 MiB/s	Regional (varies by AZ)	Managed	Services > EC2 > Volumes > Create volume > Select sc1 > Configure size > Select Availability Zone (prerequisite: EC2 instance in same AZ to attach) > Create
+	Amazon EFS	Standard	Scalable file storage	Shared app files	~$0.30/GB/month, $0.01/GB read/write	Higher latency	47.9 PiB max	Regional	Managed	Services > EFS > Create file system > Select Standard storage class > Configure VPC and mount targets (prerequisite: VPC must exist) > Create
+	Amazon EFS	Infrequent Access	Lower-cost infrequent file storage	Long-term backups	~$0.013/GB/month, $0.01/GB retrieval	30-day minimum	47.9 PiB max	Regional	Managed	Services > EFS > Create file system > Select Infrequent Access > Configure VPC and mount targets (prerequisite: VPC must exist) > Create
+	Amazon FSx	Windows File Server	Managed Windows file system	Windows app shares	~$0.013-$0.026/GB/month, $0.002/IOPS	Higher cost	64 TiB max	Regional (opt-in required)	Managed	Services > FSx > Create file system > Select Windows File Server > Configure storage, VPC, and Active Directory (prerequisite: VPC and Active Directory setup) > Create (special case: Opt-in may be required in some regions)
+	Amazon FSx	Lustre	High-performance file system	ML, media processing	~$0.14/GB/month, $0.013/GB read/write	Non-HPC complexity	100 TiB max	Regional (opt-in required)	Managed	Services > FSx > Create file system > Select Lustre > Configure storage and VPC (prerequisite: VPC must exist) > Create (special case: Opt-in may be required in some regions)
+	AWS Snowball	Edge	Physical data transfer with compute	Edge data migration	~$400/device + $0.03/GB egress	Not real-time	80 TB capacity	Regional (shipping-based)	Managed	Services > Snowball > Create job > Select Edge device > Configure job details and shipping (prerequisite: Physical shipping address) > Submit
+	AWS Snowball	Standard	Basic data transfer	Large data migration	~$200-$300/device	Shipping delays	50 TB capacity	Regional (shipping-based)	Managed	Services > Snowball > Create job > Select Standard device > Configure job details and shipping (prerequisite: Physical shipping address) > Submit
+	AWS Snowmobile	N/A	Exabyte-scale data transfer	Data center migration	Custom (~$0.005/GB estimate)	Limited availability	100 PB per truck	Regional (by request)	Managed	Contact AWS Support (special case: Not available via Console; requires custom request with AWS Support for scheduling and logistics)
+Networking & Content Delivery	Amazon VPC	Default	Basic isolated network	Small app network	Free; resource costs	Limited customization	5 VPCs/region (default)	Global	Managed	Services > VPC > Your VPCs > Create VPC > Select default settings > Configure subnets and routing (prerequisite: Region selection) > Create
+	Amazon VPC	Dedicated	Dedicated hardware network	High-security apps	Additional hardware fees	Expensive	5 VPCs/region (default)	Global (varies by region)	Managed	Services > VPC > Your VPCs > Create VPC > Select dedicated tenancy > Configure subnets and routing (prerequisite: Region selection) > Create
+	AWS CloudFront	Standard	Global CDN for content	Web content delivery	~$0.085/GB + $0.01/10K requests	Cache complexity	25 distributions (default)	Global	Managed	Services > CloudFront > Create distribution > Select web delivery > Configure origin (prerequisite: Origin like S3 bucket or HTTP server) > Create
+	AWS CloudFront	Real-Time Log Delivery	Real-time logging CDN	Analytics on user behavior	~$0.085/GB + $0.01/10K + logging	Increased cost	25 distributions (default)	Global	Managed	Services > CloudFront > Distributions > Select distribution > Logs > Enable real-time log delivery > Configure log destination (prerequisite: Distribution must exist) > Save
+	Elastic Load Balancing	Application (ALB)	Layer 7 traffic distribution	Web app load balancing	~$0.0225/hr + $0.008/GB	Limited to HTTP/HTTPS	50 load balancers/region	Global	Managed	Services > EC2 > Load Balancers > Create Load Balancer > Select Application Load Balancer > Configure VPC and listeners (prerequisite: VPC and target groups) > Create
+	Elastic Load Balancing	Network (NLB)	Layer 4 traffic distribution	High-performance apps	~$0.025/hr + $0.008/GB	No HTTP features	50 load balancers/region	Global	Managed	Services > EC2 > Load Balancers > Create Load Balancer > Select Network Load Balancer > Configure VPC and listeners (prerequisite: VPC and target groups) > Create
+	Amazon Route 53	Public Hosted Zones	Public DNS management	Domain routing	$0.50/zone + $0.40/M queries	Public-only	500 hosted zones (default)	Global	Managed	Services > Route 53 > Hosted zones > Create hosted zone > Select public > Configure domain (prerequisite: Domain ownership) > Create
+	Amazon Route 53	Private Hosted Zones	Private DNS management	Internal app routing	$0.50/zone	Internal-only	500 hosted zones (default)	Global	Managed	Services > Route 53 > Hosted zones > Create hosted zone > Select private > Configure VPC (prerequisite: VPC must exist) > Create
+	AWS Direct Connect	Dedicated	Dedicated 1Gbps connection	Hybrid cloud	$0.30/GB + port fees	High setup cost	50 virtual interfaces	Regional (opt-in required)	Managed	Services > Direct Connect > Create connection > Select Dedicated > Configure bandwidth and location (prerequisite: Physical connection setup with AWS partner) > Submit (special case: Opt-in required in some regions)
+	AWS Direct Connect	Hosted	Shared 50Mbps connection	Cost-effective hybrid	$0.03/GB + port fees	Lower bandwidth	50 virtual interfaces	Regional (opt-in required)	Managed	Services > Direct Connect > Create connection > Select Hosted > Configure bandwidth and location (prerequisite: Physical connection setup with AWS partner) > Submit (special case: Opt-in required in some regions)
+	AWS Transit Gateway	Standard	VPC and on-prem hub	Multi-VPC connectivity	$0.05/attachment-hr + $0.02/GB	Complex scaling	5,000 routes	Global	Managed	Services > VPC > Transit Gateways > Create Transit Gateway > Configure attachments (prerequisite: VPCs or Direct Connect for attachments) > Create
+	AWS Transit Gateway	Inter-Region	Inter-region network hub	Global VPC linking	$0.02/GB + attachment costs	Higher latency	5,000 routes	Global	Managed	Services > VPC > Transit Gateways > Create Transit Gateway > Enable inter-region peering (prerequisite: Transit Gateway in each region) > Configure attachments > Create
+Database	Amazon RDS	MySQL	Managed MySQL database	E-commerce database	~$0.017/hr + storage	Limited engine control	40 instances (default)	Global	Managed	Services > RDS > Create database > Select MySQL > Configure instance, VPC, and DB settings (prerequisite: VPC must exist) > Create
+	Amazon RDS	PostgreSQL	Managed PostgreSQL database	Data warehousing	~$0.018/hr + storage	Limited engine control	40 instances (default)	Global	Managed	Services > RDS > Create database > Select PostgreSQL > Configure instance, VPC, and DB settings (prerequisite: VPC must exist) > Create
+	Amazon Aurora	Single Master	High-performance relational DB	OLTP apps	~$0.10/GB/month + I/O	Single point of failure	15 read replicas	Global	Managed	Services > RDS > Create database > Select Aurora (MySQL/PostgreSQL) > Single master > Configure instance and VPC (prerequisite: VPC must exist) > Create
+	Amazon Aurora	Multi-Master	Multi-master relational DB	High-availability apps	~$0.20/GB/month + I/O	Higher cost	15 read replicas	Global	Managed	Services > RDS > Create database > Select Aurora (MySQL/PostgreSQL) > Multi-master > Configure instance and VPC (prerequisite: VPC must exist) > Create
+	Amazon DynamoDB	On-Demand	Scalable NoSQL on demand	Gaming leaderboards	$1.25/M write, $0.25/M read	Costly for steady traffic	40,000 write capacity	Global	Managed	Services > DynamoDB > Create table > Select On-Demand capacity > Configure attributes > Create
+	Amazon DynamoDB	Provisioned	Scalable NoSQL with capacity	Web apps	$0.00013/RCU-WCU/hr	Under/over-provisioning risk	40,000 write capacity	Global	Managed	Services > DynamoDB > Create table > Select Provisioned capacity > Configure RCU/WCU > Create
+	Amazon Redshift	Dense Compute	Data warehouse for analytics	BI reporting	~$0.25/node-hr	Not for OLTP	50 nodes/cluster	Global	Managed	Services > Redshift > Create cluster > Select Dense Compute node type > Configure cluster and VPC (prerequisite: VPC must exist) > Launch
+	Amazon Redshift	Dense Storage	Large-scale data warehouse	Long-term analytics	~$0.97/node-hr	Slower queries	50 nodes/cluster	Global	Managed	Services > Redshift > Create cluster > Select Dense Storage node type > Configure cluster and VPC (prerequisite: VPC must exist) > Launch
+	Amazon ElastiCache	Redis	In-memory caching with Redis	Session storage	~$0.017/node-hr	Non-persistent	300 nodes/region	Global	Managed	Services > ElastiCache > Create cluster > Select Redis > Configure node type and VPC (prerequisite: VPC must exist) > Create
+	Amazon ElastiCache	Memcached	In-memory caching with Memcached	Object caching	~$0.017/node-hr	Non-persistent	300 nodes/region	Global	Managed	Services > ElastiCache > Create cluster > Select Memcached > Configure node type and VPC (prerequisite: VPC must exist) > Create
+	Amazon Neptune	Single Instance	Graph database	Social network	~$0.09/GB/month + I/O	Single point of failure	16 read replicas	Global	Managed	Services > Neptune > Create database > Select Single instance > Configure instance and VPC (prerequisite: VPC must exist) > Launch
+	Amazon Neptune	Multi-AZ	High-availability graph DB	Fraud detection	~$0.18/GB/month + I/O	Higher cost	16 read replicas	Global	Managed	Services > Neptune > Create database > Select Multi-AZ > Configure instance and VPC (prerequisite: VPC must exist) > Launch
+	Amazon Timestream	Standard	Time-series data storage	IoT monitoring	$0.036/GB ingested	Time-series only	50 GB/day	Global	Managed	Services > Timestream > Create database > Select Standard > Configure table > Create
+	Amazon Timestream	Magnetic Store	Long-term time-series storage	Historical IoT data	$0.03/GB/month	Slower access	50 GB/day	Global	Managed	Services > Timestream > Create database > Select Magnetic Store > Configure table > Create
+Analytics	Amazon Athena	Standard	Serverless SQL on S3	Ad-hoc log analysis	$5/TB scanned	Performance tied to format	20 concurrent queries	Global	Managed	Services > Athena > Query editor > Create workgroup > Select Standard > Run query on S3 data (prerequisite: S3 bucket with data)
+	Amazon Athena	Workgroups	Managed query execution	Team-based analytics	$5/TB + workgroup fees	Complex setup	20 concurrent queries/workgroup	Global	Managed	Services > Athena > Workgroups > Create workgroup > Configure settings > Save > Run query (prerequisite: S3 bucket with data)
+	AWS Glue	Crawler	Automated metadata extraction	ETL metadata discovery	$0.44/DPU-hr	Batch-only	25 concurrent crawlers	Global	Managed	Services > Glue > Crawlers > Add crawler > Configure data source (prerequisite: S3 bucket or JDBC connection) > Run crawler
+	AWS Glue	ETL Jobs	Data transformation jobs	Data pipeline processing	$0.44/DPU-hr	Batch-only	25 concurrent jobs	Global	Managed	Services > Glue > ETL Jobs > Add job > Configure script and data source (prerequisite: S3 bucket or JDBC connection) > Run job
+	Amazon EMR	Transient Clusters	Short-lived big data processing	Ad-hoc analytics	$0.011-$0.27/node-hr + EC2	Requires expertise	50 clusters/region	Global	Managed	Services > EMR > Create cluster > Select Transient > Configure applications and VPC (prerequisite: VPC must exist) > Launch
+	Amazon EMR	Persistent Clusters	Long-running big data	Continuous ML training	$0.011-$0.27/node-hr + EC2	Higher cost	50 clusters/region	Global	Managed	Services > EMR > Create cluster > Select Persistent > Configure applications and VPC (prerequisite: VPC must exist) > Launch
+	Amazon QuickSight	Standard Edition	Basic BI and visualization	Dashboard creation	$9/user/month + data	Limited features	1,000 dashboards	Global	Managed	Services > QuickSight > Sign up > Select Standard Edition > Create dataset (prerequisite: Data source like S3 or RDS) > Build dashboard
+	Amazon QuickSight	Enterprise Edition	Advanced BI and ML insights	Enterprise reporting	$18/user/month + data	Higher cost	1,000 dashboards	Global	Managed	Services > QuickSight > Sign up > Select Enterprise Edition > Create dataset (prerequisite: Data source like S3 or RDS) > Build dashboard
+	AWS Data Pipeline	Standard	Data movement workflows	Batch data transfer	$0.60-$2.50/pipeline/month	Less flexible	100 pipelines/region	Global	Managed	Services > Data Pipeline > Create pipeline > Configure source and destination (prerequisite: Source/destination like S3) > Activate
+	AWS Data Pipeline	Data Lake	Data lake integration	Centralized data hub	$0.60-$2.50/pipeline/month	Complex setup	100 pipelines/region	Global	Managed	Services > Data Pipeline > Create pipeline > Select Data Lake integration > Configure source/destination (prerequisite: S3 or Redshift) > Activate
+	Amazon Kinesis	Data Streams	Real-time data streaming	Clickstream analysis	$0.015/shard-hr + $0.014/GB	Shard management	500 shards/stream	Global	Managed	Services > Kinesis > Create stream > Select Data Streams > Configure shards > Create
+	Amazon Kinesis	Data Firehose	Data delivery to storage	Log delivery to S3	$0.029/GB + $0.00/shard-hr	Limited transformation	500 shards/stream	Global	Managed	Services > Kinesis > Create delivery stream > Select Data Firehose > Configure destination (prerequisite: Destination like S3 or Redshift) > Create
+Security, Identity & Compliance	AWS IAM	Users	User and permission management	Access control	Free	Complex for scale	5,000 users/account	Global	Managed	Services > IAM > Users > Add users > Configure permissions > Create user
+	AWS IAM	Roles	Role-based access	Cross-service access	Free	Policy complexity	5,000 roles/account	Global	Managed	Services > IAM > Roles > Create role > Select trusted entity > Attach policies > Create
+	AWS KMS	Symmetric Keys	Symmetric encryption	Data encryption	$1/key/month + $0.03/10K requests	Key rotation manual	10,000 keys/region	Global	Managed	Services > KMS > Create key > Select Symmetric > Configure permissions > Create
+	AWS KMS	Asymmetric Keys	Asymmetric encryption	Public/private key use	$1/key/month + $0.03/10K requests	Less common use	10,000 keys/region	Global	Managed	Services > KMS > Create key > Select Asymmetric > Configure permissions > Create
+	AWS Secrets Manager	Standard	Secrets storage and rotation	Credential management	$0.40/secret/month + $0.05/10K API	Limited to secrets	100,000 secrets/account	Global	Managed	Services > Secrets Manager > Store a new secret > Select secret type > Configure > Store
+	AWS Secrets Manager	Rotation	Automated secret rotation	Database credentials	$0.40/secret/month + $0.05/10K API	Requires RDS integration	100,000 secrets/account	Global	Managed	Services > Secrets Manager > Select secret > Rotation > Enable rotation > Configure Lambda (prerequisite: Lambda function for rotation) > Save
+	Amazon GuardDuty	Standard	Threat detection	Security monitoring	$0.0009-$0.004/1K events	False positives	50,000 findings/month	Global	Managed	Services > GuardDuty > Get started > Enable GuardDuty > Configure settings > Save
+	Amazon GuardDuty	Malware Protection	Malware detection	File integrity checks	$0.0009-$0.004/1K events + $0.03/EC2	Extra cost	50,000 findings/month	Global	Managed	Services > GuardDuty > Settings > Malware Protection > Enable > Configure S3 buckets (prerequisite: S3 buckets to scan) > Save
+	AWS Shield	Standard	Basic DDoS protection	Web app protection	Free	Limited protection	100 resources	Global	Managed	Services > Shield > Overview (special case: Automatically enabled for all accounts; no manual setup needed)
+	AWS Shield	Advanced	Advanced DDoS protection	Critical app protection	$3,000/month	Expensive	100 resources	Regional (opt-in required)	Managed	Services > Shield > Subscriptions > Activate Advanced > Configure protections (special case: Opt-in required in some regions) > Submit
+	AWS WAF	Classic	Traditional web firewall	Traffic filtering	$5/web ACL/month + $0.60/M requests	Legacy, less features	100 rules/web ACL	Global	Managed	Services > WAF & Shield > Create web ACL > Select Classic > Configure rules (prerequisite: CloudFront or ALB to associate) > Create
+	AWS WAF	AWS Managed Rules	Pre-configured rules	Automated security	$5/web ACL/month + $0.60/M requests	Less customization	100 rules/web ACL	Global	Managed	Services > WAF & Shield > Create web ACL > Add AWS Managed Rules > Configure (prerequisite: CloudFront or ALB to associate) > Create
+	Amazon Cognito	User Pools	User authentication	App sign-up/sign-in	$0.015/MAU (50K free)	Limited customization	100 user pools/account	Global	Managed	Services > Cognito > Create user pool > Configure sign-in experience > Create
+	Amazon Cognito	Identity Pools	Federated identities	Cross-platform auth	$0.015/MAU (50K free)	Complex federation	100 identity pools/account	Global	Managed	Services > Cognito > Create identity pool > Configure authentication providers (prerequisite: User Pool or IAM role for federation) > Create
+Management & Governance	AWS CloudTrail	Basic	Basic API logging	Compliance auditing	Free (1 trail)	Limited retention	5 trails/region	Global	Managed	Services > CloudTrail > Trails > Create trail > Configure S3 bucket (prerequisite: S3 bucket for logs) > Enable
+	AWS CloudTrail	Insights	Advanced event analysis	Anomaly detection	$0.10/100K events	Extra cost	5 trails/region	Global	Managed	Services > CloudTrail > Trails > Select trail > Enable Insights > Configure (prerequisite: Basic trail must be enabled) > Save
+	Amazon CloudWatch	Metrics	Resource monitoring	App performance	$0.30/metric/month	Costly with scale	5,000 metrics/region	Global	Managed	Services > CloudWatch > Metrics > Select resource type (prerequisite: Resource like EC2 must exist) > Enable metrics collection
+	Amazon CloudWatch	Logs	Log monitoring	Security logging	$0.50/GB ingested	Storage costs	5,000 log groups/region	Global	Managed	Services > CloudWatch > Logs > Create log group > Configure log source (prerequisite: Log source like Lambda or EC2) > Save
+	AWS Config	Standard	Resource tracking	Compliance checks	$0.003/item + $0.001/evaluation	Data volume	100,000 items/region	Global	Managed	Services > Config > Get started > Enable AWS Config > Configure S3 bucket for logs (prerequisite: S3 bucket) > Save
+	AWS Config	Conformance Packs	Predefined compliance rules	Automated audits	$0.003/item + $0.001/evaluation	Complex setup	100,000 items/region	Global	Managed	Services > Config > Conformance packs > Deploy conformance pack > Select pack (prerequisite: AWS Config must be enabled) > Deploy
+	AWS Systems Manager	Automation	Task automation	Patch management	Free (basic), $0.007/action	Agent required	1,000 sessions/month	Global	Managed	Services > Systems Manager > Automation > Create automation > Select document (prerequisite: SSM Agent on instances) > Execute
+	AWS Systems Manager	Run Command	Remote command execution	Instance management	Free (basic), $0.007/action	Agent required	1,000 sessions/month	Global	Managed	Services > Systems Manager > Run Command > Run a command > Select document (prerequisite: SSM Agent on instances) > Execute
+	AWS Trusted Advisor	Standard	Basic optimization checks	Cost advice	Free	General advice	4 checks	Global	Managed	Services > Trusted Advisor > Dashboard (special case: Automatically enabled for all accounts; no manual setup needed)
+	AWS Trusted Advisor	Business	Advanced checks	Security optimization	Included with Business Support	Higher cost	50 checks	Global	Managed	Services > Trusted Advisor > Upgrade to Business Support (prerequisite: Business Support plan subscription) > Access additional checks
+	AWS CloudFormation	Standard	Infrastructure as Code	Environment provisioning	Free; resource costs	Learning curve	2,000 stacks/region	Global	Managed	Services > CloudFormation > Create stack > Upload template (prerequisite: Template file in YAML/JSON) > Configure > Create
+	AWS CloudFormation	Drift Detection	Config drift tracking	Compliance monitoring	Free; resource costs	Extra setup	2,000 stacks/region	Global	Managed	Services > CloudFormation > Stacks > Select stack > Detect drift (prerequisite: Stack must exist) > Initiate drift detection
+Developer Tools	AWS CodeStar	Projects	Unified development platform	CI/CD setup	Free; underlying costs	Template-limited	10 projects (default)	Global	Managed	Services > CodeStar > Create project > Select template > Configure IAM roles (prerequisite: IAM permissions for CodeStar) > Create
+	AWS CodeCommit	Standard	Git-based source control	Code repos	$1/user/month (5 free)	Limited integrations	1,000 repos/account	Global	Managed	Services > CodeCommit > Create repository > Configure settings > Create
+	AWS CodeBuild	Build Projects	Build and test code	Automated builds	$0.005/build-min (Linux)	Ephemeral	100 concurrent builds	Global	Managed	Services > CodeBuild > Create build project > Configure source and environment (prerequisite: Source like CodeCommit or S3) > Create
+	AWS CodeDeploy	EC2/On-Prem	Deployment to servers	App rollouts	Free; resource costs	Complex for scale	500 deployments/day	Global	Managed	Services > CodeDeploy > Create application > Select EC2/On-Prem > Configure deployment (prerequisite: EC2 instances or on-prem servers) > Create
+	AWS CodeDeploy	Lambda	Deployment to Lambda	Serverless updates	Free; resource costs	Lambda-specific	500 deployments/day	Global	Managed	Services > CodeDeploy > Create application > Select Lambda > Configure deployment (prerequisite: Lambda function must exist) > Create
+	AWS CodePipeline	Standard	CI/CD orchestration	Release automation	$1/pipeline/month + $0.01/min	Limited flexibility	300 pipelines/account	Global	Managed	Services > CodePipeline > Create pipeline > Configure source and stages (prerequisite: Source like CodeCommit or S3) > Create
+	AWS CodePipeline	Cross-Region	Multi-region CI/CD	Global deployments	$1/pipeline/month + $0.01/min	Higher latency	300 pipelines/account	Global	Managed	Services > CodePipeline > Create pipeline > Enable cross-region actions > Configure stages (prerequisite: Resources in multiple regions) > Create
+	AWS X-Ray	Basic	Application tracing	Performance debugging	$0.0001/trace	Instrumentation needed	100 apps/account	Global	Managed	Services > X-Ray > Get started > Enable tracing > Configure application (prerequisite: Application instrumentation with X-Ray SDK) > Save
+	AWS X-Ray	Enhanced	Advanced tracing	Distributed systems	$0.0001/trace + $0.05/1M extended	Costly	100 apps/account	Global	Managed	Services > X-Ray > Settings > Enable enhanced tracing > Configure sampling rules (prerequisite: Basic tracing enabled) > Save
+Machine Learning & AI	Amazon SageMaker	Studio	ML development environment	Model training	$0.043-$0.134/hr + storage	Expensive for large models	100 instances/endpoint	Global	Managed	Services > SageMaker > Studio > Launch SageMaker Studio > Configure user and IAM role (prerequisite: IAM role for SageMaker) > Launch
+	Amazon SageMaker	Batch Transform	Batch inference	Offline predictions	$0.043-$0.134/hr + storage	Not real-time	100 instances/endpoint	Global	Managed	Services > SageMaker > Create batch transform job > Select model > Configure input/output (prerequisite: Trained model in SageMaker) > Start
+	AWS Lex	Standard	Conversational agents	Customer service bots	$0.004/min (text)	Text/voice only	5,000 requests/min	Global	Managed	Services > Lex > Create bot > Select Standard > Configure intents > Build
+	AWS Lex	V2	Enhanced conversational agents	Advanced chatbots	$0.004/min (text) + features	Higher complexity	5,000 requests/min	Global	Managed	Services > Lex V2 > Create bot > Select language > Configure intents > Build
+	Amazon Polly	Neural	Advanced text-to-speech	High-quality audio	$16/M characters	Limited languages	1M characters/day (free)	Global	Managed	Services > Polly > Text-to-Speech > Select Neural voice > Input text > Synthesize
+	Amazon Polly	Standard	Basic text-to-speech	Accessibility audio	$4/M characters	Basic quality	1M characters/day (free)	Global	Managed	Services > Polly > Text-to-Speech > Select Standard voice > Input text > Synthesize
+	Amazon Rekognition	Image	Image analysis	Object detection	$0.10/1K images	Accuracy varies	1M images/month (free)	Global	Managed	Services > Rekognition > Create project > Select Image analysis > Upload image (prerequisite: Image in S3 or local) > Analyze
+	Amazon Rekognition	Video	Video analysis	Facial recognition	$0.012/min video	Higher cost	1M minutes/month (default)	Global	Managed	Services > Rekognition > Create project > Select Video analysis > Upload video (prerequisite: Video in S3) > Analyze
+	Amazon Comprehend	Custom	Custom NLP models	Industry-specific text	$0.0001/unit + training	Training time	5,000 units/day (free)	Global	Managed	Services > Comprehend > Create custom model > Configure training data (prerequisite: Training data in S3) > Train model
+	Amazon Comprehend	Pre-trained	Pre-built NLP	Sentiment analysis	$0.0001/unit	Language limits	5,000 units/day (free)	Global	Managed	Services > Comprehend > Analysis > Select Pre-trained model > Input text > Analyze
+	AWS DeepLens	Standard	Deep learning camera	Edge vision	$250/device + fees	ML knowledge	1 camera/user (default)	Regional (discontinued, limited stock)	Managed	Services > DeepLens > Register device > Configure project > Deploy (special case: Discontinued service; limited availability in some regions)
+Application Integration	Amazon SNS	Standard	Pub/sub messaging	Notifications	$0.50/M notifications	256 KB limit	1M notifications/day (free)	Global	Managed	Services > SNS > Create topic > Select Standard > Configure subscribers > Create
+	Amazon SNS	FIFO	Ordered pub/sub messaging	Financial transactions	$0.50/M notifications	Lower throughput	1M notifications/day (free)	Global	Managed	Services > SNS > Create topic > Select FIFO > Configure subscribers > Create
+	Amazon SQS	Standard	Unordered message queuing	App decoupling	$0.40/M requests	At-least-once delivery	1M requests/day (free)	Global	Managed	Services > SQS > Create queue > Select Standard > Configure settings > Create
+	Amazon SQS	FIFO	Ordered message queuing	Order processing	$0.40/M requests	Lower throughput	1M requests/day (free)	Global	Managed	Services > SQS > Create queue > Select FIFO > Configure settings > Create
+	AWS AppSync	Real-Time	Real-time GraphQL	Mobile app sync	$0.08/M requests + $0.02/M resolvers	GraphQL required	1M requests/month (free)	Global	Managed	Services > AppSync > Create API > Select GraphQL > Configure real-time > Create (prerequisite: GraphQL schema)
+	AWS AppSync	Offline	Offline GraphQL sync	Disconnected apps	$0.08/M requests + $0.02/M resolvers	Sync complexity	1M requests/month (free)	Global	Managed	Services > AppSync > Create API > Select GraphQL > Enable offline sync > Create (prerequisite: GraphQL schema)
+	Amazon EventBridge	Default	Serverless event bus	Event routing	$1/M events	Limited targets	10M events/month (free)	Global	Managed	Services > EventBridge > Create event bus > Select Default > Configure rules > Create
+	Amazon EventBridge	Custom	Custom event bus	App-specific events	$1/M events	Setup overhead	10M events/month (free)	Global	Managed	Services > EventBridge > Create event bus > Select Custom > Configure rules > Create
+	AWS Step Functions	Standard	Workflow orchestration	Business processes	$0.025/1K transitions	1-year limit	1M transitions/month (free)	Global	Managed	Services > Step Functions > Create state machine > Select Standard > Define workflow (prerequisite: State machine definition in JSON) > Create
+	AWS Step Functions	Express	Short-lived workflows	Real-time tasks	$0.025/1K transitions	5-min limit	1M transitions/month (free)	Global	Managed	Services > Step Functions > Create state machine > Select Express > Define workflow (prerequisite: State machine definition in JSON) > Create
+Migration & Transfer	AWS Migration Hub	Discovery	Migration tracking	Multi-app monitoring	Free	Tracking only	100 migrations (default)	Global	Managed	Services > Migration Hub > Discover > Enable discovery > Configure connectors (prerequisite: Discovery agent on servers) > Start
+	AWS Migration Hub	Strategy	Migration planning	Strategy recommendations	Free	Advisory only	100 migrations (default)	Global	Managed	Services > Migration Hub > Strategy > Enable strategy recommendations > Configure (prerequisite: Discovery data collected) > Analyze
+	AWS Application Migration Service (MGN)	N/A	Lift-and-shift migrations	Server migrations	Free for 90 days, then EC2	Limited OS support	50 servers (default)	Global	Managed	Services > MGN > Get started > Add servers > Configure replication (prerequisite: Source servers accessible) > Launch
+	AWS Snowball	Edge	Data transfer with compute	Edge migration	~$400/device + $0.03/GB egress	Not real-time	80 TB capacity	Regional (shipping-based)	Managed	Services > Snowball > Create job > Select Edge device > Configure job details and shipping (prerequisite: Physical shipping address) > Submit
+	AWS Snowball	Standard	Basic data transfer	Large data migration	~$200-$300/device	Shipping delays	50 TB capacity	Regional (shipping-based)	Managed	Services > Snowball > Create job > Select Standard device > Configure job details and shipping (prerequisite: Physical shipping address) > Submit
+	AWS DataSync	Standard	Automated data transfer	File system sync	$0.09/GB transferred	Requires agent	1 PB/day (default)	Global	Managed	Services > DataSync > Create task > Select Standard > Configure source/destination (prerequisite: DataSync agent for on-prem sources) > Start
+	AWS DataSync	Agentless	Agentless data transfer	Cloud-to-cloud sync	$0.09/GB transferred	Limited sources	1 PB/day (default)	Global	Managed	Services > DataSync > Create task > Select Agentless > Configure source/destination (prerequisite: Cloud source/destination like S3) > Start
+	AWS Server Migration Service (SMS)	N/A	VM migration	On-prem to AWS	Free; EC2 costs	Being phased out	50 VMs (default)	Global	Managed	Services > SMS > Connectors > Create connector > Configure VM source (prerequisite: VM environment accessible) > Start migration (special case: Being phased out; consider MGN)
+Media Services	AWS Elemental MediaConvert	Standard	File-based video transcoding	Video format conversion	$0.020-$0.080/min output	Codec knowledge needed	1M minutes/month	Global	Managed	Services > MediaConvert > Create job > Select Standard > Configure input/output (prerequisite: Media files in S3) > Submit
+	AWS Elemental MediaConvert	On-Demand	High-priority transcoding	Urgent media jobs	$0.020-$0.080/min + priority	Higher cost	1M minutes/month	Global	Managed	Services > MediaConvert > Create job > Select On-Demand priority > Configure input/output (prerequisite: Media files in S3) > Submit
+	AWS Elemental MediaLive	Standard	Live video streaming	Event broadcasting	$0.026-$0.13/hr	Complex setup	10 channels (default)	Global	Managed	Services > MediaLive > Create channel > Select Standard > Configure inputs/outputs (prerequisite: Input source like RTMP) > Start
+	AWS Elemental MediaLive	Single Pipeline	Single-stream live video	Cost-effective streaming	$0.026-$0.13/hr	Single failure point	10 channels (default)	Global	Managed	Services > MediaLive > Create channel > Select Single Pipeline > Configure inputs/outputs (prerequisite: Input source like RTMP) > Start
+	Amazon Elastic Transcoder	Standard	Media transcoding	Device compatibility	$0.015-$0.075/min output	Less feature-rich	1M minutes/month	Global (being phased out)	Managed	Services > Elastic Transcoder > Create pipeline > Configure input/output (prerequisite: Media files in S3) > Create job (special case: Being phased out; consider MediaConvert)
+	AWS MediaTailor	Server-Side	Ad insertion for streams	Personalized ads	$0.025/1K impressions	Ad integration required	1M impressions/day	Global	Managed	Services > MediaTailor > Create configuration > Select Server-Side ad insertion > Configure ad server (prerequisite: Ad decision server) > Save
+	AWS MediaTailor	VOD	VOD ad insertion	Video-on-demand ads	$0.025/1K impressions	Limited to VOD	1M impressions/day	Global	Managed	Services > MediaTailor > Create configuration > Select VOD ad insertion > Configure ad server (prerequisite: Ad decision server) > Save
+Cost Management	AWS Budgets	Standard	Cost and usage budgets	Cost alert setup	Free	Basic alerting	20 budgets (default)	Global	Managed	Services > Budgets > Create budget > Select Cost budget > Configure thresholds > Create
+	AWS Budgets	Cost Allocation	Budget with tags	Departmental tracking	Free	Tag dependency	20 budgets (default)	Global	Managed	Services > Budgets > Create budget > Select Cost budget > Enable cost allocation tags (prerequisite: Tags applied to resources) > Create
+	AWS Cost Explorer	Standard	Spending analysis	Trend identification	Free	12-month limit	1M queries/month	Global	Managed	Services > Cost Explorer > Enable Cost Explorer > View cost reports
+	AWS Cost Explorer	Forecast	Cost forecasting	Budget planning	Free	12-month limit	1M queries/month	Global	Managed	Services > Cost Explorer > Cost Explorer > Enable forecasting (prerequisite: Cost Explorer enabled) > View forecast reports
+	AWS Savings Plans	Compute	Compute commitment discount	Steady EC2 use	Up to 54% off	Less flexibility	100 plans/account	Global	Managed	Services > Cost Explorer > Savings Plans > Purchase Savings Plans > Select Compute > Commit (prerequisite: Cost Explorer enabled)
+	AWS Savings Plans	EC2 Instance	Instance-specific discount	Specific workloads	Up to 72% off	Tied to instance	100 plans/account	Global	Managed	Services > Cost Explorer > Savings Plans > Purchase Savings Plans > Select EC2 Instance > Commit (prerequisite: Cost Explorer enabled)
+Internet of Things (IoT)	AWS IoT Core	Device Gateway	Device management	Smart home control	$0.08/M messages	SDK integration	1M messages/day (free)	Global	Managed	Services > IoT Core > Manage > Things > Create thing > Configure device gateway (prerequisite: IoT device certificate) > Create
+	AWS IoT Core	Rules Engine	Data processing rules	IoT data routing	$0.08/M messages	Rule complexity	1M messages/day (free)	Global	Managed	Services > IoT Core > Act > Rules > Create rule > Configure actions (prerequisite: IoT devices registered) > Create
+	AWS IoT Greengrass	Core	Edge computing	Local ML inference	Free (basic), $0.16/hr (core)	Hardware compatibility	100 cores (default)	Global	Managed	Services > IoT Greengrass > Core devices > Set up core device > Configure (prerequisite: Greengrass-compatible device) > Deploy
+	AWS IoT Greengrass	Stream Manager	Edge data streaming	Real-time IoT data	Free (basic), $0.16/hr (core)	Storage limits	100 cores (default)	Global	Managed	Services > IoT Greengrass > Core devices > Select device > Enable Stream Manager > Configure (prerequisite: Greengrass core device) > Deploy
+	AWS IoT Analytics	Channel	IoT data ingestion	Sensor data collection	$0.35/1M messages	Time-series focus	1M messages/day	Global	Managed	Services > IoT Analytics > Channels > Create channel > Configure data source (prerequisite: IoT Core setup) > Create
+	AWS IoT Analytics	Data Store	Long-term IoT storage	Historical analysis	$0.25/GB/month	Query latency	1M messages/day	Global	Managed	Services > IoT Analytics > Data stores > Create data store > Configure storage (prerequisite: IoT Analytics channel) > Create
+Game Development	Amazon GameLift	On-Demand	Game server hosting	Multiplayer games	$0.01-$4.77/hr (instance)	Limited engines	100 fleets (default)	Global	Managed	Services > GameLift > Create fleet > Select On-Demand > Configure game server (prerequisite: Game build uploaded) > Create
+	Amazon GameLift	Spot	Cost-optimized hosting	Batch game sessions	Up to 70% off	Risk of termination	100 fleets (default)	Global	Managed	Services > GameLift > Create fleet > Select Spot > Configure game server (prerequisite: Game build uploaded) > Create
+	Open 3D Engine	Standard	Open-source game engine	Indie game development	Free; service costs	Steep learning	10 projects (default)	Global	Unmanaged	Not available via AWS Console (special case: Download from o3de.org and integrate manually)`;
+
+        // Function to parse the tab-separated service details text
+        function parseServiceDetails(text) {
+            const lines = text.trim().split('\n');
+            if (lines.length === 0) return [];
+
+            const headers = lines[0].split('\t').map(h => h.trim());
+            const details = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split('\t').map(v => v.trim());
+                const entry = {};
+                headers.forEach((header, index) => {
+                    entry[header] = values[index];
+                });
+
+                // Extract dependencies from 'AWS GUI Navigation'
+                const guiNavigation = entry['AWS GUI Navigation'] || '';
+                const prerequisites = [...guiNavigation.matchAll(/\(prerequisite: ([^)]+)\)/g)].map(match => match[1]);
+                entry['Dependencies'] = prerequisites;
+
+                details.push(entry);
+            }
+            return details;
+        }
+
+        const parsedServiceDetails = parseServiceDetails(serviceDetailsText);
+
+        // Define the hierarchical data for AWS Services
+        const treeData = {
+          "name": "AWS Services",
+          "description": `A comprehensive overview of Amazon Web Services (AWS), categorized by their primary function. AWS offers over 200 fully featured services from data centers globally. The fastest-growing cloud provider, it offers a broad set of global cloud-based products including compute, storage, databases, analytics, networking, mobile, developer tools, management tools, IoT, security, and enterprise applications.
+
+### How to Enable/Config (General AWS Setup)
+* **AWS Account:** You need an active AWS account. If you don't have one, you can sign up for the AWS Free Tier.
+* **IAM Permissions:** Ensure your AWS user or role has the necessary IAM permissions to access and manage the services you intend to use. Always follow the principle of least privilege.
+* **AWS Management Console:** Log in to the AWS Management Console (console.aws.amazon.com) to access and manage services through a web-based interface.
+* **AWS CLI:** Install and configure the AWS Command Line Interface (CLI) (\`aws configure\`) for programmatic access from your terminal.
+* **AWS SDKs:** Use AWS Software Development Kits (SDKs) (e.g., Boto3 for Python, AWS SDK for Java) to interact with AWS services from your applications.
+
+### Key Features (General AWS Cloud)
+* **Scalability:** Easily scale resources up or down based on demand.
+* **Global Infrastructure:** Deploy applications globally with multiple regions and Availability Zones.
+* **Cost-Effectiveness:** Pay-as-you-go pricing model with no upfront costs.
+* **Security:** Robust security features, compliance certifications, and shared responsibility model.
+* **Reliability:** Highly available and fault-tolerant infrastructure.
+* **Flexibility:** Broad choice of operating systems, programming languages, web application platforms, databases, and other services.
+
+### Parameters/Dependencies (General)
+* **Region:** Most AWS resources are region-specific.
+* **IAM Roles/Users:** Permissions are crucial for any interaction.
+* **VPC:** Many services operate within a Virtual Private Cloud for network isolation.
+* **S3:** Often used as a central data lake or storage for various services.
+
+### Tool Navigations (AWS Console)
+* Log in to the AWS Console.
+* Use the search bar at the top to find specific services (e.g., "EC2", "S3", "Lambda").
+* Browse services by category from the "Services" menu.
+
+### CLI & Output Syntax Examples (General AWS CLI)
+\`\`\`bash
+# Configure AWS CLI (if not already done)
+aws configure
+
+# Example: List S3 buckets (common data source)
+aws s3 ls
+
+# Example: Get current AWS caller identity
+aws sts get-caller-identity
+\`\`\`
+
+### Common Issues and Solutions (General AWS)
+* **Issue: Insufficient Permissions (Access Denied).**
+    * **Solution:** Check IAM policies attached to your user or role. Ensure the necessary actions (e.g., \`s3:GetObject\`, \`ec2:RunInstances\`) are explicitly allowed. Use IAM Access Analyzer.
+* **Issue: Region Mismatch.**
+    * **Solution:** Ensure your CLI/SDK configuration or console region matches the region where your resources are deployed or where you intend to deploy them.
+* **Issue: Service Limits.**
+    * **Solution:** AWS services have default limits. If you hit a limit (e.g., number of EC2 instances), request a limit increase through the AWS Support Center.
+* **Issue: Cost Management.**
+    * **Solution:** Monitor costs using AWS Cost Explorer. Set up billing alarms. Stop unused resources (EC2 instances, RDS databases, etc.) to avoid unnecessary charges.
+* **Issue: Network Connectivity Problems.**
+    * **Solution:** Verify VPC security groups, network ACLs, and routing tables. Check instance security groups to ensure inbound/outbound rules are correctly configured.`,
+          "children": [
+            {
+              "name": "Compute",
+              "description": `Services related to computing power and running applications. These services provide the virtual servers, containers, and serverless functions needed to host and execute your code.
+
+### Key Features
+* **Scalability:** Easily scale compute resources up or down based on demand.
+* **Flexibility:** Wide range of instance types, operating systems, and deployment models (VMs, containers, serverless).
+* **Cost Efficiency:** Pay-as-you-go pricing, often by the second or millisecond.
+* **Integration:** Seamless integration with other AWS services like storage, networking, and databases.
+
+### Parameters/Dependencies
+* **Instance Type:** Specifies CPU, memory, storage, and networking capacity (e.g., \`t3.micro\`, \`m5.large\`, \`g4dn.xlarge\`).
+* **AMI (Amazon Machine Image):** A template containing a software configuration (operating system, application server, applications).
+* **Security Groups:** Virtual firewalls that control inbound and outbound traffic.
+* **VPC:** Network environment for your compute resources.
+* **IAM Role:** Permissions for the compute resource to interact with other AWS services.
+
+### Tool Navigations (AWS Console)
+* **EC2:** Services -> Compute -> EC2
+* **Lambda:** Services -> Compute -> Lambda
+* **ECS/EKS:** Services -> Compute -> Elastic Container Service / Elastic Kubernetes Service
+* **Fargate:** Services -> Compute -> Elastic Container Service (Fargate is a launch type within ECS/EKS)
+* **Elastic Beanstalk:** Services -> Compute -> Elastic Beanstalk
+
+### CLI & Output Syntax Examples (EC2)
+\`\`\`bash
+# Example: Launch an EC2 instance
+aws ec2 run-instances \\
+    --image-id ami-0abcdef1234567890 \\ # Replace with a valid AMI ID for your region
+    --count 1 \\
+    --instance-type t2.micro \\
+    --key-name MyKeyPair \\
+    --security-group-ids sg-xxxxxxxxxxxxxxxxx \\
+    --subnet-id subnet-xxxxxxxxxxxxxxxxx
+
+# Example: List running EC2 instances
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"
+
+# Example: Stop an EC2 instance
+aws ec2 stop-instances --instance-ids i-xxxxxxxxxxxxxxxxx
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: EC2 instance fails to launch or is stuck in 'pending' state.**
+    * **Solution:** Check the instance launch logs (available in the EC2 console). Common causes include incorrect AMI, insufficient permissions for the IAM role, or issues with the specified subnet/security group.
+* **Issue: Lambda function timeout.**
+    * **Solution:** Increase the Lambda function's timeout setting. Optimize your code for efficiency. Consider using Step Functions for longer-running workflows.
+* **Issue: High compute costs.**
+    * **Solution:** Use appropriate instance types (e.g., smaller instances for development/testing). Leverage Spot Instances for fault-tolerant workloads. Implement auto-scaling to match capacity with demand. Monitor with AWS Cost Explorer.
+* **Issue: Containerized applications not deploying correctly on ECS/EKS.**
+    * **Solution:** Check container logs in CloudWatch. Verify Dockerfile, task definition/pod spec, and IAM permissions for the ECS task role or EKS service account. Ensure container images are accessible (e.g., from ECR).`,
+              "children": [
+                {"name": "Amazon EC2", "description": "Elastic Compute Cloud provides resizable compute capacity in the cloud as virtual servers. It allows you to rent virtual computers on which to run your own computer applications. You have full control over the operating system."},
+                {"name": "Amazon ECS", "description": "Elastic Container Service is a highly scalable, high-performance container orchestration service that supports Docker containers. It allows you to run and scale containerized applications on AWS."},
+                {"name": "Amazon EKS", "description": "Elastic Kubernetes Service is a managed Kubernetes service to run Kubernetes on AWS without needing to install, operate, and maintain your own Kubernetes control plane. It provides native Kubernetes experience."},
+                {"name": "AWS Lambda", "description": "A serverless compute service that lets you run code without provisioning or managing servers. You pay only for the compute time you consume, and there is no charge when your code is not running."},
+                {"name": "AWS Fargate", "description": "A serverless compute engine for containers that works with both Amazon ECS and Amazon EKS. Fargate removes the need to provision and manage servers, letting you focus on building your applications."},
+                {"name": "Elastic Beanstalk", "description": "An easy-to-use service for deploying and scaling web applications and services developed with Java, .NET, PHP, Node.js, Python, Ruby, Go, and Docker on familiar servers. It handles the deployment capacity provisioning, load balancing, auto-scaling, and application health monitoring."}
+              ]
+            },
+            {
+              "name": "Storage",
+              "description": `Services for storing and retrieving data. AWS offers a variety of storage options optimized for different use cases, including object storage, block storage, file storage, and archiving.
+
+### Key Features
+* **Durability:** Designed for 99.999999999% (11 nines) durability for object storage.
+* **Scalability:** Virtually unlimited storage capacity.
+* **Availability:** High availability across multiple Availability Zones.
+* **Security:** Encryption at rest and in transit, access control, and compliance certifications.
+* **Cost Optimization:** Tiered storage options for different access patterns and retention needs.
+
+### Parameters/Dependencies
+* **Bucket/Volume/File System Name:** Unique identifiers for your storage resources.
+* **Region:** Storage resources are typically region-specific.
+* **Access Policies:** IAM policies, bucket policies, and access control lists (ACLs) to control access.
+* **Encryption:** KMS keys or S3-managed keys for data encryption.
+* **Storage Class:** (For S3) Defines performance and cost characteristics (e.g., Standard, Intelligent-Tiering, Glacier).
+
+### Tool Navigations (AWS Console)
+* **S3:** Services -> Storage -> S3
+* **EBS:** Services -> Storage -> EC2 -> Elastic Block Store (Volumes/Snapshots)
+* **EFS:** Services -> Storage -> EFS
+* **FSx:** Services -> Storage -> FSx
+* **Glacier:** Services -> Storage -> S3 -> Glacier (or direct Glacier console)
+* **Storage Gateway:** Services -> Storage -> AWS Storage Gateway
+
+### CLI & Output Syntax Examples (S3)
+\`\`\`bash
+# Example: Create an S3 bucket
+aws s3 mb s3://my-unique-aws-bucket-2025 --region us-east-1
+
+# Example: Upload a file to S3
+aws s3 cp mylocalfile.txt s3://my-unique-aws-bucket-2025/myfolder/
+
+# Example: List objects in an S3 bucket
+aws s3 ls s3://my-unique-aws-bucket-2025/myfolder/
+
+# Example: Delete an S3 bucket (must be empty first)
+aws s3 rb s3://my-unique-aws-bucket-2025
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: "Access Denied" when trying to access S3 bucket.**
+    * **Solution:** Check bucket policies, IAM user/role policies, and object ACLs. Ensure the correct region is specified.
+* **Issue: High storage costs.**
+    * **Solution:** Review S3 storage classes and lifecycle policies to move infrequently accessed data to cheaper tiers (e.g., S3 Intelligent-Tiering, S3 Glacier). Delete unnecessary data.
+* **Issue: Data transfer costs (egress).**
+    * **Solution:** Minimize data egress from AWS. Use CloudFront for content delivery. Keep data processing within the same AWS region.
+* **Issue: EBS volume performance issues.**
+    * **Solution:** Ensure the correct EBS volume type (e.g., gp3, io2) is selected for your workload's IOPS and throughput requirements. Monitor volume performance with CloudWatch.
+* **Issue: EFS performance for high concurrency.**
+    * **Solution:** Adjust EFS performance mode (General Purpose vs. Max I/O) and throughput mode (Bursting vs. Provisioned) based on your application's needs.`,
+              "children": [
+                {"name": "Amazon S3", "description": "Simple Storage Service is an object storage service that offers industry-leading scalability, data availability, security, and performance. It's ideal for data lakes, backups, archives, and cloud-native applications."},
+                {"name": "Amazon EBS", "description": "Elastic Block Store provides persistent block storage volumes for use with Amazon EC2 instances. EBS volumes are highly available and reliable, suitable for databases, boot volumes, and transactional workloads."},
+                {"name": "Amazon EFS", "description": "Elastic File System provides simple, scalable, elastic file storage for use with AWS Cloud services and on-premises resources. It's a fully managed NFS file system that can be accessed by multiple EC2 instances concurrently."},
+                {"name": "Amazon FSx", "description": "Provides fully managed third-party file systems, such as Windows File Server and Lustre, with native compatibility. It simplifies the deployment and management of specialized file systems."},
+                {"name": "Amazon Glacier", "description": "A low-cost storage service that provides secure, durable, and extremely low-cost storage for data archiving and long-term backup. It's optimized for data that is infrequently accessed and where retrieval times of several hours are acceptable."},
+                {"name": "AWS Storage Gateway", "description": "A hybrid cloud storage service that connects an on-premises software appliance with cloud-based storage to provide seamless integration. It offers file, volume, and tape gateways to store data in AWS cloud storage."}
+              ]
+            },
+            {
+              "name": "Networking & Content Delivery",
+              "description": `Services for network management and content distribution. These services enable you to build isolated network environments, deliver content globally with low latency, and manage DNS.
+
+### Key Features
+* **Network Isolation:** Create private, isolated sections of the AWS Cloud.
+* **Global Content Delivery:** Distribute content closer to users for faster access.
+* **High Availability:** Redundant DNS and load balancing to ensure application uptime.
+* **Security:** Protect applications from web exploits and DDoS attacks.
+* **Hybrid Connectivity:** Securely extend your on-premises networks to AWS.
+
+### Parameters/Dependencies
+* **CIDR Blocks:** IP address ranges for VPCs and subnets.
+* **Security Groups/Network ACLs:** Control traffic flow at instance and subnet levels.
+* **Domain Names:** For Route 53 DNS management.
+* **Origins:** (For CloudFront) The source of your content (e.g., S3 bucket, EC2 instance).
+* **Target Groups:** (For ELB) Groups of instances or IP addresses to which traffic is routed.
+
+### Tool Navigations (AWS Console)
+* **VPC:** Services -> Networking & Content Delivery -> VPC
+* **CloudFront:** Services -> Networking & Content Delivery -> CloudFront
+* **Direct Connect:** Services -> Networking & Content Delivery -> Direct Connect
+* **Route 53:** Services -> Networking & Content Delivery -> Route 53
+* **ELB:** Services -> Networking & Content Delivery -> EC2 -> Load Balancers
+* **Global Accelerator:** Services -> Networking & Content Delivery -> AWS Global Accelerator
+
+### CLI & Output Syntax Examples (VPC)
+\`\`\`bash
+# Example: Create a VPC
+aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query 'Vpc.VpcId'
+
+# Example: Create a subnet in a VPC
+aws ec2 create-subnet --vpc-id vpc-xxxxxxxxxxxxxxxxx --cidr-block 10.0.1.0/24 --availability-zone us-east-1a
+
+# Example: Describe security groups
+aws ec2 describe-security-groups --group-names MySecurityGroup
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: Instances in VPC cannot access the internet.**
+    * **Solution:** Ensure the subnet has a route to an Internet Gateway (for public subnets) or a NAT Gateway (for private subnets). Check associated route tables.
+* **Issue: CloudFront content not updating.**
+    * **Solution:** Invalidate CloudFront cache after updating content at the origin.
+* **Issue: DNS resolution issues with Route 53.**
+    * **Solution:** Verify DNS records (A, CNAME, MX, etc.) in your hosted zone. Check health checks associated with your records.
+* **Issue: High latency for global users.**
+    * **Solution:** Use CloudFront for static/dynamic content delivery. Consider AWS Global Accelerator for non-HTTP workloads to improve performance over the AWS global network.
+* **Issue: Load balancer not distributing traffic.**
+    * **Solution:** Check target group health checks. Ensure instances are registered with the target group and are in a healthy state. Verify security group rules allow traffic from the load balancer.`,
+              "children": [
+                {"name": "Amazon VPC", "description": "Virtual Private Cloud lets you provision a logically isolated section of the AWS Cloud where you can launch AWS resources in a virtual network that you define. You have complete control over your virtual networking environment, including selection of your own IP address range, creation of subnets, and configuration of route tables and network gateways."},
+                {"name": "Amazon CloudFront", "description": "A fast content delivery network (CDN) service that securely delivers data, videos, applications, and APIs to customers globally with low latency. It caches content at edge locations closer to your users."},
+                {"name": "AWS Direct Connect", "description": "Establishes a dedicated network connection from your premises to AWS, reducing network costs, increasing bandwidth throughput, and providing a more consistent network experience than Internet-based connections."},
+                {"name": "Amazon Route 53", "description": "A highly available and scalable cloud Domain Name System (DNS) web service. It translates human-readable domain names into the numeric IP addresses that computers use to connect to each other."},
+                {"name": "Elastic Load Balancing (ELB)", "description": "Automatically distributes incoming application traffic across multiple targets, such as EC2 instances, containers, IP addresses, and Lambda functions. It increases the fault tolerance of your applications."},
+                {"name": "AWS Global Accelerator", "description": "A networking service that improves the availability and performance of your applications with local or global users by directing traffic to optimal endpoints over the AWS global network."}
+              ]
+            },
+            {
+              "name": "Database",
+              "description": `Services for various database needs, including relational, NoSQL, in-memory, data warehousing, and graph databases.
+
+### Key Features
+* **Managed Service:** AWS handles patching, backups, and scaling, reducing operational overhead.
+* **Scalability:** Easily scale compute and storage independently.
+* **High Availability:** Multi-AZ deployments for automatic failover and data redundancy.
+* **Performance:** Optimized for various workloads, from transactional to analytical.
+* **Security:** Encryption at rest and in transit, network isolation, and IAM integration.
+
+### Parameters/Dependencies
+* **Database Engine:** (For RDS/Aurora) MySQL, PostgreSQL, Oracle, SQL Server, MariaDB.
+* **Instance Class:** Defines compute and memory capacity.
+* **Storage Type/Size:** For persistent storage.
+* **Security Groups:** Control network access to the database.
+* **Backup Retention:** How long backups are kept.
+
+### Tool Navigations (AWS Console)
+* **RDS:** Services -> Database -> RDS
+* **Aurora:** Services -> Database -> RDS (Aurora is an engine option)
+* **DynamoDB:** Services -> Database -> DynamoDB
+* **ElastiCache:** Services -> Database -> ElastiCache
+* **Redshift:** Services -> Database -> Redshift
+* **Neptune:** Services -> Database -> Neptune
+* **DocumentDB:** Services -> Database -> DocumentDB
+
+### CLI & Output Syntax Examples (RDS)
+\`\`\`bash
+# Example: Create a MySQL RDS instance
+aws rds create-db-instance \\
+    --db-instance-identifier mydbinstance \\
+    --db-instance-class db.t3.micro \\
+    --engine mysql \\
+    --master-username admin \\
+    --master-user-password MySecurePassword123 \\
+    --allocated-storage 20 \\
+    --vpc-security-group-ids sg-xxxxxxxxxxxxxxxxx \\
+    --db-subnet-group-name mydbsubnetgroup \\
+    --publicly-accessible \\
+    --no-multi-az \\
+    --engine-version 8.0.28
+
+# Example: Describe DB instances
+aws rds describe-db-instances --db-instance-identifier mydbinstance
+
+# Example: Delete a DB instance (skip final snapshot for quick deletion)
+aws rds delete-db-instance --db-instance-identifier mydbinstance --skip-final-snapshot
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: Database connection refused.**
+    * **Solution:** Check security group rules to ensure inbound traffic is allowed on the database port (e.g., 3306 for MySQL, 5432 for PostgreSQL) from your application's IP or security group. Verify network ACLs.
+* **Issue: Database performance bottlenecks.**
+    * **Solution:** Monitor CloudWatch metrics (CPU utilization, IOPS, freeable memory). Scale up instance class, optimize queries, or consider read replicas for read-heavy workloads.
+* **Issue: DynamoDB throttling.**
+    * **Solution:** Increase provisioned read/write capacity units (RCUs/WCUs) for your tables. Implement exponential backoff and retry logic in your application. Consider On-Demand capacity mode.
+* **Issue: Redshift query performance.**
+    * **Solution:** Optimize table design (distribution keys, sort keys). Analyze query plans. Use workload management (WLM) to prioritize queries. Scale cluster size.
+* **Issue: Data loss during accidental deletion.**
+    * **Solution:** Enable automated backups and set a sufficient retention period. Enable deletion protection for critical databases.`,
+              "children": [
+                {"name": "Amazon RDS", "description": "Relational Database Service makes it easy to set up, operate, and scale a relational database in the cloud. It supports popular engines like MySQL, PostgreSQL, Oracle, SQL Server, and MariaDB."},
+                {"name": "Amazon Aurora", "description": "A MySQL and PostgreSQL-compatible relational database built for the cloud, combining the performance and availability of traditional enterprise databases with the simplicity and cost-effectiveness of open-source databases. It's designed for high performance and availability."},
+                {"name": "Amazon DynamoDB", "description": "A fast and flexible NoSQL database service for single-digit millisecond performance at any scale. It's a fully managed, multi-region, multi-active, durable database with built-in security, backup and restore, and in-memory caching."},
+                {"name": "Amazon ElastiCache", "description": "A fully managed in-memory caching service that supports Memcached and Redis. It improves the performance of web applications by retrieving information from fast, managed, in-memory caches instead of relying entirely on slower disk-based databases."},
+                {"name": "Amazon Redshift", "description": "A fully managed, petabyte-scale data warehouse service in the cloud. It allows you to run complex analytic queries against petabytes of structured data, using SQL-based tools."},
+                {"name": "Amazon Neptune", "description": "A fast, reliable, fully managed graph database service that makes it easy to build and run applications that work with highly connected datasets. It supports popular graph models Property Graph and RDF."},
+                {"name": "Amazon DocumentDB", "description": "A fast, scalable, highly available, and fully managed document database service that supports MongoDB workloads. It's compatible with MongoDB APIs and drivers."}
+              ]
+            },
+            {
+              "name": "Analytics",
+              "description": `Services for data analytics and business intelligence. These services help you collect, process, store, and analyze large volumes of data to gain insights and make informed decisions.
+
+### Key Features
+* **Scalability:** Handle massive datasets and varying query loads.
+* **Serverless Options:** Many services are serverless, reducing operational overhead.
+* **Real-time Processing:** Process streaming data for immediate insights.
+* **Integration:** Seamlessly integrate with other AWS services for end-to-end analytics workflows.
+* **Machine Learning Integration:** Built-in ML capabilities for advanced analytics.
+
+### Parameters/Dependencies
+* **Data Source:** S3 buckets, Kinesis streams, RDS databases.
+* **Schema Definition:** For structured data analysis.
+* **Compute Resources:** Instance types for EMR, Redshift clusters.
+* **IAM Roles:** Permissions to access data sources and other services.
+* **Query Language:** SQL for Athena, Spark for EMR.
+
+### Tool Navigations (AWS Console)
+* **Athena:** Services -> Analytics -> Athena
+* **Kinesis:** Services -> Analytics -> Kinesis
+* **EMR:** Services -> Analytics -> EMR
+* **QuickSight:** Services -> Analytics -> QuickSight
+* **Glue:** Services -> Analytics -> Glue
+* **OpenSearch Service:** Services -> Analytics -> Amazon OpenSearch Service
+
+### CLI & Output Syntax Examples (Athena)
+\`\`\`bash
+# Example: Start an Athena query execution
+aws athena start-query-execution \\
+    --query-string "SELECT * FROM my_s3_table LIMIT 10;" \\
+    --query-execution-context Database=mydatabase \\
+    --result-configuration OutputLocation=s3://my-athena-query-results/
+
+# Example: Get query execution details
+aws athena get-query-execution --query-execution-id xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+# Example: List databases in Athena
+aws athena list-databases
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: Slow Athena query performance.**
+    * **Solution:** Optimize data format (e.g., Parquet, ORC). Partition data in S3. Compress data. Tune query structure.
+* **Issue: EMR cluster failures.**
+    * **Solution:** Check EMR cluster logs in CloudWatch or through the EMR console. Ensure sufficient instance types and storage. Verify application code (Spark, Hadoop) for errors.
+* **Issue: Kinesis data processing delays.**
+    * **Solution:** Ensure sufficient shards in Kinesis streams. Optimize consumer application's processing logic. Scale out consumer instances.
+* **Issue: Glue ETL job failures.**
+    * **Solution:** Check Glue job logs for errors. Verify IAM permissions for S3 and other data sources. Ensure the Glue Data Catalog has correct table definitions.
+* **Issue: QuickSight dashboard loading slowly.**
+    * **Solution:** Optimize underlying data sources. Use SPICE (Super-fast Parallel In-memory Calculation Engine) for faster queries. Simplify complex calculations in the dashboard.`,
+              "children": [
+                {"name": "Amazon Athena", "description": "An interactive query service that makes it easy to analyze data directly in Amazon S3 using standard SQL. It's serverless, so there is no infrastructure to manage."},
+                {"name": "Amazon Kinesis", "description": "A platform for streaming data on AWS, offering services to process large streams of data in real time. It includes Kinesis Data Streams, Kinesis Firehose, Kinesis Data Analytics, and Kinesis Video Streams."},
+                {"name": "Amazon EMR", "description": "Elastic MapReduce is a managed cluster platform that simplifies running big data frameworks, such as Apache Spark, Hadoop, Hive, and Presto, on AWS. It allows you to process and analyze vast amounts of data."},
+                {"name": "Amazon QuickSight", "description": "A scalable, serverless, embeddable, machine learning-powered business intelligence (BI) service built for the cloud. It allows you to create interactive dashboards and reports."},
+                {"name": "Amazon Glue", "description": "A serverless data integration service that makes it easy to discover, prepare, and combine data for analytics, machine learning, and application development. It includes a data catalog, ETL engine, and development endpoints."},
+                {"name": "Amazon OpenSearch Service", "description": "A managed service that makes it easy to deploy, operate, and scale OpenSearch clusters in the AWS Cloud. It supports full-text search, log analytics, and real-time application monitoring."}
+              ]
+            },
+            {
+              "name": "Security, Identity & Compliance",
+              "description": `Services for security, identity management, and compliance. These services help you protect your data, accounts, and applications, manage user access, and meet regulatory requirements.
+
+### Key Features
+* **Identity and Access Management:** Granular control over who can access what.
+* **Threat Detection:** Continuously monitor for malicious activity and unauthorized behavior.
+* **Data Protection:** Encryption, key management, and data loss prevention.
+* **Network Security:** Firewalls, DDoS protection, and network isolation.
+* **Compliance:** Tools and certifications to help meet regulatory standards.
+
+### Parameters/Dependencies
+* **IAM Policies:** JSON documents defining permissions.
+* **KMS Keys:** Customer-managed or AWS-managed keys for encryption.
+* **Security Groups/Network ACLs:** For network-level security.
+* **CloudTrail Logs:** For auditing API calls.
+* **WAF Rules:** For filtering web traffic.
+
+### Tool Navigations (AWS Console)
+* **IAM:** Services -> Security, Identity, & Compliance -> IAM
+* **KMS:** Services -> Security, Identity, & Compliance -> Key Management Service
+* **WAF:** Services -> Security, Identity, & Compliance -> WAF & Shield
+* **GuardDuty:** Services -> Security, Identity, & Compliance -> GuardDuty
+* **Shield:** Services -> Security, Identity, & Compliance -> WAF & Shield
+* **Security Hub:** Services -> Security, Identity, & Compliance -> Security Hub
+* **Cognito:** Services -> Security, Identity, & Compliance -> Cognito
+
+### CLI & Output Syntax Examples (IAM)
+\`\`\`bash
+# Example: Create an IAM user
+aws iam create-user --user-name mytestuser
+
+# Example: Attach a policy to an IAM user
+aws iam attach-user-policy --user-name mytestuser --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+
+# Example: Get a user's access keys
+aws iam list-access-keys --user-name mytestuser
+
+# Example: Delete an IAM user
+aws iam delete-user --user-name mytestuser
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: "Access Denied" errors.**
+    * **Solution:** This is the most common issue. Thoroughly review IAM policies, S3 bucket policies, and security group rules. Use IAM Policy Simulator to test permissions.
+* **Issue: Accidental exposure of sensitive data.**
+    * **Solution:** Enable S3 bucket encryption. Use Amazon Macie to discover and protect sensitive data. Implement strong access controls and regularly audit S3 bucket policies.
+* **Issue: DDoS attacks impacting application availability.**
+    * **Solution:** Use AWS Shield Advanced for automatic DDoS protection. Implement AWS WAF rules to filter malicious traffic.
+* **Issue: Managing user authentication for applications.**
+    * **Solution:** Use Amazon Cognito for user sign-up, sign-in, and access control for web and mobile apps. Integrate with identity providers.
+* **Issue: Difficulty tracking security posture across multiple accounts.**
+    * **Solution:** Use AWS Security Hub to aggregate security findings. Implement AWS Organizations to manage multiple accounts centrally.`,
+              "children": [
+                {"name": "AWS IAM", "description": "Identity and Access Management enables you to securely control access to AWS services and resources for your users. You can create and manage AWS users and groups, and grant them permissions to access your AWS resources."},
+                {"name": "AWS KMS", "description": "Key Management Service makes it easy for you to create and manage cryptographic keys and control their use across a wide range of AWS services and in your applications. It's integrated with most AWS services for encryption."},
+                {"name": "AWS WAF", "description": "Web Application Firewall helps protect your web applications or APIs against common web exploits that may affect availability, compromise security, or consume excessive resources. It allows you to control traffic based on rules you define."},
+                {"name": "Amazon GuardDuty", "description": "A threat detection service that continuously monitors your AWS accounts and workloads for malicious activity and unauthorized behavior. It uses machine learning and threat intelligence to identify threats."},
+                {"name": "AWS Shield", "description": "A managed Distributed Denial of Service (DDoS) protection service that safeguards applications running on AWS. AWS Shield Standard is automatically included at no extra cost. AWS Shield Advanced provides enhanced protections."},
+                {"name": "AWS Security Hub", "description": "Provides a comprehensive view of your security alerts and security posture across your AWS accounts. It collects security data from across AWS services and partner solutions."},
+                {"name": "Amazon Cognito", "description": "Provides authentication, authorization, and user management for your web and mobile apps. It supports user pools for user directories and identity pools for granting AWS access."}
+              ]
+            },
+            {
+              "name": "Management & Governance",
+              "description": `Services for managing and governing your AWS resources. These services help you monitor, audit, optimize, and control your AWS environment.
+
+### Key Features
+* **Monitoring and Logging:** Gain visibility into resource performance and API activity.
+* **Configuration Management:** Track and enforce resource configurations.
+* **Cost Management:** Monitor and optimize AWS spending.
+* **Automation:** Automate operational tasks and resource provisioning.
+* **Multi-Account Management:** Centrally manage and govern multiple AWS accounts.
+
+### Parameters/Dependencies
+* **CloudWatch Alarms:** Metrics, thresholds, and actions.
+* **CloudTrail Trails:** S3 bucket for log storage.
+* **Config Rules:** Desired configuration states.
+* **Systems Manager Documents:** Automation runbooks.
+* **Organizational Units (OUs):** For structuring accounts in Organizations.
+
+### Tool Navigations (AWS Console)
+* **CloudWatch:** Services -> Management & Governance -> CloudWatch
+* **CloudTrail:** Services -> Management & Governance -> CloudTrail
+* **Config:** Services -> Management & Governance -> Config
+* **Systems Manager:** Services -> Management & Governance -> Systems Manager
+* **Organizations:** Services -> Management & Governance -> Organizations
+* **Control Tower:** Services -> Management & Governance -> AWS Control Tower
+
+### CLI & Output Syntax Examples (CloudWatch)
+\`\`\`bash
+# Example: List CloudWatch alarms
+aws cloudwatch describe-alarms
+
+# Example: Put a custom metric data point
+aws cloudwatch put-metric-data \\
+    --namespace "MyApplication" \\
+    --metric-name "CustomRequestCount" \\
+    --value 10 \\
+    --dimensions InstanceId=i-xxxxxxxxxxxxxxxxx
+
+# Example: Get metric statistics
+aws cloudwatch get-metric-statistics \\
+    --namespace "AWS/EC2" \\
+    --metric-name "CPUUtilization" \\
+    --start-time 2025-07-01T00:00:00Z \\
+    --end-time 2025-07-02T00:00:00Z \\
+    --period 3600 \\
+    --statistics Average
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: CloudWatch alarms not triggering.**
+    * **Solution:** Verify alarm thresholds, metric data points, and associated SNS topics/actions. Ensure sufficient data points are being collected.
+* **Issue: CloudTrail logs not being delivered.**
+    * **Solution:** Check the S3 bucket policy for the CloudTrail trail. Verify the IAM role used by CloudTrail has permissions to write to the S3 bucket.
+* **Issue: AWS Config rules showing non-compliant resources.**
+    * **Solution:** Review the rule definition and the resource configuration. Remediate the non-compliant resource or adjust the rule if it's a false positive.
+* **Issue: Difficulty automating routine tasks.**
+    * **Solution:** Explore AWS Systems Manager Automation documents. Use Lambda functions for event-driven automation.
+* **Issue: Managing policies across many accounts.**
+    * **Solution:** Implement Service Control Policies (SCPs) in AWS Organizations to set guardrails for permissions across your accounts.`,
+              "children": [
+                {"name": "Amazon CloudWatch", "description": "A monitoring and observability service built for DevOps engineers, developers, and IT managers. It provides data and actionable insights to monitor your applications, respond to system-wide performance changes, and optimize resource utilization."},
+                {"name": "AWS CloudTrail", "description": "Enables governance, compliance, operational auditing, and risk auditing of your AWS account. It records API calls and related events made by or on behalf of your AWS account and delivers log files to an S3 bucket."},
+                {"name": "AWS Config", "description": "Enables you to assess, audit, and evaluate the configurations of your AWS resources. It continuously monitors and records your AWS resource configurations and allows you to automate the evaluation of recorded configurations against desired configurations."},
+                {"name": "AWS Systems Manager", "description": "Gives you visibility and control over your AWS infrastructure. It simplifies resource and application management, shortens the time to detect and resolve operational problems, and makes it easier to operate and manage your infrastructure at scale."},
+                {"name": "AWS Organizations", "description": "Helps you centrally manage and govern your environment as you grow and scale your AWS resources. You can create accounts, group accounts into organizational units (OUs), and apply policies to those OUs."},
+                {"name": "AWS Control Tower", "description": "Provides an easy way to set up and govern a secure, multi-account AWS environment. It automates the setup of a baseline environment and provides ongoing governance."}
+              ]
+            },
+            {
+              "name": "Developer Tools",
+              "description": `Services for software development and deployment. These tools help developers store code, build and test applications, and automate release processes.
+
+### Key Features
+* **Source Control:** Securely store and version control your code.
+* **Continuous Integration:** Automate code compilation and testing.
+* **Continuous Delivery/Deployment:** Automate software releases to various environments.
+* **Integrated Development Environment (IDE):** Cloud-based IDE for collaborative coding.
+* **Workflow Automation:** Orchestrate development and deployment pipelines.
+
+### Parameters/Dependencies
+* **Repositories:** Git repositories for CodeCommit.
+* **Build Specifications (buildspec.yml):** Define build steps for CodeBuild.
+* **Deployment Groups:** Target instances for CodeDeploy.
+* **Pipeline Stages:** Define sequence of actions in CodePipeline.
+* **Source Code:** For all services.
+
+### Tool Navigations (AWS Console)
+* **CodeCommit:** Services -> Developer Tools -> CodeCommit
+* **CodeBuild:** Services -> Developer Tools -> CodeBuild
+* **CodeDeploy:** Services -> Developer Tools -> CodeDeploy
+* **CodePipeline:** Services -> Developer Tools -> CodePipeline
+* **CodeStar:** Services -> Developer Tools -> CodeStar
+* **Cloud9:** Services -> Developer Tools -> Cloud9
+
+### CLI & Output Syntax Examples (CodeCommit)
+\`\`\`bash
+# Example: Create a CodeCommit repository
+aws codecommit create-repository --repository-name MyWebAppRepo
+
+# Example: Get repository details
+aws codecommit get-repository --repository-name MyWebAppRepo
+
+# Example: List repositories
+aws codecommit list-repositories
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: CodeCommit authentication issues (Git credentials).**
+    * **Solution:** Ensure your Git credentials for AWS CodeCommit are correctly configured (either HTTPS Git credentials or SSH keys). Verify IAM user permissions for CodeCommit.
+* **Issue: CodeBuild build failures.**
+    * **Solution:** Check CodeBuild logs for errors. Verify the \`buildspec.yml\` file syntax and commands. Ensure the CodeBuild service role has necessary permissions (e.g., S3 access).
+* **Issue: CodeDeploy deployment failures.**
+    * **Solution:** Check CodeDeploy deployment logs on the target instances. Verify the \`appspec.yml\` file and scripts. Ensure the IAM instance profile has permissions for CodeDeploy agent.
+* **Issue: CodePipeline stuck or failing at a stage.**
+    * **Solution:** Review the pipeline execution history and logs for the failing stage. Check the configuration of the action within that stage (e.g., CodeBuild project, CodeDeploy application).
+* **Issue: Cloud9 environment not launching.**
+    * **Solution:** Check the associated EC2 instance status. Ensure your IAM user has permissions to create and manage Cloud9 environments.`,
+              "children": [
+                {"name": "AWS CodeCommit", "description": "A fully managed source control service that hosts secure Git-based repositories. It eliminates the need to operate your own source control system or worry about scaling its infrastructure."},
+                {"name": "AWS CodeBuild", "description": "A fully managed continuous integration service that compiles source code, runs tests, and produces software packages that are ready to deploy. It scales continuously and processes multiple builds concurrently."},
+                {"name": "AWS CodeDeploy", "description": "Automates code deployments to any instance, including Amazon EC2 instances and on-premises servers. It makes it easier to rapidly release new features, helps avoid downtime during deployment, and handles the complexity of updating your applications."},
+                {"name": "AWS CodePipeline", "description": "A fully managed continuous delivery service that helps you automate your release pipelines for fast and reliable application and infrastructure updates. It automates the build, test, and deploy phases of your release process."},
+                {"name": "AWS CodeStar", "description": "Enables you to quickly develop, build, and deploy applications on AWS with a unified user interface. It provides a project dashboard that integrates with CodeCommit, CodeBuild, CodeDeploy, and CodePipeline."},
+                {"name": "AWS Cloud9", "description": "A cloud-based integrated development environment (IDE) that lets you write, run, and debug your code with just a browser. It includes a code editor, debugger, and terminal."}
+              ]
+            },
+            {
+              "name": "Machine Learning & AI",
+              "description": `Services for building, training, and deploying machine learning models and integrating AI capabilities into applications. This category spans from high-level AI services (pre-trained models) to low-level ML frameworks and infrastructure.
+
+### Key Features
+* **Managed ML Platform:** Simplify the entire ML lifecycle (SageMaker).
+* **Pre-trained AI Services:** Easily add AI capabilities (vision, language, speech) without ML expertise.
+* **Scalable Compute:** Access to powerful GPU instances for deep learning.
+* **Model Monitoring:** Continuously monitor deployed models for drift and performance.
+* **Generative AI:** Access to Foundation Models (FMs) for text, image, and code generation.
+
+### Parameters/Dependencies
+* **Data:** S3 for datasets and model artifacts.
+* **IAM Roles:** Permissions for ML services to access data and other resources.
+* **Instance Types:** For training and inference (CPU/GPU).
+* **Model Artifacts:** Trained models for deployment.
+* **Prompts/Inputs:** For AI services and generative models.
+
+### Tool Navigations (AWS Console)
+* **SageMaker:** Services -> Machine Learning -> Amazon SageMaker
+* **Rekognition:** Services -> Machine Learning -> Amazon Rekognition
+* **Polly:** Services -> Machine Learning -> Amazon Polly
+* **Transcribe:** Services -> Machine Learning -> Amazon Transcribe
+* **Comprehend:** Services -> Machine Learning -> Amazon Comprehend
+* **Lex:** Services -> Machine Learning -> Amazon Lex
+* **Translate:** Services -> Machine Learning -> Amazon Translate
+* **DeepLens:** Services -> Machine Learning -> AWS DeepLens
+
+### CLI & Output Syntax Examples (SageMaker)
+\`\`\`bash
+# Example: List SageMaker Notebook Instances
+aws sagemaker list-notebook-instances
+
+# Example: Create a SageMaker training job (simplified)
+aws sagemaker create-training-job \\
+    --training-job-name my-ml-job \\
+    --algorithm-specification TrainingImage="<your-training-image-uri>",TrainingInputMode="File" \\
+    --role-arn arn:aws:iam::123456789012:role/SageMakerExecutionRole \\
+    --input-data-config '[{"ChannelName": "train", "DataSource": {"S3DataSource": {"S3DataType": "S3Prefix", "S3Uri": "s3://your-bucket/train/"}}}]' \\
+    --output-data-config S3OutputPath="s3://your-bucket/output/" \\
+    --resource-config InstanceCount=1,InstanceType=ml.m5.xlarge,VolumeSizeInGB=50 \\
+    --stopping-condition MaxRuntimeInSeconds=3600
+
+# Example: Invoke Rekognition to detect labels
+aws rekognition detect-labels \\
+    --image '{"S3Object":{"Bucket":"my-rekognition-bucket","Name":"sample.jpg"}}'
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: SageMaker training job failures.**
+    * **Solution:** Check CloudWatch logs for the training job. Verify input data paths, IAM permissions, and errors in your training script.
+* **Issue: AI service (e.g., Rekognition, Comprehend) accuracy issues.**
+    * **Solution:** Ensure input data quality. For domain-specific needs, consider using custom models (e.g., Rekognition Custom Labels, Comprehend Custom Classification/Entities) or fine-tuning models on SageMaker.
+* **Issue: High ML inference latency.**
+    * **Solution:** Choose appropriate instance types for endpoints. Optimize model size. Use SageMaker Neo for model compilation. Consider serverless inference with Lambda for infrequent calls.
+* **Issue: Cost overruns for ML resources.**
+    * **Solution:** Monitor usage with AWS Cost Explorer. Stop unused SageMaker notebooks/endpoints. Use Spot Instances for training.
+* **Issue: Data drift or model performance degradation in production.**
+    * **Solution:** Implement SageMaker Model Monitor to detect drift and set up alerts for performance issues. Retrain models periodically.`,
+              "children": [
+                {"name": "Amazon SageMaker", "description": "A fully managed service that provides every developer and data scientist with the ability to build, train, and deploy machine learning models quickly. It covers the entire ML workflow."},
+                {"name": "Amazon Rekognition", "description": "A service that makes it easy to add image and video analysis to your applications. It can identify objects, people, text, scenes, and activities, and detect inappropriate content."},
+                {"name": "Amazon Polly", "description": "A service that turns text into lifelike speech. It offers dozens of lifelike voices across a variety of languages, allowing you to build speech-enabled applications."},
+                {"name": "Amazon Transcribe", "description": "An automatic speech recognition (ASR) service that makes it easy for developers to add speech-to-text capability to their applications. It can transcribe audio from various sources."},
+                {"name": "Amazon Comprehend", "description": "A natural language processing (NLP) service that uses machine learning to find insights and relationships in text. It can identify sentiment, entities, key phrases, and language."},
+                {"name": "Amazon Lex", "description": "A service for building conversational interfaces into any application using voice and text. It powers the underlying technology of Alexa."},
+                {"name": "Amazon Translate", "description": "A neural machine translation service that delivers fast, high-quality, and affordable language translation. It supports translation between many languages."},
+                {"name": "AWS DeepLens", "description": "A deep learning enabled video camera for developers. It allows you to learn and experiment with deep learning by deploying custom models to the device for real-time inference."}
+              ]
+            },
+            {
+              "name": "Application Integration",
+              "description": `Services for connecting applications and microservices. These services enable communication between decoupled components, build event-driven architectures, and orchestrate complex workflows.
+
+### Key Features
+* **Decoupling:** Separate application components for independent scaling and development.
+* **Asynchronous Communication:** Handle messages and events reliably.
+* **Workflow Orchestration:** Define and execute multi-step processes.
+* **Event-Driven Architectures:** React to changes and events across services.
+* **Scalability & Reliability:** Managed services handle messaging at any scale with high availability.
+
+### Parameters/Dependencies
+* **Queue/Topic Names:** For SQS/SNS.
+* **Lambda Functions:** Often targets for messages or steps in workflows.
+* **Event Patterns:** For EventBridge rules.
+* **State Machine Definitions:** For Step Functions.
+* **API Schemas:** For integrating with external systems.
+
+### Tool Navigations (AWS Console)
+* **SQS:** Services -> Application Integration -> SQS
+* **SNS:** Services -> Application Integration -> SNS
+* **Step Functions:** Services -> Application Integration -> Step Functions
+* **EventBridge:** Services -> Application Integration -> EventBridge
+* **MQ:** Services -> Application Integration -> Amazon MQ
+
+### CLI & Output Syntax Examples (SQS)
+\`\`\`bash
+# Example: Create an SQS queue
+aws sqs create-queue --queue-name MyTestQueue
+
+# Example: Send a message to an SQS queue
+aws sqs send-message --queue-url <QueueUrl> --message-body "Hello from SQS"
+
+# Example: Receive messages from an SQS queue
+aws sqs receive-message --queue-url <QueueUrl> --max-number-of-messages 1
+
+# Example: Delete an SQS queue
+aws sqs delete-queue --queue-url <QueueUrl>
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: SQS messages not being processed.**
+    * **Solution:** Check consumer application logs. Verify IAM permissions for SQS. Ensure the visibility timeout is appropriate.
+* **Issue: SNS notifications not being delivered.**
+    * **Solution:** Check SNS topic access policies. Verify subscription endpoints (e.g., Lambda, SQS, email) are correctly configured and have necessary permissions.
+* **Issue: Step Functions state machine execution failures.**
+    * **Solution:** Review Step Functions execution history and logs for the failing step. Check the underlying Lambda functions or other service integrations for errors.
+* **Issue: EventBridge events not triggering rules.**
+    * **Solution:** Verify the event pattern in the EventBridge rule matches the incoming event exactly. Check the target configuration and permissions.
+* **Issue: Message ordering or duplication concerns.**
+    * **Solution:** For strict ordering and exactly-once processing, use SQS FIFO queues. For SNS, ensure idempotency in your subscriber applications to handle potential duplicates.`,
+              "children": [
+                {"name": "Amazon SQS", "description": "Simple Queue Service is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications. It supports standard and FIFO queues."},
+                {"name": "Amazon SNS", "description": "Simple Notification Service is a highly available, durable, secure, fully managed pub/sub messaging service that enables you to decouple microservices, distributed systems, and serverless applications. It can fan out messages to a large number of subscribers."},
+                {"name": "AWS Step Functions", "description": "A serverless workflow service that lets you combine AWS Lambda functions and other AWS services to build business-critical applications. You can define workflows as state machines."},
+                {"name": "Amazon EventBridge", "description": "A serverless event bus that makes it easier to connect applications together using data from your own apps, SaaS apps, and AWS services. It simplifies event-driven architectures."},
+                {"name": "Amazon MQ", "description": "A managed message broker service for Apache ActiveMQ and RabbitMQ that makes it easy to set up and operate message brokers in the cloud. It supports industry-standard APIs and protocols."}
+              ]
+            },
+            {
+              "name": "Migration & Transfer",
+              "description": `Services for migrating data and applications to AWS. These services provide tools and solutions to help you move your existing workloads, databases, and data into the AWS Cloud efficiently and securely.
+
+### Key Features
+* **Data Transfer:** Move large datasets over the network or with physical appliances.
+* **Database Migration:** Automate database schema and data migration.
+* **Server Migration:** Migrate entire virtual machines to EC2.
+* **Discovery & Planning:** Tools to assess on-premises environments for migration.
+* **Hybrid Cloud:** Bridge on-premises and cloud environments.
+
+### Parameters/Dependencies
+* **Source Environment:** On-premises servers, databases, storage.
+* **Target AWS Resources:** S3 buckets, EC2 instances, RDS databases.
+* **Network Connectivity:** Direct Connect, VPN, or internet.
+* **Agents/Connectors:** Software installed on source systems for data transfer.
+* **IAM Roles:** Permissions for migration services to access source and target resources.
+
+### Tool Navigations (AWS Console)
+* **Migration Hub:** Services -> Migration & Transfer -> AWS Migration Hub
+* **DataSync:** Services -> Migration & Transfer -> AWS DataSync
+* **Snowball:** Services -> Migration & Transfer -> AWS Snow Family (Snowball, Snowcone, Snowmobile)
+* **DMS:** Services -> Migration & Transfer -> AWS Database Migration Service
+* **SMS:** Services -> Migration & Transfer -> AWS Server Migration Service
+
+### CLI & Output Syntax Examples (DataSync)
+\`\`\`bash
+# Example: Create a DataSync agent (on-premises)
+aws datasync create-agent --agent-name MyOnPremAgent --activation-key <your-activation-key>
+
+# Example: Create an S3 location for DataSync
+aws datasync create-location-s3 \\
+    --s3-bucket-arn arn:aws:s3:::my-migration-bucket \\
+    --s3-config AgentArns='[]',BucketAccessRoleArn=arn:aws:iam::123456789012:role/DataSyncS3AccessRole
+
+# Example: Create a DataSync task
+aws datasync create-task \\
+    --source-location-arn arn:aws:datasync:us-east-1:123456789012:location/loc-xxxxxxxxxxxxxxxxx \\
+    --destination-location-arn arn:aws:datasync:us-east-1:123456789012:location/loc-yyyyyyyyyyyyyyyyy \\
+    --name MyMigrationTask
+
+# Example: Start a DataSync task
+aws datasync start-task-execution --task-arn arn:aws:datasync:us-east-1:123456789012:task/task-xxxxxxxxxxxxxxxxx
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: Slow data transfer speeds.**
+    * **Solution:** Use AWS Direct Connect for dedicated network bandwidth. Optimize network configuration. For very large datasets, consider AWS Snow Family devices.
+* **Issue: Database migration failures (DMS).**
+    * **Solution:** Check DMS task logs for errors. Verify source and target endpoint configurations, network connectivity, and IAM permissions. Ensure schema conversion is handled correctly.
+* **Issue: Server migration (SMS) agent connectivity issues.**
+    * **Solution:** Ensure the SMS Connector appliance has network connectivity to AWS. Verify firewall rules and proxy settings.
+* **Issue: Data consistency during migration.**
+    * **Solution:** For databases, use DMS's Change Data Capture (CDC) to keep data synchronized during migration. For file transfers, use DataSync's verification options.
+* **Issue: Unexpected costs during migration.**
+    * **Solution:** Plan your migration carefully to minimize data transfer costs. Monitor usage with AWS Cost Explorer. Optimize resource provisioning for migration tools.`,
+              "children": [
+                {"name": "AWS Migration Hub", "description": "Provides a single location to track the progress of application migrations across multiple AWS and partner solutions. It helps you assess your migration portfolio and track progress."},
+                {"name": "AWS DataSync", "description": "A data transfer service that makes it easy for you to automate moving data between on-premises storage and Amazon S3, Amazon EFS, or Amazon FSx for Windows File Server. It accelerates and simplifies data transfer."},
+                {"name": "AWS Snowball", "description": "A petabyte-scale data transport solution that uses secure appliances to transfer large amounts of data into and out of AWS. Part of the AWS Snow Family for edge computing and data transfer."},
+                {"name": "AWS Database Migration Service (DMS)", "description": "Helps you migrate databases to AWS quickly and securely. It supports homogeneous migrations (e.g., Oracle to Oracle) and heterogeneous migrations (e.g., Oracle to PostgreSQL)."},
+                {"name": "AWS Server Migration Service (SMS)", "description": "An agentless service that makes it easier and faster to migrate thousands of on-premises workloads to AWS. It automates the migration of virtual machines to Amazon EC2."}
+              ]
+            },
+            {
+              "name": "Media Services",
+              "description": `Services for processing and delivering media content. These services enable you to build scalable and robust video workflows for live and on-demand streaming, content preparation, and monetization.
+
+### Key Features
+* **Video Ingest & Processing:** Securely ingest, transcode, and package video.
+* **Live Streaming:** Deliver live video streams with low latency and high quality.
+* **Video on Demand (VOD):** Prepare and deliver VOD content.
+* **Content Protection:** Encrypt and protect your media content.
+* **Scalability:** Handle large volumes of media content and concurrent viewers.
+
+### Parameters/Dependencies
+* **Input Source:** (For MediaConvert/MediaLive) S3 bucket, RTMP stream, etc.
+* **Output Formats:** HLS, DASH, MP4, etc.
+* **Video Codecs:** H.264, H.265.
+* **DRM:** Digital Rights Management for content protection.
+* **S3:** For storing input and output media files.
+
+### Tool Navigations (AWS Console)
+* **Kinesis Video Streams:** Services -> Media Services -> Amazon Kinesis Video Streams
+* **Elemental MediaConvert:** Services -> Media Services -> AWS Elemental MediaConvert
+* **Elemental MediaLive:** Services -> Media Services -> AWS Elemental MediaLive
+* **Elemental MediaPackage:** Services -> Media Services -> AWS Elemental MediaPackage
+
+### CLI & Output Syntax Examples (MediaConvert)
+\`\`\`bash
+# Example: Create a MediaConvert job (simplified)
+aws mediaconvert create-job \\
+    --cli-input-json file://job-settings.json
+
+# Example job-settings.json (conceptual):
+# {
+#   "Role": "arn:aws:iam::123456789012:role/MediaConvertRole",
+#   "Settings": {
+#     "Inputs": [
+#       {
+#         "FileInput": "s3://my-media-bucket/input/source.mp4"
+#       }
+#     ],
+#     "OutputGroups": [
+#       {
+#         "OutputGroupSettings": {
+#           "Type": "FILE_GROUP_SETTINGS",
+#           "FileGroupSettings": {
+#             "Destination": "s3://my-media-bucket/output/"
+#           }
+#         },
+#         "Outputs": [
+#           {
+#             "VideoDescription": {
+#               "CodecSettings": {
+#                 "Codec": "H_264"
+#               }
+#             },
+#             "AudioDescriptions": [{}],
+#             "ContainerSettings": {
+#               "Container": "MP4"
+#             }
+#           }
+#         ]
+#       }
+#     ]
+#   }
+# }
+
+# Example: List MediaConvert jobs
+aws mediaconvert list-jobs
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: MediaConvert job failures.**
+    * **Solution:** Check MediaConvert job logs for errors. Verify input file paths, S3 bucket permissions, and output destination. Ensure video/audio codecs and settings are compatible.
+* **Issue: Live stream buffering or quality issues (MediaLive/MediaPackage).**
+    * **Solution:** Ensure sufficient input bandwidth. Optimize encoder settings. Check MediaLive channel health and MediaPackage endpoint configurations. Use CloudWatch metrics to monitor stream health.
+* **Issue: Content protection (DRM) not working.**
+    * **Solution:** Verify DRM key server integration and content encryption settings in MediaPackage. Ensure playback devices support the chosen DRM solution.
+* **Issue: High media processing costs.**
+    * **Solution:** Optimize video resolutions and bitrates. Use appropriate quality settings for your target audience. Delete unnecessary source files after processing.
+* **Issue: Kinesis Video Streams not ingesting data.**
+    * **Solution:** Check device-side application logs. Verify IAM permissions for Kinesis Video Streams. Ensure correct stream name and region.`,
+              "children": [
+                {"name": "Amazon Kinesis Video Streams", "description": "Securely streams video from connected devices to AWS for analytics, machine learning (ML), and other processing. It automatically provisions and elastically scales infrastructure."},
+                {"name": "Amazon Elemental MediaConvert", "description": "A file-based video transcoding service with broadcast-grade features. It allows you to convert video and audio files from their source format into versions for playback on various devices."},
+                {"name": "Amazon Elemental MediaLive", "description": "A broadcast-grade live video processing service. It enables you to encode live video for broadcast and streaming to various devices."},
+                {"name": "Amazon Elemental MediaPackage", "description": "Prepares and protects your video for delivery over the internet. It makes it easy to deliver highly secure, scalable, and reliable video streams to a wide variety of playback devices."}
+              ]
+            },
+            {
+              "name": "Cost Management",
+              "description": `Services for managing and optimizing AWS spending. These services provide tools to track, analyze, forecast, and control your AWS costs and usage.
+
+### Key Features
+* **Cost Visibility:** Understand where your money is being spent across AWS services.
+* **Cost Allocation:** Tag resources to allocate costs to specific teams or projects.
+* **Budgeting & Forecasting:** Set budgets and receive alerts for exceeding thresholds.
+* **Cost Optimization Recommendations:** Identify opportunities to save money.
+* **Savings Plans/Reserved Instances:** Reduce costs for predictable workloads.
+
+### Parameters/Dependencies
+* **Cost Allocation Tags:** Custom tags applied to resources.
+* **Budget Thresholds:** Amount and notification settings.
+* **Forecast Periods:** For cost predictions.
+* **Billing Reports:** Detailed usage and cost data.
+
+### Tool Navigations (AWS Console)
+* **Cost Explorer:** Services -> Cost Management -> AWS Cost Explorer
+* **Budgets:** Services -> Cost Management -> AWS Budgets
+* **Billing:** Services -> Cost Management -> Billing
+* **Savings Plans:** Services -> Cost Management -> Savings Plans
+
+### CLI & Output Syntax Examples (Cost Explorer)
+\`\`\`bash
+# Example: Get cost and usage for a specific service
+aws ce get-cost-and-usage \\
+    --time-period Start="2025-06-01",End="2025-07-01" \\
+    --granularity MONTHLY \\
+    --metrics BlendedCost \\
+    --group-by Type=DIMENSION,Key=SERVICE
+
+# Example: Get forecast for costs
+aws ce get-cost-forecast \\
+    --time-period Start="2025-07-01",End="2025-08-01" \\
+    --metric BlendedCost \\
+    --granularity MONTHLY
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: Unexpected spikes in AWS bill.**
+    * **Solution:** Use AWS Cost Explorer to identify the services and resources causing the spike. Set up AWS Budgets with alerts for cost thresholds.
+* **Issue: Difficulty attributing costs to specific teams/projects.**
+    * **Solution:** Implement a strong tagging strategy for all AWS resources. Activate cost allocation tags in the Billing console.
+* **Issue: Underutilization of resources leading to high costs.**
+    * **Solution:** Use AWS Trusted Advisor for cost optimization recommendations (e.g., idle EC2 instances, underutilized EBS volumes). Implement auto-scaling.
+* **Issue: Not leveraging discounts effectively.**
+    * **Solution:** Analyze your consistent usage patterns using Cost Explorer and consider purchasing Savings Plans or Reserved Instances for predictable workloads.
+* **Issue: Billing alerts not being received.**
+    * **Solution:** Verify the email addresses or SNS topics configured for your AWS Budgets alerts. Check spam folders.`,
+              "children": [
+                {"name": "AWS Cost Explorer", "description": "Lets you visualize, understand, and manage your AWS costs and usage over time. You can view your costs and usage data in various charts and tables, and forecast future costs."},
+                {"name": "AWS Budgets", "description": "Allows you to set custom budgets to track your costs and usage from the simplest to the most complex use cases. You can set alerts when your costs or usage exceed (or are forecasted to exceed) your budgeted amount."},
+                {"name": "AWS Billing", "description": "The service that tracks your AWS usage and charges, and provides tools to help you manage your costs. It includes billing dashboards, cost reports, and payment history."},
+                {"name": "AWS Savings Plans", "description": "A flexible pricing model that offers significant savings on AWS usage in exchange for a commitment to a consistent amount of usage (measured in $/hour) for a 1- or 3-year term. It applies to EC2, Fargate, and Lambda usage."}
+              ]
+            },
+            {
+              "name": "Internet of Things (IoT)",
+              "description": `Services for connecting and managing IoT devices. These services provide the infrastructure to securely connect, collect, process, and analyze data from billions of IoT devices.
+
+### Key Features
+* **Device Connectivity:** Securely connect and manage devices.
+* **Data Ingest & Processing:** Collect and filter data from devices at scale.
+* **Edge Computing:** Run compute and ML on devices locally.
+* **Device Management:** Monitor, organize, and update devices remotely.
+* **Analytics:** Run sophisticated analytics on IoT data.
+
+### Parameters/Dependencies
+* **Device Certificates/Policies:** For secure device authentication and authorization.
+* **IoT Rules:** For routing device data to other AWS services.
+* **Greengrass Components:** Applications deployed to edge devices.
+* **Device Shadows:** For maintaining device state.
+* **Data Sources:** For IoT Analytics.
+
+### Tool Navigations (AWS Console)
+* **IoT Core:** Services -> Internet of Things -> IoT Core
+* **IoT Greengrass:** Services -> Internet of Things -> IoT Greengrass
+* **IoT Analytics:** Services -> Internet of Things -> IoT Analytics
+* **IoT Device Management:** Services -> Internet of Things -> IoT Device Management
+
+### CLI & Output Syntax Examples (IoT Core)
+\`\`\`bash
+# Example: Create an IoT thing (device)
+aws iot create-thing --thing-name MyIoTDevice
+
+# Example: Create an IoT policy
+aws iot create-policy \\
+    --policy-name MyIoTDevicePolicy \\
+    --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["iot:Publish","iot:Receive","iot:Subscribe","iot:Connect"],"Resource":"*"}]}'
+
+# Example: Publish a message to an IoT topic
+aws iot-data publish \\
+    --topic "my/topic" \\
+    --cli-binary-payload "Hello IoT"
+
+# Example: Describe a thing
+aws iot describe-thing --thing-name MyIoTDevice
+\`\`\`
+
+### Common Issues and Solutions
+* **Issue: IoT devices failing to connect.**
+    * **Solution:** Verify device certificates, private keys, and root CA certificates. Check IoT policy permissions. Ensure network connectivity to AWS IoT Core endpoints.
+* **Issue: IoT rules not triggering actions.**
+    * **Solution:** Check IoT rule query syntax. Verify IAM role permissions for the rule to access target services (e.g., Lambda, S3). Monitor CloudWatch logs for rule errors.
+* **Issue: Greengrass component deployment failures.**
+    * **Solution:** Check Greengrass device logs. Verify component configurations, dependencies, and IAM permissions. Ensure the Greengrass core device has network access.
+* **Issue: IoT Analytics pipeline failures.**
+    * **Solution:** Check pipeline logs for errors. Verify data source configurations, data store schema, and IAM permissions for components (channel, pipeline, data store, data set).
+* **Issue: Device management at scale is complex.**
+    * **Solution:** Use AWS IoT Device Management for bulk registration, fleet indexing, and remote actions. Organize devices into groups for easier management.`,
+              "children": [
+                {"name": "AWS IoT Core", "description": "Connects IoT devices to AWS cloud services without provisioning or managing servers. It enables secure, bi-directional communication between internet-connected devices and the AWS Cloud."},
+                {"name": "AWS IoT Greengrass", "description": "Extends AWS to edge devices so they can act locally on the data they generate, while still using the cloud for management, analytics, and durable storage. It enables local compute, messaging, data caching, and ML inference."},
+                {"name": "AWS IoT Analytics", "description": "A fully managed service that makes it easy to run sophisticated analytics on massive volumes of IoT data. It automates the steps required to analyze data from IoT devices, including data collection, processing, storage, and analysis."},
+                {"name": "AWS IoT Device Management", "description": "Helps you onboard, organize, monitor, and remotely manage IoT devices at scale. It provides tools for device registration, fleet indexing, remote actions, and jobs."}
+              ]
+            }
+          ]
+        };
+
+        // Function to recursively update treeData with parsed details
+        function updateTreeData(node, detailsMap) {
+            if (node.children) {
+                node.children.forEach(child => updateTreeData(child, detailsMap));
+            }
+
+            // Find matching details for the current node
+            const matches = parsedServiceDetails.filter(detail => {
+                // Handle cases where "Sub-Class/Variant" might be just the service name
+                const serviceNameMatch = detail['Service'] === node.name;
+                const subClassMatch = detail['Sub-Class/Variant'] && detail['Sub-Class/Variant'].includes(node.name);
+                return serviceNameMatch || subClassMatch;
+            });
+
+            if (matches.length > 0) {
+                let additionalDescription = `\n\n### Detailed Information`;
+                matches.forEach(match => {
+                    const subClassVariant = match['Sub-Class/Variant'] && match['Sub-Class/Variant'] !== 'N/A' ? `(${match['Sub-Class/Variant']})` : '';
+                    additionalDescription += `\n\n#### ${match['Service']} ${subClassVariant}`;
+                    additionalDescription += `\n* **Primary Function:** ${match['Primary Function'] || 'N/A'}`;
+                    additionalDescription += `\n* **Real-Time Use Case:** ${match['Real-Time Use Case'] || 'N/A'}`;
+                    additionalDescription += `\n* **Cost Key Points:** ${match['Cost Key Points'] || 'N/A'}`;
+                    additionalDescription += `\n* **Limitations:** ${match['Limitations'] || 'N/A'}`;
+                    additionalDescription += `\n* **Threshold:** ${match['Threshold'] || 'N/A'}`;
+                    additionalDescription += `\n* **Availability:** ${match['Availability'] || 'N/A'}`;
+                    additionalDescription += `\n* **Managed Status:** ${match['Managed Status'] || 'N/A'}`;
+                    additionalDescription += `\n* **AWS GUI Navigation:** ${match['AWS GUI Navigation'] || 'N/A'}`;
+
+                    if (match['Dependencies'] && match['Dependencies'].length > 0) {
+                        additionalDescription += `\n* **Dependencies/Prerequisites:**\n`;
+                        match['Dependencies'].forEach(dep => {
+                            additionalDescription += `  * ${dep}\n`;
+                        });
+                    } else {
+                        additionalDescription += `\n* **Dependencies/Prerequisites:** None explicitly stated.\n`;
+                    }
+                });
+                node.description += additionalDescription;
+            }
+        }
+
+        // Start updating the treeData from the root
+        updateTreeData(treeData, parsedServiceDetails);
+
+
+        // D3.js variables for SVG, group element, zoom behavior, tree layout, and root node
+        let svg, g, zoomListener, treeLayout, root;
+        let width, height; // Dimensions of the chart area
+        let i = 0, duration = 750; // 'i' for unique node IDs, 'duration' for animation speed
+        let lastClickedNode = null; // To keep track of the last clicked node for breadcrumbs
+
+        // Get references to the description panel elements
+        const descriptionPanel = document.getElementById('description-panel');
+        const descriptionTitle = document.getElementById('description-title');
+        const descriptionContent = document.getElementById('description-content');
+
+        // Get references to modal elements
+        const fullContentModal = document.getElementById('full-content-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const closeModalButton = document.getElementById('close-modal');
+
+        // Get references to search elements
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+
+        // Get references to export elements
+        const exportSvgButton = document.getElementById('export-svg-button');
+
+        // Get reference to breadcrumbs container
+        const breadcrumbsContainer = document.getElementById('breadcrumbs');
+
+        // Get references to message box elements
+        const messageBox = document.getElementById('message-box');
+        const messageContent = document.getElementById('message-content');
+        const messageOkButton = document.getElementById('message-ok-button');
+
+        // Add a "Read More" button to the description panel
+        const readMoreButton = document.createElement('button');
+        readMoreButton.id = 'read-more-button';
+        readMoreButton.className = 'mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 hidden'; // Hidden by default
+        readMoreButton.textContent = 'Read Full Description';
+        descriptionPanel.appendChild(readMoreButton);
+
+        // Add a "Copy Markdown" button to the description panel
+        const copyMarkdownButton = document.createElement('button');
+        copyMarkdownButton.id = 'copy-markdown-button';
+        copyMarkdownButton.className = 'mt-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 hidden'; // Hidden by default
+        copyMarkdownButton.textContent = 'Copy Markdown';
+        descriptionPanel.appendChild(copyMarkdownButton);
+
+
+        // Map for node type icons (emojis)
+        const nodeIcons = {
+            "AWS Services": "☁️",
+            "Compute": "💻",
+            "Storage": "💾",
+            "Networking & Content Delivery": "📡",
+            "Database": "🗄️",
+            "Analytics": "📈",
+            "Security, Identity & Compliance": "🔒",
+            "Management & Governance": "⚙️",
+            "Developer Tools": "👨‍💻",
+            "Machine Learning & AI": "🧠",
+            "Application Integration": "🔗",
+            "Migration & Transfer": "🚚",
+            "Media Services": "🎬",
+            "Cost Management": "💰",
+            "Internet of Things (IoT)": "💡",
+            // Specific service icons (can be expanded)
+            "Amazon EC2": "🖥️",
+            "Amazon S3": "🗃️",
+            "Amazon VPC": "🌐",
+            "Amazon RDS": "🛢️",
+            "Amazon Athena": "🔍",
+            "AWS IAM": "🔑",
+            "Amazon CloudWatch": "📊",
+            "AWS CodeCommit": "‍💻",
+            "Amazon SageMaker": "🧪",
+            "Amazon SQS": "✉️",
+            "AWS Migration Hub": "➡️",
+            "Amazon Kinesis Video Streams": "🎥",
+            "AWS Cost Explorer": "💵",
+            "AWS IoT Core": "🔌"
+        };
+
+
+        /**
+         * Initializes or re-initializes the D3.js tree chart.
+         * This function is called on page load and window resize to ensure responsiveness.
+         */
+        function initializeChart() {
+            const chartContainer = document.querySelector('.chart-container');
+            width = chartContainer.clientWidth;
+            height = chartContainer.clientHeight;
+
+            // Clear any existing SVG content to prevent duplicates on resize
+            d3.select("#tree-chart").selectAll("*").remove();
+
+            // Select the SVG element and set its viewBox for responsiveness
+            svg = d3.select("#tree-chart")
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .attr("preserveAspectRatio", "xMidYMid meet");
+
+            // Append a group element to the SVG for all tree elements. This group will be zoomed/panned.
+            g = svg.append("g");
+
+            // Define the D3 zoom behavior
+            zoomListener = d3.zoom()
+                .scaleExtent([0.1, 3]) // Set zoom limits (min 10%, max 300%)
+                .on("zoom", (event) => {
+                    // Apply the zoom transform to the main group element
+                    g.attr("transform", event.transform);
+                });
+
+            // Apply the zoom behavior to the SVG
+            svg.call(zoomListener);
+
+            // Dynamically calculate the tree layout width based on description panel visibility
+            const descriptionPanelWidth = descriptionPanel.offsetWidth;
+            const treeLayoutWidth = (window.innerWidth >= 1024) ? (width - descriptionPanelWidth - 50) : width; // Adjust for desktop layout
+
+            // Create the D3 tree layout.
+            treeLayout = d3.tree().size([height, treeLayoutWidth]);
+
+            // Create a root node from the hierarchical data
+            root = d3.hierarchy(treeData, d => d.children);
+            root.x0 = height / 2; // Initial x-coordinate for the root (center vertically)
+            root.y0 = 0; // Initial y-coordinate for the root (left edge)
+
+            // Collapse all children of the root initially, except the first level.
+            // This provides a cleaner initial view.
+            if (root.children) {
+                root.children.forEach(collapse);
+            }
+
+            // Perform the initial update to draw the tree
+            update(root);
+
+            // Center the root node initially with a smooth transition
+            setTimeout(() => {
+                const initialScale = 0.8; // Adjust initial zoom level
+                const initialTranslateX = 100; // Adjust initial X position
+                const initialTranslateY = height / 2; // Adjust initial Y position
+                svg.transition()
+                    .duration(750) // Animation duration
+                    .call(zoomListener.transform, d3.zoomIdentity.translate(initialTranslateX, initialTranslateY).scale(initialScale));
+            }, 100); // Small delay to ensure SVG is rendered
+
+            // Initialize breadcrumbs for the root node
+            updateBreadcrumbs(root);
+        }
+
+        /**
+         * Updates the tree visualization based on the current state of the root node.
+         * @param {object} source - The node that was clicked (used for transition origin).
+         */
+        function update(source) {
+            // Compute the new tree layout
+            const treeData = treeLayout(root);
+
+            // Get lists of all nodes and links
+            const nodes = treeData.descendants();
+            const links = treeData.descendants().slice(1); // Exclude the root node for links
+
+            // Normalize for fixed-depth spacing.
+            // d.y corresponds to the horizontal position in a horizontal tree.
+            nodes.forEach(d => { d.y = d.depth * 180; }); // Adjust node spacing based on depth
+
+            // ****************** Nodes section ******************
+
+            // Select all existing node groups
+            const node = g.selectAll('g.node')
+                .data(nodes, d => d.id || (d.id = ++i)); // Assign unique ID to each node
+
+            // Enter any new nodes at the parent's previous position.
+            const nodeEnter = node.enter().append('g')
+                .attr('class', 'node')
+                // Set initial position for new nodes to the source node's old position for animation
+                .attr('transform', d => `translate(${source.y0},${source.x0})`)
+                .on('click', click) // Attach click event listener for expand/collapse and description
+                .on('mouseover', function(event, d) { // Mouseover for tooltip
+                    const tooltip = d3.select("body").append("div")
+                        .attr("class", "tooltip")
+                        .html(`<strong>${d.data.name}</strong>`);
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY - 20) + "px")
+                           .style("opacity", 1);
+                })
+                .on('mouseout', function() { // Mouseout to remove tooltip
+                    d3.selectAll(".tooltip").remove();
+                });
+
+            // Add Circle for the nodes
+            nodeEnter.append('circle')
+                .attr('r', 1e-6) // Start with radius 0 for animation
+                .attr('class', d => {
+                    if (d.data.name === "AWS Services") return 'root'; // Special class for root
+                    return d._children ? 'collapsed' : ''; // Class for collapsed nodes
+                });
+
+            // Add labels for the nodes
+            nodeEnter.append('text')
+                .attr('dy', '.35em') // Vertical alignment
+                .attr('x', d => d.children || d._children ? -13 : 13) // Position text relative to circle
+                .attr('text-anchor', d => d.children || d._children ? 'end' : 'start') // Align text
+                .text(d => {
+                    const icon = nodeIcons[d.data.name] || ''; // Get icon if available
+                    return `${icon} ${d.data.name}`; // Prepend icon to text
+                })
+                .clone(true).lower() // Clone text for an outline effect
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-width", 3)
+                .attr("stroke", "white");
+
+            // UPDATE section: Merge entering nodes with existing nodes
+            const nodeUpdate = nodeEnter.merge(node);
+
+            // Remove any existing highlight before applying new one
+            nodeUpdate.classed('highlight', false);
+
+            // Transition nodes to their new position
+            nodeUpdate.transition()
+                .duration(duration)
+                .attr('transform', d => `translate(${d.y},${d.x})`);
+
+            // Update the node attributes and style (e.g., radius, class for collapsed state)
+            nodeUpdate.select('circle')
+                .attr('r', 10) // Set final radius for nodes
+                .attr('class', d => {
+                    if (d.data.name === "AWS Services") return 'root';
+                    return d._children ? 'collapsed' : '';
+                });
+
+            // EXIT section: Remove any exiting nodes
+            const nodeExit = node.exit().transition()
+                .duration(duration)
+                // Transition exiting nodes back to the source node's position before removing
+                .attr('transform', d => `translate(${source.y},${source.x})`)
+                .remove();
+
+            // On exit, shrink node circles to 0
+            nodeExit.select('circle')
+                .attr('r', 1e-6);
+
+            // On exit, fade out text labels
+            nodeExit.select('text')
+                .style('fill-opacity', 1e-6);
+
+            // ****************** Links section ******************
+
+            // Select all existing links
+            const link = g.selectAll('path.link')
+                .data(links, d => d.id); // Bind data to links
+
+            // Enter any new links at the parent's previous position.
+            const linkEnter = link.enter().insert('path', "g") // Insert before 'g' elements (nodes)
+                .attr("class", "link")
+                .attr('d', d => {
+                    const o = {x: source.x0, y: source.y0}; // Start from source's old position
+                    return diagonal(o, o); // Draw a zero-length path initially
+                });
+
+            // UPDATE section: Merge entering links with existing links
+            const linkUpdate = linkEnter.merge(link);
+
+            // Transition links to their new position
+            linkUpdate.transition()
+                .duration(duration)
+                .attr('d', d => diagonal(d, d.parent)); // Draw path from node to its parent
+
+            // Remove any exiting links
+            link.exit().transition()
+                .duration(duration)
+                .attr('d', d => {
+                    const o = {x: source.x, y: source.y}; // End at source's current position
+                    return diagonal(o, o); // Shrink to zero-length path
+                })
+                .remove();
+
+            // Store the current positions for the next transition.
+            nodes.forEach(d => {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+        }
+
+        /**
+         * Generates a curved (diagonal) path string for a link.
+         * @param {object} s - Source node data (child).
+         * @param {object} d - Destination node data (parent).
+         * @returns {string} SVG path string.
+         */
+        function diagonal(s, d) {
+            return `M ${s.y} ${s.x}
+                    C ${(s.y + d.y) / 2} ${s.x},
+                      ${(s.y + d.y) / 2} ${d.x},
+                      ${d.y} ${d.x}`;
+        }
+
+        /**
+         * Toggles children of a node on click (expand/collapse) and displays its description.
+         * @param {Event} event - The click event.
+         * @param {object} d - The data of the clicked node.
+         */
+        function click(event, d) {
+            if (d.children) { // If node has visible children, collapse them
+                d._children = d.children;
+                d.children = null;
+            } else { // If node has hidden children, expand them
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d); // Re-render the tree
+            displayDescription(d.data.name, d.data.description); // Update description panel
+            updateBreadcrumbs(d); // Update breadcrumbs on node click
+            lastClickedNode = d; // Store the last clicked node
+        }
+
+        /**
+         * Recursively collapses a node and all its descendants.
+         * @param {object} d - The node to collapse.
+         */
+        function collapse(d) {
+            if (d.children) {
+                d._children = d.children; // Store children in _children property
+                d._children.forEach(collapse); // Recursively collapse descendants
+                d.children = null; // Hide children
+            }
+        }
+
+        /**
+         * Function to show the modal
+         * @param {string} title - The title for the modal.
+         * @param {string} content - The full content to display in the modal.
+         */
+        function showModal(title, content) {
+            modalTitle.textContent = title;
+            modalBody.innerHTML = marked.parse(content); // Parse Markdown for modal content
+            fullContentModal.classList.remove('hidden');
+            // Prevent body scrolling when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+
+        /**
+         * Function to hide the modal
+         */
+        function hideModal() {
+            fullContentModal.classList.add('hidden');
+            // Restore body scrolling
+            document.body.style.overflow = '';
+        }
+
+        /**
+         * Displays a custom message box.
+         * @param {string} message - The message to display.
+         */
+        function showMessageBox(message) {
+            messageContent.textContent = message;
+            messageBox.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling behind message box
+        }
+
+        /**
+         * Hides the custom message box.
+         */
+        function hideMessageBox() {
+            messageBox.classList.add('hidden');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Event listener for the "Read More" button
+        readMoreButton.addEventListener('click', () => {
+            // Retrieve the full content from the data attribute on descriptionContent
+            const currentTitle = descriptionTitle.textContent;
+            const currentFullContent = descriptionContent.dataset.fullContent;
+            if (currentFullContent) {
+                showModal(currentTitle, currentFullContent);
+            }
+        });
+
+        // Event listener for the "Copy Markdown" button
+        copyMarkdownButton.addEventListener('click', () => {
+            const currentFullContent = descriptionContent.dataset.fullContent;
+            if (currentFullContent) {
+                // Create a temporary textarea element
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = currentFullContent;
+                document.body.appendChild(tempTextArea);
+
+                // Select the text and copy it to the clipboard
+                tempTextArea.select();
+                document.execCommand('copy');
+
+                // Remove the temporary textarea
+                document.body.removeChild(tempTextArea);
+
+                copyMarkdownButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyMarkdownButton.textContent = 'Copy Markdown';
+                }, 2000);
+            }
+        });
+
+        // Event listener for the close modal button
+        closeModalButton.addEventListener('click', hideModal);
+
+        // Event listener for the message box OK button
+        messageOkButton.addEventListener('click', hideMessageBox);
+
+        /**
+         * Displays the name and description of the selected node in the panel.
+         * @param {string} title - The name of the node.
+         * @param {string} content - The detailed description of the node.
+         */
+        function displayDescription(title, content) {
+            descriptionTitle.textContent = title;
+            descriptionContent.dataset.fullContent = content; // Store the full content in a data attribute
+
+            const maxDisplayLength = 500; // Character limit for direct display in the panel
+            let displayedContent = content;
+            if (content.length > maxDisplayLength) {
+                // Find a natural break point (e.g., end of a sentence or paragraph)
+                const truncated = content.substring(0, maxDisplayLength);
+                const lastPeriod = truncated.lastIndexOf('.');
+                const lastExclamation = truncated.lastIndexOf('!');
+                const lastQuestion = truncated.lastIndexOf('?');
+                const lastNewline = truncated.lastIndexOf('\n');
+
+                let cutoff = maxDisplayLength;
+                if (lastPeriod > -1) cutoff = lastPeriod + 1;
+                else if (lastExclamation > -1) cutoff = lastExclamation + 1;
+                else if (lastQuestion > -1) cutoff = lastQuestion + 1;
+                else if (lastNewline > -1) cutoff = lastNewline + 1;
+
+                displayedContent = content.substring(0, cutoff) + '\n\n...'; // Add ellipsis and newlines for better readability
+                readMoreButton.classList.remove('hidden'); // Show the "Read More" button
+                copyMarkdownButton.classList.remove('hidden'); // Show the "Copy Markdown" button
+            } else {
+                readMoreButton.classList.add('hidden'); // Hide the button if content is short
+                copyMarkdownButton.classList.add('hidden'); // Hide the button if content is short
+            }
+
+            // Use innerHTML to render Markdown content
+            descriptionContent.innerHTML = marked.parse(displayedContent);
+            descriptionPanel.classList.add('active'); // Show the description panel
+        }
+
+        /**
+         * Updates the breadcrumb navigation based on the currently selected node.
+         * @param {object} node - The D3 node object that is currently selected.
+         */
+        function updateBreadcrumbs(node) {
+            breadcrumbsContainer.innerHTML = ''; // Clear existing breadcrumbs
+            const ancestors = node.ancestors().reverse(); // Get path from root to current node
+
+            ancestors.forEach((d, index) => {
+                const span = document.createElement('span');
+                if (index < ancestors.length - 1) {
+                    // Not the current node, make it a clickable link
+                    const link = document.createElement('a');
+                    link.href = '#'; // Prevent default link behavior
+                    link.textContent = d.data.name;
+                    link.addEventListener('click', (event) => {
+                        event.preventDefault();
+                        // Collapse all children of the root first to ensure clean expansion
+                        root.children.forEach(collapse);
+                        // Expand the path to the clicked ancestor
+                        d.ancestors().reverse().forEach(ancestor => {
+                            if (ancestor._children) {
+                                ancestor.children = ancestor._children;
+                                ancestor._children = null;
+                            }
+                        });
+                        update(d); // Update the chart to show the path
+                        displayDescription(d.data.name, d.data.description); // Update description
+                        updateBreadcrumbs(d); // Update breadcrumbs
+                        lastClickedNode = d; // Set last clicked node for centering
+                        centerNode(d); // Center the view on the clicked node
+                    });
+                    span.appendChild(link);
+                } else {
+                    // Current node, just display its name
+                    span.textContent = d.data.name;
+                    span.classList.add('current-node');
+                }
+                breadcrumbsContainer.appendChild(span);
+                if (index < ancestors.length - 1) {
+                    const separator = document.createElement('span');
+                    separator.textContent = ' > ';
+                    breadcrumbsContainer.appendChild(separator);
+                }
+            });
+        }
+
+        /**
+         * Centers the view on a specific node.
+         * @param {object} source - The node to center on.
+         */
+        function centerNode(source) {
+            const scale = zoomListener.transform().k;
+            const x = -source.y * scale + width / 4; // Adjust x to leave space for description panel
+            const y = -source.x * scale + height / 2;
+            svg.transition()
+                .duration(duration)
+                .call(zoomListener.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+        }
+
+        /**
+         * Searches for a node by name, expands its path, and centers the view.
+         * @param {string} query - The name of the node to search for.
+         */
+        function searchNode(query) {
+            const lowerCaseQuery = query.toLowerCase();
+            let foundNode = null;
+
+            // Find the node
+            root.each(d => {
+                if (d.data.name.toLowerCase().includes(lowerCaseQuery)) {
+                    foundNode = d;
+                    return true; // Break loop
+                }
+            });
+
+            if (foundNode) {
+                // Collapse all nodes first
+                root.children.forEach(collapse);
+
+                // Expand ancestors of the found node
+                foundNode.ancestors().reverse().forEach(d => {
+                    if (d._children) {
+                        d.children = d._children;
+                        d._children = null;
+                    }
+                });
+
+                // Remove highlight from previously highlighted nodes
+                g.selectAll('g.node').classed('highlight', false);
+
+                // Update the tree and highlight the found node
+                update(foundNode);
+                g.selectAll('g.node').filter(d => d.id === foundNode.id).classed('highlight', true);
+
+
+                // Display description and update breadcrumbs
+                displayDescription(foundNode.data.name, foundNode.data.description);
+                updateBreadcrumbs(foundNode);
+                lastClickedNode = foundNode;
+
+                // Center the view on the found node
+                centerNode(foundNode);
+            } else {
+                showMessageBox('Service not found!');
+            }
+        }
+
+        // Event listener for search button click
+        searchButton.addEventListener('click', () => {
+            searchNode(searchInput.value);
+        });
+
+        // Event listener for Enter key in search input
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                searchNode(searchInput.value);
+            }
+        });
+
+        /**
+         * Exports the current SVG chart as an SVG file.
+         */
+        function exportSvg() {
+            const svgElement = document.getElementById('tree-chart');
+            const svgString = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'aws-services-hierarchy.svg';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Event listener for export SVG button
+        exportSvgButton.addEventListener('click', exportSvg);
+
+
+        // Initialize the chart when the window loads
+        window.onload = initializeChart;
+        // Re-initialize the chart when the window is resized to ensure responsiveness
+        window.addEventListener('resize', initializeChart);
+    </script>
+</body>
+</html>
