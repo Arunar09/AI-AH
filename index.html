@@ -97,7 +97,7 @@
             gap: 30px;
             padding: 20px;
             flex-grow: 1; /* Allow grid to take available vertical space */
-            align-items: stretch; /* IMPORTANT: Ensures all cards in a row have the same height */
+            align-items: stretch; /* Ensures all cards in a row have the same height */
             justify-content: center;
         }
         /* Individual Card Styles - Muted Data Panels */
@@ -106,9 +106,9 @@
             border: 1px solid rgba(70, 70, 100, 0.5); /* Muted border */
             padding: 30px;
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Changed to column to stack icon and content */
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start; /* Align icon to the top */
             transition: all 0.3s ease;
             cursor: pointer;
             text-decoration: none;
@@ -116,7 +116,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
-            min-height: 250px; /* Added: Ensures a consistent minimum height for all cards */
+            min-height: 250px; /* Ensures a consistent minimum height for all cards */
         }
         .card::before { /* Very subtle glitch/scanline effect */
             content: '';
@@ -151,6 +151,16 @@
         .card:hover .card-icon {
             transform: rotate(3deg) scale(1.1);
         }
+        /* New style for content wrapper */
+        .card-content-wrapper {
+            flex-grow: 1; /* Allows this wrapper to take all available space */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center title and description vertically within the wrapper */
+            align-items: center; /* Center title and description horizontally */
+            text-align: center; /* Ensure text is centered */
+            width: 100%; /* Ensure it takes full width of the card */
+        }
         .card-title {
             font-size: 1.85rem;
             font-weight: 600;
@@ -162,6 +172,10 @@
             font-size: 1.05rem;
             color: #C0C0C0; /* Muted grey description */
             line-height: 1.5;
+            flex-grow: 1; /* Allow description to grow if needed */
+            display: flex; /* Make description a flex container */
+            align-items: center; /* Vertically center description text */
+            justify-content: center; /* Horizontally center description text */
         }
         /* Responsive Adjustments */
         @media (max-width: 768px) {
@@ -296,73 +310,95 @@
 	    <!-- Link to OSI Layer N/W -->
             <a href="./osi_layer_nw.html" class="card">
                 <span class="card-icon">🌏</span>
-                <div class="card-title">OSI Layer Network</div>
-                <div class="card-description">Explore the Network OSI Layer.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">OSI Layer Network</div>
+                    <div class="card-description">Explore the Network OSI Layer.</div>
+                </div>
             </a>
 		
             <!-- Link to AWS AI Services -->
             <a href="./aws_ai_services.html" class="card">
                 <span class="card-icon">🧠</span>
-                <div class="card-title">AWS AI Services</div>
-                <div class="card-description">Explore Amazon's Artificial Intelligence & Machine Learning offerings.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">AWS AI Services</div>
+                    <div class="card-description">Explore Amazon's Artificial Intelligence & Machine Learning offerings.</div>
+                </div>
             </a>
             <!-- Link to AWS Core Services -->
             <a href="./core_aws_services.html" class="card">
                 <span class="card-icon">👾</span>
-                <div class="card-title">Core AWS Services</div>
-                <div class="card-description">Deep dive into fundamental Amazon Web Services for infrastructure and more.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">Core AWS Services</div>
+                    <div class="card-description">Deep dive into fundamental Amazon Web Services for infrastructure and more.</div>
+                </div>
             </a>
             
 			<!-- Link to AWS Dashboard -->
             <a href="./aws devsecops dashboard.html" class="card">
                 <span class="card-icon">☁️</span>
-                <div class="card-title">AWS devsecops dashboard</div>
-                <div class="card-description">Deep dive into daily checks for AWS devsecops role.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">AWS devsecops dashboard</div>
+                    <div class="card-description">Deep dive into daily checks for AWS devsecops role.</div>
+                </div>
             </a>
 			
             <!-- Link to AWS Services heirarchy -->
             <a href="./aws_services_heirarchy.html" class="card">
                 <span class="card-icon">🚀</span>
-                <div class="card-title">AWS Services heirarchy chart </div>
-                <div class="card-description">Tree like expansion with deatiled info for aws services.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">AWS Services heirarchy chart </div>
+                    <div class="card-description">Tree like expansion with deatiled info for aws services.</div>
+                </div>
             </a>
 			
 			<!-- Link to AWS AI/ML Services -->
             <a href="./aws_AI_ML_heirarchy.html" class="card">
                 <span class="card-icon">🐞</span>
-                <div class="card-title">AWS AI/ML heirarchy chart</div>
-                <div class="card-description">AWS AI.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">AWS AI/ML heirarchy chart</div>
+                    <div class="card-description">AWS AI.</div>
+                </div>
             </a>
 			
             <!-- Link to Cybersecurity Mindmap -->
             <a href="./Security.html" class="card">
                 <span class="card-icon">🔒</span>
-                <div class="card-title">Cybersecurity Mindmap</div>
-                <div class="card-description">Understand organizational security with an interactive mindmap.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">Cybersecurity Mindmap</div>
+                    <div class="card-description">Understand organizational security with an interactive mindmap.</div>
+                </div>
             </a>
             <!-- Link to Python & Bash Guide -->
             <a href="./python_bash.html" class="card">
                 <span class="card-icon">🐍</span>
-                <div class="card-title">Python & Bash Guide</div>
-                <div class="card-description">Interactive reference and code runner for Python and Bash scripting.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">Python & Bash Guide</div>
+                    <div class="card-description">Interactive reference and code runner for Python and Bash scripting.</div>
+                </div>
             </a>
             <!-- NEW LINK: DevOps Mindmap -->
             <a href="./devops.html" class="card">
                 <span class="card-icon">⚙️</span> <!-- Using a cog icon for DevOps -->
-                <div class="card-title">DevOps Mindmap</div>
-                <div class="card-description">Explore DevOps principles and AWS services for continuous delivery.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">DevOps Mindmap</div>
+                    <div class="card-description">Explore DevOps principles and AWS services for continuous delivery.</div>
+                </div>
             </a>
             <!-- NEW LINK: Linux -->
             <a href="./Linux.html" class="card">
                 <span class="card-icon">🐧</span> <!-- Penguin for Linux -->
-                <div class="card-title">Linux Basics</div>
-                <div class="card-description">Fundamental concepts and commands for Linux operating systems.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">Linux Basics</div>
+                    <div class="card-description">Fundamental concepts and commands for Linux operating systems.</div>
+                </div>
             </a>
             <!-- NEW LINK: DevSecOps -->
             <a href="./devsecops.html" class="card">
                 <span class="card-icon">🛡️</span> <!-- Shield for Security -->
-                <div class="card-title">DevSecOps Guide</div>
-                <div class="card-description">Integrating security practices throughout the DevOps lifecycle.</div>
+                <div class="card-content-wrapper">
+                    <div class="card-title">DevSecOps Guide</div>
+                    <div class="card-description">Integrating security practices throughout the DevOps lifecycle.</div>
+                </div>
             </a>
         </div>
     </div>
