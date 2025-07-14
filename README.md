@@ -1,6 +1,4 @@
 # AI-AH
-Absolutely, Arun! Based on the latest commit history and file structure from your GitHub repo, here’s a more robust and refined version of your README.md file that communicates professionalism, clarity, and technical value:
-
 ---
 
 🌐 AI-AH Static Webpages Repository
@@ -25,17 +23,17 @@ This repository contains individual topic-based HTML files, each representing a 
 | File Name                        | Description                                      | Status Update                     |
 |----------------------------------|--------------------------------------------------|-----------------------------------|
 | index.html                    | Main landing page with links to all topics       | 🕓 Updated 19 minutes ago         |
-| awsaiservices.html          | AWS AI/ML services overview                      | ✨ New file & content             |
-| awsAIML_heirarchy.html      | Visual AI/ML hierarchy in AWS                    | 🔄 Back button added              |
-| awsservicesheirarchy.html   | AWS service categorization                       | 🔄 Back button added              |
-| coreawsservices.html        | Essential AWS service descriptions               | 📝 File renamed                   |
+| aws_ai_services.html          | AWS AI/ML services overview                      | ✨ New file & content             |
+| aws_AI_ML_heirarchy.html      | Visual AI/ML hierarchy in AWS                    | 🔄 Back button added              |
+| aws_services_heirarchy.html   | AWS service categorization                       | 🔄 Back button added              |
+| core_aws_services.html        | Essential AWS service descriptions               | 📝 File renamed                   |
 | devops.html                   | Introduction to DevOps principles                | 📝 File renamed                   |
 | devsecops.html                | DevSecOps methodology and insights               | ✨ New file & updates             |
 | aws devsecops dashboard.html | AWS DevSecOps dashboard walkthrough              | 🔄 Improved navigation            |
 | Linux.html                    | Linux overview with feedback form                | ✏️ Form added                    |
 | Security.html                 | Security fundamentals                            | ✏️ Form added                    |
 | python_bash.html             | Bash and Python scripting overview               | 📝 File renamed                   |
-| osilayernw.html            | OSI Layer explanation                            | 🕓 Updated 14 minutes ago         |
+| osi_layer_nw.html            | OSI Layer explanation                            | 🕓 Updated 14 minutes ago         |
 | .github/                      | GitHub CI workflows and templates                | 🔧 Config updates                 |
 | Devsecops.html:Zone.Identifier | System metadata file from Windows                | 🧹 Ignore or remove safely        |
 | README.md                     | This README file 😉                              | 🕓 Updated just now               |
@@ -102,5 +100,3 @@ Looking to refine content? Improve UX? Add diagrams? Bring it on!
 This repository is open-sourced under the MIT License.
 
 ---
-
-Would you like help turning this into a hosted portal with a navbar, theme switcher, or interactive elements? I can also generate SVG diagrams or JavaScript-enhanced navigation menus. Just give me the green light! 🚦✨
