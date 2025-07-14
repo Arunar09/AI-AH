@@ -15,7 +15,6 @@
             font-family: 'Inter', sans-serif; /* Fallback to Inter for general text */
             border-radius: 8px;
         }
-
         /* Body Styles - Retro-Cozy Dark Theme */
         body {
             background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%); /* Deep, muted blue/purple gradient */
@@ -28,7 +27,6 @@
             padding: 20px;
             position: relative;
         }
-
         /* Canvas for the pixel animation */
         #pixelCanvas {
             position: fixed; /* Changed to fixed to allow page scrolling */
@@ -39,7 +37,6 @@
             z-index: 0; /* Ensures it stays behind the content */
             opacity: 0.7; /* Make it slightly transparent so it's not too distracting */
         }
-
         /* Subtle Static background grid lines for retro tech feel (now layered over canvas) */
         body::before {
             content: '';
@@ -55,8 +52,6 @@
             pointer-events: none; /* Allows clicks to pass through */
             z-index: 0; /* Stays behind content, can be above canvas if desired */
         }
-
-
         /* Main Container - Framed like a subdued retro screen */
         .container {
             max-width: 1200px;
@@ -75,12 +70,10 @@
             flex-direction: column;
             justify-content: center; /* Center content vertically if space allows */
         }
-
         @keyframes fadeInScale {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
-
         h1 {
             font-family: 'Press Start 2P', cursive; /* Pixel font for title */
             font-size: 3.8rem;
@@ -90,7 +83,6 @@
             text-shadow: 0 0 5px #A0D2EB, 0 0 10px rgba(160, 210, 235, 0.7); /* Softer glow */
             letter-spacing: 4px;
         }
-
         p.subtitle {
             font-size: 1.35rem;
             color: #C0C0C0; /* Muted grey for subtitle */
@@ -98,7 +90,6 @@
             line-height: 1.6;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
-
         /* Grid for Navigation Cards */
         .grid-container {
             display: grid;
@@ -106,10 +97,9 @@
             gap: 30px;
             padding: 20px;
             flex-grow: 1; /* Allow grid to take available vertical space */
-            align-items: center; /* Align cards in the center of their grid cells */
+            align-items: stretch; /* IMPORTANT: Ensures all cards in a row have the same height */
             justify-content: center;
         }
-
         /* Individual Card Styles - Muted Data Panels */
         .card {
             background: rgba(25, 25, 40, 0.7); /* Darker, less transparent card background */
@@ -126,8 +116,8 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
+            min-height: 250px; /* Added: Ensures a consistent minimum height for all cards */
         }
-
         .card::before { /* Very subtle glitch/scanline effect */
             content: '';
             position: absolute;
@@ -145,14 +135,12 @@
             pointer-events: none;
             opacity: 0.5;
         }
-
         .card:hover {
             transform: translateY(-8px) scale(1.02);
             background: rgba(30, 30, 50, 0.8);
             border-color: rgba(160, 210, 235, 0.8); /* Slightly brighter border on hover */
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
-
         .card-icon {
             font-size: 3.8rem;
             margin-bottom: 15px;
@@ -160,11 +148,9 @@
             color: #FFC0CB; /* Muted pink/rose for icons */
             text-shadow: 0 0 5px rgba(255, 192, 203, 0.5);
         }
-
         .card:hover .card-icon {
             transform: rotate(3deg) scale(1.1);
         }
-
         .card-title {
             font-size: 1.85rem;
             font-weight: 600;
@@ -172,45 +158,37 @@
             color: #B5EAD7; /* Muted green for titles */
             text-shadow: 0 0 3px #B5EAD7;
         }
-
         .card-description {
             font-size: 1.05rem;
             color: #C0C0C0; /* Muted grey description */
             line-height: 1.5;
         }
-
         /* Responsive Adjustments */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.8rem;
                 letter-spacing: 2px;
             }
-
             p.subtitle {
                 font-size: 1.1rem;
             }
-
             .container {
                 padding: 25px;
             }
-
             .grid-container {
                 grid-template-columns: 1fr;
             }
-
             .card {
                 padding: 25px;
+                min-height: 220px; /* Adjusted min-height for smaller screens */
             }
-
             .card-icon {
                 font-size: 3.2rem;
             }
-
             .card-title {
                 font-size: 1.6rem;
             }
         }
-
         @media (max-width: 480px) {
             h1 {
                 font-size: 2rem;
@@ -219,8 +197,10 @@
             p.subtitle {
                 font-size: 0.9rem;
             }
+            .card {
+                min-height: 200px; /* Further adjusted min-height for very small screens */
+            }
         }
-
         /* Feedback Button */
         #feedbackButton {
             position: fixed;
@@ -237,13 +217,11 @@
             transition: all 0.3s ease;
             z-index: 100;
         }
-
         #feedbackButton:hover {
             background-color: #8FD8C4; /* Slightly lighter green on hover */
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
         }
-
         /* Feedback Modal */
         .feedback-modal {
             display: none; /* Hidden by default */
@@ -259,7 +237,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .feedback-modal-content {
             background-color: #16213E; /* Dark background from theme */
             margin: auto;
@@ -277,7 +254,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .feedback-modal-content h2 {
             color: #A0D2EB;
             margin-bottom: 20px;
@@ -285,7 +261,6 @@
             text-shadow: none; /* Remove text-shadow for modal title */
             font-family: 'Inter', sans-serif;
         }
-
         /* Styles specific to Google Form iframe */
         .feedback-modal-content iframe {
             width: 100%;
@@ -293,7 +268,6 @@
             border: none;
             border-radius: 8px;
         }
-
         .feedback-modal-close {
             color: #aaa;
             float: right;
@@ -305,7 +279,6 @@
             right: 20px;
             z-index: 201; /* Ensure close button is clickable */
         }
-
         .feedback-modal-close:hover,
         .feedback-modal-close:focus {
             color: #E0E0E0;
@@ -316,11 +289,9 @@
 </head>
 <body>
     <canvas id="pixelCanvas"></canvas> <!-- Canvas for the pixel animation -->
-
     <div class="container">
         <h1>📚 Learn Easy</h1>
         <p class="subtitle">Dive into knowledge, with a comforting digital glow.</p>
-
         <div class="grid-container">
 	    <!-- Link to OSI Layer N/W -->
             <a href="./osi_layer_nw.html" class="card">
@@ -335,7 +306,6 @@
                 <div class="card-title">AWS AI Services</div>
                 <div class="card-description">Explore Amazon's Artificial Intelligence & Machine Learning offerings.</div>
             </a>
-
             <!-- Link to AWS Core Services -->
             <a href="./core_aws_services.html" class="card">
                 <span class="card-icon">👾</span>
@@ -370,28 +340,24 @@
                 <div class="card-title">Cybersecurity Mindmap</div>
                 <div class="card-description">Understand organizational security with an interactive mindmap.</div>
             </a>
-
             <!-- Link to Python & Bash Guide -->
             <a href="./python_bash.html" class="card">
                 <span class="card-icon">🐍</span>
                 <div class="card-title">Python & Bash Guide</div>
                 <div class="card-description">Interactive reference and code runner for Python and Bash scripting.</div>
             </a>
-
             <!-- NEW LINK: DevOps Mindmap -->
             <a href="./devops.html" class="card">
                 <span class="card-icon">⚙️</span> <!-- Using a cog icon for DevOps -->
                 <div class="card-title">DevOps Mindmap</div>
                 <div class="card-description">Explore DevOps principles and AWS services for continuous delivery.</div>
             </a>
-
             <!-- NEW LINK: Linux -->
             <a href="./Linux.html" class="card">
                 <span class="card-icon">🐧</span> <!-- Penguin for Linux -->
                 <div class="card-title">Linux Basics</div>
                 <div class="card-description">Fundamental concepts and commands for Linux operating systems.</div>
             </a>
-
             <!-- NEW LINK: DevSecOps -->
             <a href="./devsecops.html" class="card">
                 <span class="card-icon">🛡️</span> <!-- Shield for Security -->
@@ -400,10 +366,8 @@
             </a>
         </div>
     </div>
-
     <!-- Feedback Button -->
     <button id="feedbackButton">Feedback & Suggestions</button>
-
     <!-- Feedback Modal Structure -->
     <div id="feedbackModal" class="feedback-modal">
         <div class="feedback-modal-content">
@@ -412,107 +376,88 @@
             <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSd0oDv66wGuqnvmkKimCtIoOrCw12Isd0EKvWY_U6mjrBosrA/viewform?embedded=true" width="100%" height="450" frameborder="0" marginheight="0" marginwidth="0">Loading form...</iframe>
         </div>
     </div>
-
     <script>
         // Get the canvas element and its 2D rendering context
         const canvas = document.getElementById('pixelCanvas');
         const ctx = canvas.getContext('2d');
-
         // Function to set canvas dimensions based on window size
         function setCanvasDimensions() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
-
         // Initialize canvas dimensions
         setCanvasDimensions();
-
         // Listen for window resize events to adjust canvas dimensions
         window.addEventListener('resize', setCanvasDimensions);
-
         // Define a Star class
         class Star {
             constructor() {
                 this.reset();
                 this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`; // Brighter subtle white/grey
             }
-
             // Resets star position and movement direction
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
                 this.size = Math.random() * 3 + 1; // Larger pixel sizes (1 to 4 pixels)
                 this.speed = Math.random() * 0.8 + 0.3; // Speed slightly increased but still cozy
-
                 // Random direction for movement
                 this.dx = (Math.random() - 0.5) * 2 * this.speed; // -speed to +speed
                 this.dy = (Math.random() - 0.5) * 2 * this.speed; // -speed to +speed
             }
-
             // Updates star's position
             update() {
                 this.x += this.dx;
                 this.y += this.dy;
-
                 // Wrap around logic for both X and Y axes
                 if (this.x < 0 - this.size) this.x = canvas.width + this.size;
                 if (this.x > canvas.width + this.size) this.x = 0 - this.size;
                 if (this.y < 0 - this.size) this.y = canvas.height + this.size;
                 if (this.y > canvas.height + this.size) this.y = 0 - this.size;
             }
-
             // Draws the star as a pixel
             draw() {
                 ctx.fillStyle = this.color;
                 ctx.fillRect(this.x, this.y, this.size, this.size);
             }
         }
-
         // Create an array of stars
         const numStars = 150; // Increased number of stars for denser feel
         const stars = [];
         for (let i = 0; i < numStars; i++) {
             stars.push(new Star());
         }
-
         // Animation loop
         function animate() {
             // Clear the canvas for the next frame
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             // Update and draw each star
             stars.forEach(star => {
                 star.update();
                 star.draw();
             });
-
             // Request the next animation frame
             requestAnimationFrame(animate);
         }
-
         // Feedback Modal Logic
         const feedbackModal = document.getElementById('feedbackModal');
         const feedbackButton = document.getElementById('feedbackButton');
         const closeFeedbackModal = document.getElementById('closeFeedbackModal');
         // Removed feedbackForm, feedbackTextarea, feedbackSuccessMessage as they are not directly handled now
-
         // Open Modal
         feedbackButton.onclick = function() {
             feedbackModal.style.display = 'flex'; // Use flex to center content
         }
-
         // Close Modal via X button
         closeFeedbackModal.onclick = function() {
             feedbackModal.style.display = 'none';
         }
-
         // Close Modal when clicking outside content
         window.onclick = function(event) {
             if (event.target == feedbackModal) {
                 feedbackModal.style.display = 'none';
             }
         }
-
         // Start the animation when the window loads
         window.onload = function() {
             animate();
@@ -520,3 +465,4 @@
     </script>
 </body>
 </html>
+
