@@ -35,7 +35,6 @@ This repository contains individual topic-based HTML files, each representing a 
 | python_bash.html             | Bash and Python scripting overview               | 📝 File renamed                   |
 | osi_layer_nw.html            | OSI Layer explanation                            | 🕓 Updated 14 minutes ago         |
 | .github/                      | GitHub CI workflows and templates                | 🔧 Config updates                 |
-| Devsecops.html:Zone.Identifier | System metadata file from Windows                | 🧹 Ignore or remove safely        |
 | README.md                     | This README file 😉                              | 🕓 Updated just now               |
 
 ---
