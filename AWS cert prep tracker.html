@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS SAA-C03 Progress Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for body and container */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light gray background */
+            color: #334155; /* Darker text for readability */
+            padding: 1.5rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .container {
+            max-width: 960px;
+            margin: 2rem auto;
+            background-color: #ffffff;
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Stronger shadow */
+            padding: 2.5rem;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Dashboard Header Styling */
+        .dashboard-header {
+            background-image: linear-gradient(to right, #10b981, #059669); /* Green gradient */
+            color: #ffffff;
+            padding: 1.8rem 2.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            font-size: 1.5rem; /* Larger text */
+            font-weight: 700;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            position: relative; /* For dark mode toggle positioning */
+        }
+        .dashboard-module-progress {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .dashboard-module-progress > div {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .dark-mode-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Module Header Styling */
+        .module-header {
+            background-color: #e0f2fe; /* Light blue */
+            color: #0c4a6e; /* Darker blue text */
+            padding: 1.2rem 1.8rem;
+            border-radius: 0.6rem;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .module-header:hover {
+            background-color: #bae6fd; /* Lighter blue on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+        .module-header .toggle-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+        .module-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Lesson Card Styling */
+        .lesson-card {
+            background-color: #f0f9ff; /* Very light blue */
+            border: 1px solid #e0f2fe; /* Light blue border */
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .lesson-card:hover {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        /* Lesson Header (Toggle) Styling */
+        .lesson-header-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            cursor: pointer;
+            padding: 0.5rem 0; /* Adjust padding for inner toggle */
+            font-weight: 500;
+            color: #1e293b; /* Darker gray for lesson titles */
+        }
+        .lesson-header-toggle .lesson-title {
+            flex-grow: 1; /* Allow title to take space */
+        }
+        .lesson-header-toggle .toggle-icon {
+            margin-left: 1rem;
+            transition: transform 0.2s ease-in-out;
+        }
+        .lesson-header-toggle.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Toggle Switch (Checkbox) Styling */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px; /* Slightly larger switch */
+            height: 26px;
+            margin-right: 1rem;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1; /* Gray for off state */
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; /* Larger handle */
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #22c55e; /* Green for on state */
+        }
+        input:focus + .slider {
+            box-shadow: 0 0 1px #22c55e;
+        }
+        input:checked + .slider:before {
+            transform: translateX(18px); /* Move handle further */
+        }
+
+        /* Collapsible Content Styling (Lesson Details) */
+        .lesson-details, .module-content { /* Apply to both for consistency */
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            max-height: 9999px; /* Arbitrary large value for expanded state to ensure full content is shown */
+        }
+        .lesson-details.collapsed, .module-content.collapsed { /* Apply to both */
+            max-height: 0;
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        /* Lesson Content (Theory, Hands-on, Checkpoint) Styling */
+        .lesson-content div {
+            margin-top: 0.8rem;
+            padding-left: 1.2rem;
+            border-left: 4px solid #93c5fd; /* Blue border */
+        }
+        .lesson-content h4 {
+            font-weight: 600;
+            color: #475569; /* Slightly darker gray */
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+        }
+        .lesson-content ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            color: #64748b; /* Medium gray */
+            font-size: 0.9rem;
+        }
+        .lesson-content ul li {
+            margin-bottom: 0.3rem;
+        }
+
+        /* Comments and Links Section Styling */
+        .comments-section, .links-section {
+            margin-top: 1.5rem;
+            border-top: 1px dashed #cbd5e1; /* Dashed separator */
+            padding-top: 1.5rem;
+        }
+        .comment-item, .link-item {
+            background-color: #f1f5f9; /* Lighter gray for items */
+            border-radius: 0.4rem;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.9rem;
+            color: #475569;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Subtle shadow */
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .comment-timestamp, .link-timestamp {
+            font-size: 0.7rem;
+            color: #94a3b8; /* Lighter gray for timestamp */
+            margin-top: 0.2rem;
+            text-align: right;
+            flex-basis: 100%;
+            transition: color 0.3s ease;
+        }
+        .link-item a {
+            color: #3b82f6; /* Blue for links */
+            text-decoration: underline;
+            word-break: break-all;
+            flex-grow: 1;
+            margin-right: 0.75rem;
+            transition: color 0.3s ease;
+        }
+
+        /* Input and Button Styling */
+        input[type="text"], .new-comment-input, .new-link-input, .reply-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            margin-top: 0.75rem;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            color: #475569;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease, color 0.3s ease;
+        }
+        input[type="text"]:focus, .new-comment-input:focus, .new-link-input:focus, .reply-input:focus {
+            outline: none;
+            border-color: #3b82f6; /* Blue border on focus */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); /* Light blue shadow on focus */
+        }
+
+        .add-comment-btn, .add-link-btn, .delete-btn, .reply-btn {
+            background-color: #3b82f6; /* Blue primary */
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.75rem;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .add-comment-btn:hover, .add-link-btn:hover, .reply-btn:hover {
+            background-color: #2563eb; /* Darker blue on hover */
+            transform: translateY(-1px);
+        }
+        .delete-btn {
+            background-color: #ef4444; /* Red for delete */
+            padding: 0.5rem 1rem;
+            margin-top: 0;
+            margin-left: 0.75rem;
+            flex-shrink: 0;
+        }
+        .delete-btn:hover {
+            background-color: #dc2626; /* Darker red on hover */
+        }
+
+        /* SVG Icon Styling */
+        .svg-icon {
+            width: 1.25em; /* Match font size */
+            height: 1.25em;
+            vertical-align: middle;
+            fill: currentColor; /* Inherit color from parent */
+        }
+
+        /* Index Table Styling */
+        .index-table {
+            background-color: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .index-table h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 1rem;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+        .index-table ul {
+            list-style: none;
+            padding: 0;
+        }
+        .index-table ul li {
+            margin-bottom: 0.5rem;
+        }
+        .index-table ul li a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease-in-out;
+        }
+        .index-table ul li a:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+        .index-table .module-link {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            display: block;
+            color: #0c4a6e;
+            transition: color 0.3s ease;
+        }
+        .index-table .lesson-link {
+            padding-left: 1.5rem;
+            font-size: 0.95rem;
+            color: #475569;
+            transition: color 0.3s ease;
+        }
+
+        /* Reply specific styles */
+        .reply-section {
+            margin-top: 0.8rem;
+            padding-left: 1.5rem; /* Indent replies */
+            border-left: 2px solid #a0aec0; /* Subtle border for replies */
+        }
+        .reply-item {
+            background-color: #e2e8f0; /* Slightly darker background for replies */
+            border-radius: 0.3rem;
+            padding: 0.6rem 0.8rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            color: #475569;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .reply-item .delete-btn {
+            padding: 0.3rem 0.6rem; /* Smaller delete button for replies */
+        }
+        .reply-input-group {
+            display: flex;
+            margin-top: 0.5rem;
+        }
+        .reply-input-group input {
+            flex-grow: 1;
+            margin-top: 0; /* Remove top margin from input */
+            margin-right: 0.5rem;
+        }
+        .reply-input-group button {
+            margin-top: 0; /* Remove top margin from button */
+            flex-shrink: 0;
+        }
+
+        /* Analysis Section Styling */
+        .analysis-section {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #ffffff;
+        }
+        .analysis-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .analysis-section ul {
+            list-style: none;
+            padding: 0;
+            max-height: 150px; /* Limit height for scrollable history */
+            overflow-y: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .analysis-section ul li {
+            margin-bottom: 0.3rem;
+            padding: 0.2rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .analysis-section ul li:last-child {
+            border-bottom: none;
+        }
+        .analysis-section .action-timestamp {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-left: 0.5rem;
+            white-space: nowrap; /* Prevent timestamp from wrapping */
+            flex-shrink: 0;
+        }
+        .analysis-section button {
+            display: block; /* Make button take full width */
+            width: fit-content; /* Adjust width to content */
+            margin: 1rem auto 0; /* Center button below list */
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .analysis-section button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* History Modal Styling */
+        .history-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent overlay */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Ensure it's on top */
+            transition: opacity 0.3s ease;
+        }
+        .history-modal-content {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh; /* Limit height for scrollability */
+            overflow-y: auto;
+            position: relative;
+            color: #334155;
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .history-modal-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #0c4a6e;
+            transition: color 0.3s ease;
+        }
+        .history-modal-content ul {
+            list-style: none;
+            padding: 0;
+        }
+        .history-modal-content ul li {
+            background-color: #f1f5f9;
+            padding: 0.8rem 1rem;
+            border-radius: 0.4rem;
+            margin-bottom: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #475569;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .history-modal-content .full-timestamp {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 0.2rem;
+            text-align: right;
+            flex-basis: 100%;
+            transition: color 0.3s ease;
+        }
+        .history-modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+            transition: color 0.2s ease;
+        }
+        .history-modal-close-btn:hover {
+            color: #334155;
+        }
+        .hidden {
+            display: none;
+            opacity: 0;
+            pointer-events: none; /* Disable interactions when hidden */
+        }
+
+        /* Dark Mode Specific Styles */
+        html[data-theme="dark"] body {
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text */
+        }
+        html[data-theme="dark"] .container {
+            background-color: #2d3748; /* Darker container */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+        }
+        html[data-theme="dark"] .dashboard-header {
+            background-image: linear-gradient(to right, #065f46, #047857); /* Darker green gradient */
+        }
+        html[data-theme="dark"] .dashboard-module-progress > div {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        html[data-theme="dark"] .dark-mode-toggle {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .dark-mode-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        html[data-theme="dark"] .module-header {
+            background-color: #4a5568; /* Darker module header */
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .module-header:hover {
+            background-color: #64748b;
+        }
+        html[data-theme="dark"] .lesson-card {
+            background-color: #2d3748; /* Darker lesson card */
+            border-color: #4a5568;
+        }
+        html[data-theme="dark"] .lesson-header-toggle {
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .slider {
+            background-color: #718096;
+        }
+        html[data-theme="dark"] input:checked + .slider {
+            background-color: #10b981; /* Dark mode green */
+        }
+        html[data-theme="dark"] input:focus + .slider {
+            box-shadow: 0 0 1px #10b981;
+        }
+        html[data-theme="dark"] .lesson-details {
+            border-top-color: #4a5568;
+        }
+        html[data-theme="dark"] .lesson-content div {
+            border-left-color: #63b3ed; /* Lighter blue border */
+        }
+        html[data-theme="dark"] .lesson-content h4 {
+            color: #cbd5e1;
+        }
+        html[data-theme="dark"] .lesson-content ul {
+            color: #a0aec0;
+        }
+        html[data-theme="dark"] .comments-section, html[data-theme="dark"] .links-section {
+            border-top-color: #4a5568;
+        }
+        html[data-theme="dark"] .comment-item, html[data-theme="dark"] .link-item {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+        html[data-theme="dark"] .comment-timestamp, html[data-theme="dark"] .link-timestamp {
+            color: #a0aec0;
+        }
+        html[data-theme="dark"] .link-item a {
+            color: #63b3ed;
+        }
+        html[data-theme="dark"] input[type="text"], html[data-theme="dark"] .new-comment-input, html[data-theme="dark"] .new-link-input, html[data-theme="dark"] .reply-input {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] input[type="text"]:focus, html[data-theme="dark"] .new-comment-input:focus, html[data-theme="dark"] .new-link-input:focus, html[data-theme="dark"] .reply-input:focus {
+            border-color: #63b3ed;
+            box-shadow: 0 0 0 2px rgba(99, 179, 237, 0.2);
+        }
+        html[data-theme="dark"] .add-comment-btn, html[data-theme="dark"] .add-link-btn, html[data-theme="dark"] .reply-btn {
+            background-color: #63b3ed;
+        }
+        html[data-theme="dark"] .add-comment-btn:hover, html[data-theme="dark"] .add-link-btn:hover, html[data-theme="dark"] .reply-btn:hover {
+            background-color: #4299e1;
+        }
+        html[data-theme="dark"] .index-table {
+            background-color: #2d3748;
+            border-color: #4a5568;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        html[data-theme="dark"] .index-table h3 {
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .index-table ul li a {
+            color: #63b3ed;
+        }
+        html[data-theme="dark"] .index-table ul li a:hover {
+            color: #4299e1;
+        }
+        html[data-theme="dark"] .index-table .module-link {
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .index-table .lesson-link {
+            color: #a0aec0;
+        }
+        html[data-theme="dark"] .reply-section {
+            border-left-color: #718096; /* Darker border for replies */
+        }
+        html[data-theme="dark"] .reply-item {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .analysis-section {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        html[data-theme="dark"] .analysis-section ul {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+        html[data-theme="dark"] .analysis-section ul li {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+        html[data-theme="dark"] .analysis-section button {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        html[data-theme="dark"] .analysis-section button:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        html[data-theme="dark"] .history-modal-content {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.5);
+        }
+        html[data-theme="dark"] .history-modal-content h3 {
+            color: #e2e8f0;
+        }
+        html[data-theme="dark"] .history-modal-content ul li {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+        html[data-theme="dark"] .history-modal-content .full-timestamp {
+            color: #a0aec0;
+        }
+        html[data-theme="dark"] .history-modal-close-btn {
+            color: #a0aec0;
+        }
+        html[data-theme="dark"] .history-modal-close-btn:hover {
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-header" id="dashboard-header">
+            <div>Lessons Completed: <span id="overall-completed">0</span> / <span id="overall-total">42</span></div>
+            <div class="dashboard-module-progress" id="dashboard-module-progress">
+                <!-- Module specific progress will be rendered here -->
+            </div>
+            <button id="darkModeToggle" class="dark-mode-toggle">Toggle Dark Mode</button>
+
+            <div class="analysis-section" id="analysis-section">
+                <h4>Activity Analysis</h4>
+                <div id="last-action-time"></div>
+                <div id="total-actions-count"></div>
+                <div id="avg-time-between-lessons"></div>
+                <div id="avg-time-between-all-actions"></div>
+                <h4>Recent Activity:</h4>
+                <ul id="action-history-list">
+                    <!-- Action history will be rendered here -->
+                </ul>
+                <button id="showHistoryBtn" class="hidden">Show Full History</button>
+            </div>
+        </div>
+
+        <div class="index-table" id="course-index-table">
+            <h3>Course Index</h3>
+            <ul id="index-list">
+                <!-- Index links will be rendered here -->
+            </ul>
+        </div>
+
+        <div id="tracker-content">
+            <!-- Modules will be rendered here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="historyModal" class="history-modal-overlay hidden">
+        <div class="history-modal-content">
+            <button id="closeHistoryModal" class="history-modal-close-btn">&times;</button>
+            <h3>Full Activity History</h3>
+            <ul id="historyModalList">
+                <!-- Full action history will be rendered here -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Data structure for the AWS SAA-C03 course, based on the provided PDF
+        const courseModules = [
+            {
+                name: "Module 1: AWS Fundamentals & Core Services",
+                days: [
+                    { day: 1, title: "AWS Overview & Account Setup", theory: ["AWS global infrastructure: Regions, AZs, Edge locations", "AWS service categories overview", "Shared responsibility model"], handsOn: ["Create AWS free tier account", "Set up billing alerts", "Navigate AWS console", "Install AWS CLI"], checkpoint: ["Quiz: Match 5 AWS services to their categories"] },
+                    { day: 2, title: "IAM Deep Dive", theory: ["Users, groups, roles, policies", "Principle of least privilege", "Multi-factor authentication"], handsOn: ["Create IAM users and groups", "Attach policies and test permissions", "Set up MFA for root account", "Create service roles"], checkpoint: ["Scenario: Design IAM structure for a startup"] },
+                    { day: 3, title: "EC2 Fundamentals", theory: ["Instance types and families", "AMIs and user data", "Security groups vs NACLs"], handsOn: ["Launch EC2 instance", "Configure security groups", "Connect via SSH/RDP", "Install web server"], checkpoint: ["Exercise: Compare t3.micro vs m5.large use cases"] },
+                    { day: 4, title: "EC2 Advanced Features", theory: ["Placement groups", "Instance metadata", "Spot instances and reserved instances"], handsOn: ["Create custom AMI", "Use spot instances", "Configure CloudWatch monitoring", "Set up auto-recovery"], checkpoint: ["Cost optimization: When to use spot vs reserved instances"] },
+                    { day: 5, title: "Storage Services - EBS & EFS", theory: ["EBS volume types and performance", "EFS vs EBS use cases", "Snapshots and encryption"], handsOn: ["Create and attach EBS volumes", "Set up EFS file system", "Create snapshots", "Test encryption"], checkpoint: ["Design storage solution for database server"] },
+                    { day: 6, title: "S3 Fundamentals", theory: ["S3 storage classes", "Versioning and lifecycle policies", "Cross-region replication"], handsOn: ["Create S3 buckets", "Upload objects and set permissions", "Configure versioning", "Set up lifecycle rules"], checkpoint: ["Scenario: Design S3 strategy for backup solution"] },
+                    { day: 7, title: "S3 Advanced & CloudFront", theory: ["S3 security features", "CloudFront distribution and caching", "Origin access identity"], handsOn: ["Set up S3 static website hosting", "Create CloudFront distribution", "Configure custom error pages", "Test caching behavior"], checkpoint: ["Exercise: Optimize website performance with CloudFront"] },
+                    { day: 8, title: "VPC Networking Basics", theory: ["VPC components: subnets, route tables, gateways", "Public vs private subnets", "Security groups and NACLS"], handsOn: ["Create custom VPC", "Set up public and private subnets", "Configure internet gateway", "Test connectivity"], checkpoint: ["Design VPC architecture for 3-tier application"] }
+                ]
+            },
+            {
+                name: "Module 2: Databases & Application Services",
+                days: [
+                    { day: 9, title: "RDS & Database Fundamentals", theory: ["RDS engines and use cases", "Multi-AZ vs Read Replicas", "Backup and recovery strategies"], handsOn: ["Launch RDS MySQL instance", "Configure security groups", "Create read replica", "Test failover scenarios"], checkpoint: ["Compare RDS Multi-AZ vs Read Replicas"] },
+                    { day: 10, title: "DynamoDB & NoSQL", theory: ["DynamoDB concepts: tables, items, attributes", "Primary keys and indexes", "Consistency models"], handsOn: ["Create DynamoDB table", "Perform CRUD operations", "Set up Global Secondary Index", "Configure auto-scaling"], checkpoint: ["When to choose DynamoDB vs RDS"] },
+                    { day: 11, title: "ElastiCache & Performance", theory: ["Redis vs Memcached", "Caching strategies", "Session management"], handsOn: ["Set up ElastiCache cluster", "Configure application to use cache", "Monitor cache performance", "Test cache invalidation"], checkpoint: ["Design caching strategy for e-commerce site"] },
+                    { day: 12, title: "SQS & SNS Messaging", theory: ["Queue types and message patterns", "Dead letter queues", "Fan-out messaging with SNS"], handsOn: ["Create SQS queues", "Set up SNS topic and subscriptions", "Build decoupled application", "Test message processing"], checkpoint: ["Design messaging architecture for order processing"] },
+                    { day: 13, title: "Lambda & Serverless", theory: ["Serverless computing concepts", "Lambda triggers and integrations", "Cold starts and optimization"], handsOn: ["Create Lambda functions", "Set up API Gateway integration", "Configure S3 triggers", "Monitor with CloudWatch"], checkpoint: ["Compare Lambda vs EC2 for different use cases"] },
+                    { day: 14, title: "API Gateway & Integration", theory: ["REST vs WebSocket APIs", "Authentication and authorization", "Throttling and caching"], handsOn: ["Create REST API", "Set up API authentication", "Configure rate limiting", "Test API endpoints"], checkpoint: ["Design API architecture for mobile app"] },
+                    { day: 15, title: "CloudWatch & Monitoring", theory: ["Metrics, logs, and alarms", "Custom metrics and dashboards", "CloudTrail for auditing"], handsOn: ["Set up CloudWatch alarms", "Create custom dashboards", "Configure log groups", "Set up CloudTrail"], checkpoint: ["Design monitoring strategy for web application"] },
+                    { day: 16, title: "Auto Scaling & Load Balancing", theory: ["Auto Scaling groups and policies", "Load balancer types (ALB, NLB, CLB)", "Health checks and target groups"], handsOn: ["Create Auto Scaling group", "Configure Application Load Balancer", "Set up health checks", "Test scaling policies"], checkpoint: ["Design high availability architecture"] }
+                ]
+            },
+            {
+                name: "Module 3: Security & Identity",
+                days: [
+                    { day: 17, title: "Security Groups & Network ACLs", theory: ["Security group vs NACL differences", "Stateful vs stateless filtering", "Default deny principles"], handsOn: ["Configure security groups for web tier", "Set up NACLs for additional security", "Test traffic flow", "Troubleshoot connectivity issues"], checkpoint: ["Design network security for 3-tier app"] },
+                    { day: 18, title: "KMS & Encryption", theory: ["Encryption at rest vs in transit", "KMS key types and policies", "Envelope encryption"], handsOn: ["Create KMS keys", "Encrypt S3 objects", "Configure RDS encryption", "Test key rotation"], checkpoint: ["Design encryption strategy for healthcare app"] },
+                    { day: 19, title: "AWS Config & Compliance", theory: ["Configuration management", "Compliance rules and remediation", "Resource inventory"], handsOn: ["Set up AWS Config", "Create compliance rules", "Monitor resource changes", "Generate compliance reports"], checkpoint: ["Exercise: Ensure S3 buckets are not public"] },
+                    { day: 20, title: "CloudTrail & Auditing", theory: ["API logging and monitoring", "Event history and insights", "Integration with CloudWatch"], handsOn: ["Configure CloudTrail", "Set up log analysis", "Create security alerts", "Investigate security events"], checkpoint: ["Design audit strategy for financial services"] },
+                    { day: 21, title: "WAF & Shield", theory: ["Web application firewall concepts", "DDoS protection strategies", "Rate limiting and geo-blocking"], handsOn: ["Set up AWS WAF", "Configure rate limiting rules", "Test DDoS protection", "Monitor attack patterns"], checkpoint: ["Design protection for e-commerce site"] },
+                    { day: 22, title: "Secrets Manager & Parameter Store", theory: ["Secrets management best practices", "Rotation strategies", "Cost optimization"], handsOn: ["Store database credentials", "Set up automatic rotation", "Configure application access", "Compare with Parameter Store"], checkpoint: ["Design secrets management for microservices"] }
+                ]
+            },
+            {
+                name: "Module 4: High Availability & Disaster Recovery",
+                days: [
+                    { day: 23, title: "Multi-AZ Deployments", theory: ["Availability zones and fault tolerance", "Multi-AZ vs Multi-Region strategies", "RTO and RPO concepts"], handsOn: ["Deploy application across multiple AZs", "Configure RDS Multi-AZ", "Test AZ failure scenarios", "Measure recovery time"], checkpoint: ["Calculate availability for different architectures"] },
+                    { day: 24, title: "Route 53 & DNS", theory: ["DNS routing policies", "Health checks and failover", "Geolocation and latency routing"], handsOn: ["Configure Route 53 hosted zone", "Set up health checks", "Implement failover routing", "Test DNS resolution"], checkpoint: ["Design global DNS strategy"] },
+                    { day: 25, title: "Backup Strategies", theory: ["Backup types and strategies", "Cross-region replication", "Lifecycle management"], handsOn: ["Set up automated EBS snapshots", "Configure S3 cross-region replication", "Create backup automation with Lambda", "Test restore procedures"], checkpoint: ["Design backup strategy for different RPO requirements"] },
+                    { day: 26, title: "Disaster Recovery Patterns", theory: ["Pilot light, warm standby, hot standby", "Multi-region failover", "Database replication strategies"], handsOn: ["Implement pilot light DR", "Set up cross-region database replication", "Create DR runbook", "Test failover procedures"], checkpoint: ["Compare DR patterns for different budgets"] },
+                    { day: 27, title: "Global Infrastructure", theory: ["Global accelerator", "Multi-region architectures", "Data sovereignty"], handsOn: ["Deploy application in multiple regions", "Configure Global Accelerator", "Set up cross-region monitoring", "Test global performance"], checkpoint: ["Design global architecture for SaaS application"] },
+                    { day: 28, "title": "Cost Optimization", theory: ["Cost optimization strategies", "Reserved instances and savings plans", "Resource rightsizing"], handsOn: ["Use AWS Cost Explorer", "Set up cost budgets and alerts", "Identify optimization opportunities", "Implement cost controls"], checkpoint: ["Create cost optimization plan"] }
+                ]
+            },
+            {
+                name: "Module 5: Advanced Services & Architecture",
+                days: [
+                    { day: 29, title: "ECS & Container Services", theory: ["Container orchestration concepts", "ECS vs EKS vs Fargate", "Service discovery and load balancing"], handsOn: ["Create ECS cluster", "Deploy containerized application", "Configure service auto-scaling", "Set up service discovery"], checkpoint: ["When to use containers vs serverless"] },
+                    { day: 30, title: "EKS & Kubernetes", theory: ["Kubernetes fundamentals", "EKS managed service benefits", "Pod networking and storage"], handsOn: ["Set up EKS cluster", "Deploy applications with kubectl", "Configure horizontal pod autoscaling", "Set up ingress controller"], checkpoint: ["Compare ECS vs EKS for different use cases"] },
+                    { day: 31, title: "Step Functions & Orchestration", theory: ["Workflow orchestration concepts", "State machine concepts", "Error handling and retries"], handsOn: ["Create Step Functions workflow", "Integrate with Lambda and other services", "Handle errors and retries", "Monitor execution"], checkpoint: ["Design workflow for order processing"] },
+                    { day: 32, title: "Analytics Services", theory: ["Data lake vs data warehouse", "Kinesis for real-time processing", "EMR for big data analytics"], handsOn: ["Set up Kinesis Data Stream", "Create data processing pipeline", "Use Athena for querying S3", "Build QuickSight dashboard"], checkpoint: ["Design analytics architecture for IoT data"] },
+                    { day: 33, title: "Machine Learning Services", theory: ["AI/ML service categories", "Pre-trained models vs custom training", "ML pipeline concepts"], handsOn: ["Use Amazon Rekognition for image analysis", "Set up Amazon Comprehend for text analysis", "Create SageMaker notebook", "Deploy ML model"], checkpoint: ["Choose appropriate ML service for different use cases"] },
+                    { day: 34, title: "DevOps & CI/CD", theory: ["CI/CD pipeline concepts", "Infrastructure as Code", "Blue/green deployments"], handsOn: ["Set up CodeCommit repository", "Create CodePipeline", "Configure CodeDeploy", "Use CloudFormation templates"], checkpoint: ["Design CI/CD pipeline for web application"] },
+                    { day: 35, "title": "Microservices Architecture", theory: ["Microservices patterns", "Service mesh concepts", "API versioning strategies"], handsOn: ["Design microservices architecture", "Implement service-to-service communication", "Set up distributed tracing", "Configure circuit breakers"], checkpoint: ["Compare monolith vs microservices trade-offs"] },
+                    { day: 36, title: "Well-Architected Review", theory: ["Five pillars of well-architected", "Architecture review process", "Best practices summary"], handsOn: ["Conduct well-architected review", "Document findings and recommendations", "Create improvement plan", "Prioritize changes"], checkpoint: ["Self-assessment: Rate your architecture knowledge"] }
+                ]
+            },
+            {
+                name: "Module 6: Exam Preparation & Practice",
+                days: [
+                    { day: 37, title: "Exam Overview & Strategy", theory: ["Exam format and question types", "Time management strategies", "Elimination techniques"], handsOn: ["Take diagnostic practice test", "Identify weak areas", "Create study plan for remaining days"], checkpoint: ["Set realistic exam date target"] },
+                    { day: 38, title: "Compute & Storage Deep Dive", theory: ["EC2 instance types and use cases", "Storage options comparison", "Performance optimization"], handsOn: ["20 practice questions on compute/storage", "Review explanations thoroughly", "Note common misconceptions"], checkpoint: ["Score target: 80%+ on practice questions"] },
+                    { day: 39, title: "Networking & Security Practice", theory: ["VPC components and routing", "Security best practices", "Troubleshooting scenarios"], handsOn: ["20 practice questions on networking/security", "Focus on scenario-based questions", "Time yourself for exam conditions"], checkpoint: ["Review missed questions and explanations"] },
+                    { day: 40, title: "Databases & Application Services", theory: ["Database service comparisons", "Messaging and integration patterns", "Performance optimization"], handsOn: ["20 practice questions on databases/apps", "Focus on service selection scenarios", "Practice elimination techniques"], checkpoint: ["Identify patterns in question types"] },
+                    { day: 41, title: "Architecture Scenarios", theory: ["Common architecture patterns", "Cost optimization strategies", "Disaster recovery options"], handsOn: ["25 scenario-based questions", "Focus on solution architecture", "Practice time management"], checkpoint: ["Final knowledge gap assessment"] },
+                    { day: 42, title: "Final Practice & Exam Prep", theory: [], handsOn: ["Full-length practice exam (65 questions)", "Simulate exam conditions", "Review incorrect answers"], checkpoint: ["Target score: 85%+ on practice exam"] }
+                ]
+            }
+        ];
+
+        // Global object to hold current tracker data for comments and links
+        // This is used to maintain state in memory before saving to LocalStorage
+        window.trackerData = {};
+
+        // Function to format date and time for comments and links
+        function formatDateTime(date) {
+            const options = {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: true
+            };
+            return new Date(date).toLocaleString('en-US', options);
+        }
+
+        // Function to format time difference (e.g., "5 minutes ago")
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const seconds = Math.floor((now - past) / 1000);
+
+            if (seconds < 60) return `${seconds} seconds ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`;
+            const years = Math.floor(months / 12);
+            return `${years} year${years === 1 ? '' : 's'} ago`;
+        }
+
+        // Function to format duration (e.g., "1 day, 2 hours, 30 minutes")
+        function formatDuration(milliseconds) {
+            if (milliseconds === 0) return "0 seconds";
+            if (isNaN(milliseconds) || milliseconds < 0) return "N/A";
+
+            let seconds = Math.floor(milliseconds / 1000);
+            let minutes = Math.floor(seconds / 60);
+            let hours = Math.floor(minutes / 60);
+            let days = Math.floor(hours / 24);
+
+            seconds %= 60;
+            minutes %= 60;
+            hours %= 24;
+
+            const parts = [];
+            if (days > 0) parts.push(`${days} day${days === 1 ? '' : 's'}`);
+            if (hours > 0) parts.push(`${hours} hour${hours === 1 ? '' : 's'}`);
+            if (minutes > 0) parts.push(`${minutes} minute${minutes === 1 ? '' : 's'}`);
+            if (seconds > 0 && days === 0 && hours === 0 && minutes === 0) parts.push(`${seconds} second${seconds === 1 ? '' : 's'}`); // Only show seconds if nothing larger
+
+            return parts.join(', ') || "Less than a second";
+        }
+
+
+        // Function to record an action in history
+        function recordAction(type, description) {
+            let history = JSON.parse(localStorage.getItem('awsSaaC03ActionHistory')) || [];
+            history.unshift({ // Add to the beginning for most recent first
+                timestamp: new Date().toISOString(),
+                type: type,
+                description: description
+            });
+            // Limit history to a reasonable number, e.g., 100 entries
+            if (history.length > 100) {
+                history = history.slice(0, 100);
+            }
+            localStorage.setItem('awsSaaC03ActionHistory', JSON.stringify(history));
+            updateDashboard(); // Re-render dashboard to update analysis section
+        }
+
+        // Function to save data to LocalStorage
+        function saveData() {
+            const progress = {};
+            courseModules.forEach(module => {
+                module.days.forEach(lesson => {
+                    const id = `lesson-${lesson.day}`;
+                    const checkbox = document.getElementById(`checkbox-${id}`);
+
+                    // Get previous state to detect changes for action recording
+                    const prevProgress = JSON.parse(localStorage.getItem('awsSaaC03Progress')) || {};
+                    const prevCompleted = prevProgress[id] ? prevProgress[id].completed : false;
+
+                    // Retrieve comments and links from window.trackerData
+                    const currentComments = (window.trackerData[id] && window.trackerData[id].comments) ? window.trackerData[id].comments : [];
+                    const currentLinks = (window.trackerData[id] && window.trackerData[id].links) ? window.trackerData[id].links : [];
+
+                    if (checkbox) {
+                        progress[id] = {
+                            completed: checkbox.checked,
+                            comments: currentComments,
+                            links: currentLinks
+                        };
+
+                        // Record lesson completion/uncompletion action
+                        if (checkbox.checked !== prevCompleted) {
+                            if (checkbox.checked) {
+                                recordAction('lesson_completed', `Day ${lesson.day}: "${lesson.title}" completed`);
+                            } else {
+                                recordAction('lesson_uncompleted', `Day ${lesson.day}: "${lesson.title}" uncompleted`);
+                            }
+                        }
+                    }
+                });
+            });
+            localStorage.setItem('awsSaaC03Progress', JSON.stringify(progress));
+            updateDashboard();
+        }
+
+        // Function to load data from LocalStorage
+        function loadData() {
+            const savedProgress = localStorage.getItem('awsSaaC03Progress');
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                courseModules.forEach(module => {
+                    module.days.forEach(lesson => {
+                        const id = `lesson-${lesson.day}`;
+                        if (progress[id]) {
+                            const checkbox = document.getElementById(`checkbox-${id}`);
+
+                            if (checkbox) checkbox.checked = progress[id].completed;
+
+                            // Initialize window.trackerData for comments and links
+                            if (!window.trackerData[id]) window.trackerData[id] = {};
+                            window.trackerData[id].comments = progress[id].comments || [];
+                            window.trackerData[id].links = progress[id].links || [];
+
+                            // Re-render comments and links for this lesson
+                            renderComments(id, window.trackerData[id].comments);
+                            renderLinks(id, window.trackerData[id].links);
+                        }
+                    });
+                });
+            }
+            updateDashboard();
+        }
+
+        // Function to update the dashboard header with overall and module-specific progress
+        function updateDashboard() {
+            let overallCompletedLessons = 0;
+            const overallTotalLessons = 42; // Total days in the course
+
+            const moduleProgressContainer = document.getElementById('dashboard-module-progress');
+            moduleProgressContainer.innerHTML = ''; // Clear previous module progress
+
+            courseModules.forEach((module, moduleIndex) => {
+                let moduleCompletedLessons = 0;
+                const moduleTotalLessons = module.days.length;
+
+                module.days.forEach(lesson => {
+                    const id = `lesson-${lesson.day}`;
+                    const checkbox = document.getElementById(`checkbox-${id}`);
+                    if (checkbox && checkbox.checked) {
+                        overallCompletedLessons++;
+                        moduleCompletedLessons++;
+                    }
+                });
+
+                const moduleProgressDiv = document.createElement('div');
+                moduleProgressDiv.textContent = `${module.name.split(':')[0]}: ${moduleCompletedLessons} / ${moduleTotalLessons} Completed`;
+                moduleProgressContainer.appendChild(moduleProgressDiv);
+            });
+
+            const overallCompletedSpan = document.getElementById('overall-completed');
+            const overallTotalSpan = document.getElementById('overall-total');
+            if (overallCompletedSpan && overallTotalSpan) {
+                overallCompletedSpan.textContent = overallCompletedLessons;
+                overallTotalSpan.textContent = overallTotalLessons;
+            }
+            renderAnalysisSection(); // Ensure analysis section is updated
+        }
+
+        // Function to render the analysis section
+        function renderAnalysisSection() {
+            const lastActionTimeDiv = document.getElementById('last-action-time');
+            const totalActionsCountDiv = document.getElementById('total-actions-count');
+            const avgTimeBetweenLessonsDiv = document.getElementById('avg-time-between-lessons');
+            const avgTimeBetweenAllActionsDiv = document.getElementById('avg-time-between-all-actions');
+            const actionHistoryList = document.getElementById('action-history-list');
+            const showHistoryBtn = document.getElementById('showHistoryBtn');
+
+            const history = JSON.parse(localStorage.getItem('awsSaaC03ActionHistory')) || [];
+            const displayLimit = 5; // Display only the last 5 actions initially
+
+            // --- Total Actions ---
+            totalActionsCountDiv.textContent = `Total actions recorded: ${history.length}`;
+
+            // --- Last Action Time ---
+            if (history.length > 0) {
+                const lastAction = history[0];
+                lastActionTimeDiv.textContent = `Last action performed: ${formatTimeAgo(lastAction.timestamp)}`;
+            } else {
+                lastActionTimeDiv.textContent = `No actions recorded yet.`;
+            }
+
+            // --- Average Time Between Lessons ---
+            const completedLessonActions = history.filter(action => action.type === 'lesson_completed').sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            let totalLessonTimeDiff = 0;
+            let lessonDiffCount = 0;
+
+            if (completedLessonActions.length > 1) {
+                for (let i = 0; i < completedLessonActions.length - 1; i++) {
+                    const timeDiff = new Date(completedLessonActions[i + 1].timestamp) - new Date(completedLessonActions[i].timestamp);
+                    totalLessonTimeDiff += timeDiff;
+                    lessonDiffCount++;
+                }
+                avgTimeBetweenLessonsDiv.textContent = `Avg time between lessons: ${formatDuration(totalLessonTimeDiff / lessonDiffCount)}`;
+            } else {
+                avgTimeBetweenLessonsDiv.textContent = `Avg time between lessons: N/A (need more completed lessons)`;
+            }
+
+            // --- Average Time Between All Actions ---
+            let totalAllActionTimeDiff = 0;
+            let allActionDiffCount = 0;
+
+            if (history.length > 1) {
+                // History is already sorted by most recent first, so iterate backwards for chronological
+                for (let i = history.length - 1; i > 0; i--) {
+                    const timeDiff = new Date(history[i - 1].timestamp) - new Date(history[i].timestamp);
+                    totalAllActionTimeDiff += timeDiff;
+                    allActionDiffCount++;
+                }
+                avgTimeBetweenAllActionsDiv.textContent = `Avg time between all actions: ${formatDuration(totalAllActionTimeDiff / allActionDiffCount)}`;
+            } else {
+                avgTimeBetweenAllActionsDiv.textContent = `Avg time between all actions: N/A (need more actions)`;
+            }
+
+
+            // --- Recent Activity List ---
+            actionHistoryList.innerHTML = ''; // Clear previous history
+
+            history.slice(0, displayLimit).forEach(action => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>${action.description}</span>
+                    <span class="action-timestamp">${formatTimeAgo(action.timestamp)}</span>
+                `;
+                actionHistoryList.appendChild(listItem);
+            });
+
+            if (history.length > displayLimit) {
+                showHistoryBtn.classList.remove('hidden');
+            } else {
+                showHistoryBtn.classList.add('hidden');
+            }
+        }
+
+        // Function to show the full history modal
+        function showHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            const modalContentList = document.getElementById('historyModalList');
+            modalContentList.innerHTML = ''; // Clear previous content
+
+            const history = JSON.parse(localStorage.getItem('awsSaaC03ActionHistory')) || [];
+
+            // Sort history chronologically for the modal display
+            const sortedHistory = [...history].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+
+            sortedHistory.forEach(action => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>${action.description}</span>
+                    <span class="action-timestamp">${formatTimeAgo(action.timestamp)}</span>
+                    <span class="full-timestamp">${formatDateTime(action.timestamp)}</span>
+                `;
+                modalContentList.appendChild(listItem);
+            });
+
+            modal.classList.remove('hidden'); // Show the modal
+        }
+
+        // Function to hide the full history modal
+        function hideHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            modal.classList.add('hidden'); // Hide the modal
+        }
+
+        // Function to toggle module content visibility
+        function toggleModule(moduleIndex) {
+            const moduleContent = document.getElementById(`module-content-${moduleIndex}`);
+            const toggleIcon = document.getElementById(`module-toggle-icon-${moduleIndex}`);
+            const moduleHeader = document.getElementById(`module-header-${moduleIndex}`);
+
+            if (moduleContent && toggleIcon && moduleHeader) {
+                moduleContent.classList.toggle('collapsed');
+                moduleHeader.classList.toggle('collapsed');
+            }
+        }
+
+        // Function to toggle lesson content visibility
+        function toggleLesson(lessonId) {
+            const lessonDetails = document.getElementById(`lesson-details-${lessonId}`);
+            const toggleIcon = document.getElementById(`lesson-toggle-icon-${lessonId}`);
+            const lessonHeader = document.getElementById(`lesson-header-toggle-${lessonId}`);
+
+            if (lessonDetails && toggleIcon && lessonHeader) {
+                lessonDetails.classList.toggle('collapsed');
+                lessonHeader.classList.toggle('collapsed');
+            }
+        }
+
+        // Function to render comments for a specific lesson
+        function renderComments(lessonId, comments) {
+            const commentsContainer = document.getElementById(`comments-list-${lessonId}`);
+            if (commentsContainer) {
+                commentsContainer.innerHTML = ''; // Clear existing comments
+                comments.forEach((comment, commentIndex) => {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment-item';
+                    commentDiv.innerHTML = `
+                        <div>${comment.text}</div>
+                        <button class="delete-btn" onclick="deleteComment('${lessonId}', ${commentIndex})">
+                            <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                        <div class="comment-timestamp">${formatDateTime(comment.timestamp)}</div>
+                        <div class="reply-section w-full mt-2">
+                            <div id="comment-replies-${lessonId}-${commentIndex}" class="mt-1"></div>
+                            <div class="reply-input-group">
+                                <input type="text" id="new-comment-reply-${lessonId}-${commentIndex}" placeholder="Reply to this comment..." class="reply-input">
+                                <button class="reply-btn" onclick="addReply('comment', '${lessonId}', ${commentIndex})">Reply</button>
+                            </div>
+                        </div>
+                    `;
+                    commentsContainer.appendChild(commentDiv);
+                    renderReplies('comment', lessonId, commentIndex, comment.replies || []);
+                });
+            }
+        }
+
+        // Function to render replies for a specific comment or link
+        function renderReplies(type, parentId, parentIndex, replies) {
+            const repliesContainer = document.getElementById(`${type}-replies-${parentId}-${parentIndex}`);
+            if (repliesContainer) {
+                repliesContainer.innerHTML = '';
+                replies.forEach((reply, replyIndex) => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'reply-item';
+                    replyDiv.innerHTML = `
+                        <div>${reply.text}</div>
+                        <button class="delete-btn" onclick="deleteReply('${type}', '${parentId}', ${parentIndex}, ${replyIndex})">
+                            <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                        <div class="comment-timestamp">${formatDateTime(reply.timestamp)}</div>
+                    `;
+                    repliesContainer.appendChild(replyDiv);
+                });
+            }
+        }
+
+        // Generic function to add a reply to a comment or link
+        function addReply(type, parentId, parentIndex) {
+            const replyInput = document.getElementById(`new-${type}-reply-${parentId}-${parentIndex}`);
+            const replyText = replyInput.value.trim();
+
+            if (replyText) {
+                if (!window.trackerData[parentId]) window.trackerData[parentId] = { comments: [], links: [] };
+
+                let parentArray;
+                if (type === 'comment') {
+                    parentArray = window.trackerData[parentId].comments;
+                } else if (type === 'link') {
+                    parentArray = window.trackerData[parentId].links;
+                }
+
+                if (parentArray && parentArray[parentIndex]) {
+                    if (!parentArray[parentIndex].replies) {
+                        parentArray[parentIndex].replies = [];
+                    }
+                    parentArray[parentIndex].replies.push({
+                        text: replyText,
+                        timestamp: new Date().toISOString()
+                    });
+                    saveData();
+                    renderReplies(type, parentId, parentIndex, parentArray[parentIndex].replies);
+                    replyInput.value = '';
+                    recordAction('reply_added', `Reply added to ${type} on Day ${parentId.split('-')[1]}`);
+                }
+            }
+        }
+
+        // Generic function to delete a reply from a comment or link
+        function deleteReply(type, parentId, parentIndex, replyIndex) {
+            if (window.trackerData[parentId]) {
+                let parentArray;
+                if (type === 'comment') {
+                    parentArray = window.trackerData[parentId].comments;
+                } else if (type === 'link') {
+                    parentArray = window.trackerData[parentId].links;
+                }
+
+                if (parentArray && parentArray[parentIndex] && parentArray[parentIndex].replies) {
+                    const deletedReplyText = parentArray[parentIndex].replies[replyIndex].text;
+                    parentArray[parentIndex].replies.splice(replyIndex, 1);
+                    saveData();
+                    renderReplies(type, parentId, parentIndex, parentArray[parentIndex].replies);
+                    recordAction('reply_deleted', `Reply deleted from ${type} on Day ${parentId.split('-')[1]}: "${deletedReplyText}"`);
+                }
+            }
+        }
+
+        // Function to add a new comment (original function, now calls renderComments)
+        function addComment(lessonId) {
+            const newCommentInput = document.getElementById(`new-comment-${lessonId}`);
+            const commentText = newCommentInput.value.trim();
+
+            if (commentText) {
+                if (!window.trackerData[lessonId]) window.trackerData[lessonId] = { comments: [], links: [] };
+
+                window.trackerData[lessonId].comments.push({
+                    text: commentText,
+                    timestamp: new Date().toISOString(),
+                    replies: [] // Initialize replies array
+                });
+
+                saveData();
+                renderComments(lessonId, window.trackerData[lessonId].comments);
+                newCommentInput.value = '';
+                recordAction('comment_added', `Comment added to Day ${lessonId.split('-')[1]}: "${commentText}"`);
+            }
+        }
+
+        // Function to delete a comment (original function, now calls renderComments)
+        function deleteComment(lessonId, index) {
+            if (window.trackerData[lessonId] && window.trackerData[lessonId].comments) {
+                const deletedCommentText = window.trackerData[lessonId].comments[index].text;
+                window.trackerData[lessonId].comments.splice(index, 1);
+                saveData();
+                renderComments(lessonId, window.trackerData[lessonId].comments);
+                recordAction('comment_deleted', `Comment deleted from Day ${lessonId.split('-')[1]}: "${deletedCommentText}"`);
+            }
+        }
+
+        // Function to render links for a specific lesson
+        function renderLinks(lessonId, links) {
+            const linksContainer = document.getElementById(`links-list-${lessonId}`);
+            if (linksContainer) {
+                linksContainer.innerHTML = ''; // Clear existing links
+                links.forEach((link, linkIndex) => {
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'link-item';
+                    linkDiv.innerHTML = `
+                        <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.url}</a>
+                        <button class="delete-btn" onclick="deleteLink('${lessonId}', ${linkIndex})">
+                            <svg class="svg-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                        <div class="link-timestamp">${formatDateTime(link.timestamp)}</div>
+                        <div class="reply-section w-full mt-2">
+                            <div id="link-replies-${lessonId}-${linkIndex}" class="mt-1"></div>
+                            <div class="reply-input-group">
+                                <input type="text" id="new-link-reply-${lessonId}-${linkIndex}" placeholder="Reply to this link note..." class="reply-input">
+                                <button class="reply-btn" onclick="addReply('link', '${lessonId}', ${linkIndex})">Reply</button>
+                            </div>
+                        </div>
+                    `;
+                    linksContainer.appendChild(linkDiv);
+                    renderReplies('link', lessonId, linkIndex, link.replies || []);
+                });
+            }
+        }
+
+        // Function to add a new link (original function, now calls renderLinks)
+        function addLink(lessonId) {
+            const newLinkInput = document.getElementById(`new-link-${lessonId}`);
+            const linkUrl = newLinkInput.value.trim();
+
+            if (linkUrl) {
+                try {
+                    new URL(linkUrl);
+                } catch (e) {
+                    // Handle invalid URL if needed
+                }
+
+                if (!window.trackerData[lessonId]) window.trackerData[lessonId] = { comments: [], links: [] };
+
+                window.trackerData[lessonId].links.push({
+                    url: linkUrl,
+                    timestamp: new Date().toISOString(),
+                    replies: [] // Initialize replies array
+                });
+
+                saveData();
+                renderLinks(lessonId, window.trackerData[lessonId].links);
+                newLinkInput.value = '';
+                recordAction('link_added', `Link added to Day ${lessonId.split('-')[1]}: "${linkUrl}"`);
+            }
+        }
+
+        // Function to delete a link (original function, now calls renderLinks)
+        function deleteLink(lessonId, index) {
+            if (window.trackerData[lessonId] && window.trackerData[lessonId].links) {
+                const deletedLinkUrl = window.trackerData[lessonId].links[index].url;
+                window.trackerData[lessonId].links.splice(index, 1);
+                saveData();
+                renderLinks(lessonId, window.trackerData[lessonId].links);
+                recordAction('link_deleted', `Link deleted from Day ${lessonId.split('-')[1]}: "${deletedLinkUrl}"`);
+            }
+        }
+
+        // Function to handle index link clicks (smooth scroll and expand parents)
+        function handleIndexLinkClick(event, targetId) {
+            event.preventDefault(); // Prevent default anchor jump
+
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                // Check if the target is a lesson header
+                if (targetId.startsWith('lesson-header-toggle-')) {
+                    // Find the parent module and expand it if collapsed
+                    const lessonDay = parseInt(targetId.replace('lesson-header-toggle-', ''));
+                    let parentModuleIndex = -1;
+                    for (let i = 0; i < courseModules.length; i++) {
+                        if (courseModules[i].days.some(day => day.day === lessonDay)) {
+                            parentModuleIndex = i;
+                            break;
+                        }
+                    }
+
+                    if (parentModuleIndex !== -1) {
+                        const moduleContent = document.getElementById(`module-content-${parentModuleIndex}`);
+                        if (moduleContent && moduleContent.classList.contains('collapsed')) {
+                            toggleModule(parentModuleIndex); // Expand the module
+                        }
+                    }
+
+                    // Ensure the specific lesson is expanded
+                    const lessonDetails = document.getElementById(`lesson-details-${targetId.replace('lesson-header-toggle-', 'lesson-')}`);
+                    if (lessonDetails && lessonDetails.classList.contains('collapsed')) {
+                        toggleLesson(targetId.replace('lesson-header-toggle-', 'lesson-'));
+                    }
+
+                    // Small delay to allow expansion animation before scrolling
+                    setTimeout(() => {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300); // Adjust delay as needed
+                } else {
+                    // For module links, just toggle and scroll
+                    const moduleIndex = parseInt(targetId.replace('module-header-', ''));
+                    const moduleContent = document.getElementById(`module-content-${moduleIndex}`);
+                    if (moduleContent && moduleContent.classList.contains('collapsed')) {
+                        toggleModule(moduleIndex); // Expand the module
+                    }
+                    setTimeout(() => {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 300); // Adjust delay
+                }
+            }
+        }
+
+
+        // Function to render the index table
+        function renderIndexTable() {
+            const indexList = document.getElementById('index-list');
+            indexList.innerHTML = ''; // Clear existing content
+
+            courseModules.forEach((module, moduleIndex) => {
+                const moduleListItem = document.createElement('li');
+                // Use onclick to call handleIndexLinkClick
+                moduleListItem.innerHTML = `<a href="#" onclick="handleIndexLinkClick(event, 'module-header-${moduleIndex}')" class="module-link">${module.name}</a>`;
+                indexList.appendChild(moduleListItem);
+
+                const lessonList = document.createElement('ul');
+                lessonList.className = 'ml-4 mt-1'; // Indent lessons
+                module.days.forEach(lesson => {
+                    const lessonListItem = document.createElement('li');
+                    // Use onclick to call handleIndexLinkClick
+                    lessonListItem.innerHTML = `<a href="#" onclick="handleIndexLinkClick(event, 'lesson-header-toggle-${lesson.day}')" class="lesson-link">Day ${lesson.day}: ${lesson.title}</a>`;
+                    lessonList.appendChild(lessonListItem);
+                });
+                indexList.appendChild(lessonList);
+            });
+        }
+
+        // Function to render the tracker content
+        function renderTracker() {
+            const trackerContent = document.getElementById('tracker-content');
+            trackerContent.innerHTML = ''; // Clear existing content
+
+            courseModules.forEach((module, moduleIndex) => {
+                // Create module header with toggle
+                const moduleHeader = document.createElement('div');
+                moduleHeader.className = 'module-header collapsed'; /* Start collapsed by default */
+                moduleHeader.id = `module-header-${moduleIndex}`;
+                moduleHeader.innerHTML = `
+                    <span>${module.name}</span>
+                    <svg class="svg-icon toggle-icon" id="module-toggle-icon-${moduleIndex}" viewBox="0 0 24 24">
+                        <path d="M7 10l5 5 5-5z"/>
+                    </svg>
+                `;
+                moduleHeader.onclick = () => toggleModule(moduleIndex);
+                trackerContent.appendChild(moduleHeader);
+
+                // Create module content container
+                const moduleContent = document.createElement('div');
+                moduleContent.className = 'module-content collapsed'; /* Start collapsed by default */
+                moduleContent.id = `module-content-${moduleIndex}`;
+                trackerContent.appendChild(moduleContent);
+
+
+                // Create lesson cards for each day in the module
+                module.days.forEach(lesson => {
+                    const lessonId = `lesson-${lesson.day}`;
+                    const lessonCard = document.createElement('div');
+                    lessonCard.className = 'lesson-card';
+                    moduleContent.appendChild(lessonCard);
+
+                    // Lesson header with toggle and completion switch
+                    const lessonHeaderToggle = document.createElement('div');
+                    lessonHeaderToggle.className = 'lesson-header-toggle';
+                    lessonHeaderToggle.id = `lesson-header-toggle-${lessonId}`;
+                    lessonHeaderToggle.innerHTML = `
+                        <div class="flex items-center justify-between w-full">
+                            <span class="lesson-title">Day ${lesson.day}: ${lesson.title}</span>
+                            <div class="flex items-center">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="checkbox-${lessonId}">
+                                    <span class="slider"></span>
+                                </label>
+                                <svg class="svg-icon toggle-icon" id="lesson-toggle-icon-${lessonId}" viewBox="0 0 24 24">
+                                    <path d="M7 10l5 5 5-5z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    `;
+                    // Clicking anywhere on the lesson header (except the checkbox) will toggle the lesson details
+                    lessonHeaderToggle.onclick = (e) => {
+                        if (!e.target.closest('.toggle-switch')) {
+                            toggleLesson(lessonId);
+                        }
+                    };
+                    lessonCard.appendChild(lessonHeaderToggle);
+
+                    // Lesson details container (collapsible)
+                    const lessonDetails = document.createElement('div');
+                    lessonDetails.className = 'lesson-details collapsed'; /* Start collapsed by default */
+                    lessonDetails.id = `lesson-details-${lessonId}`;
+                    lessonCard.appendChild(lessonDetails);
+
+                    // Construct lesson content dynamically
+                    lessonDetails.innerHTML = `
+                        <div class="lesson-content text-sm text-gray-700">
+                            ${lesson.theory && lesson.theory.length > 0 ? `
+                                <div>
+                                    <h4>Theory:</h4>
+                                    <ul class="list-disc pl-5">
+                                        ${lesson.theory.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            ${lesson.handsOn && lesson.handsOn.length > 0 ? `
+                                <div>
+                                    <h4>Hands-on:</h4>
+                                    <ul class="list-disc pl-5">
+                                        ${lesson.handsOn.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            ${lesson.checkpoint && lesson.checkpoint.length > 0 ? `
+                                <div>
+                                    <h4>Checkpoint:</h4>
+                                    <ul class="list-disc pl-5">
+                                        ${lesson.checkpoint.map(item => `<li>${item}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="links-section">
+                            <h4 class="text-sm font-medium text-gray-700">File Storage Links:</h4>
+                            <div id="links-list-${lessonId}" class="mt-2">
+                                <!-- Links will be rendered here -->
+                            </div>
+                            <input type="text" id="new-link-${lessonId}" placeholder="Add a new link (e.g., Google Drive, GitHub, local path)..." class="new-link-input">
+                            <button class="add-link-btn" onclick="addLink('${lessonId}')">Add Link</button>
+                        </div>
+
+                        <div class="comments-section">
+                            <h4 class="text-sm font-medium text-gray-700">Personal Notes / Comments:</h4>
+                            <div id="comments-list-${lessonId}" class="mt-2">
+                                <!-- Comments will be rendered here -->
+                            </div>
+                            <input type="text" id="new-comment-${lessonId}" placeholder="Add a new comment..." class="new-comment-input">
+                            <button class="add-comment-btn" onclick="addComment('${lessonId}')">Add Comment</button>
+                        </div>
+                    `;
+
+                    // Add event listeners for saving data (only for the checkbox now, links/comments handled by their buttons)
+                    document.getElementById(`checkbox-${lessonId}`).addEventListener('change', saveData);
+                });
+            });
+
+            // Load saved data after rendering
+            loadData();
+        }
+
+        // Dark Mode Functions
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleDarkMode() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
+
+        // Initialize the tracker and index when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTracker();
+            renderIndexTable();
+
+            // Apply saved theme on load
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+
+            // Add event listener for the dark mode toggle button
+            const darkModeToggleBtn = document.getElementById('darkModeToggle');
+            if (darkModeToggleBtn) {
+                darkModeToggleBtn.addEventListener('click', toggleDarkMode);
+            }
+
+            // Add event listeners for history modal buttons
+            const showHistoryBtn = document.getElementById('showHistoryBtn');
+            if (showHistoryBtn) {
+                showHistoryBtn.addEventListener('click', showHistoryModal);
+            }
+            const closeHistoryModalBtn = document.getElementById('closeHistoryModal');
+            if (closeHistoryModalBtn) {
+                closeHistoryModalBtn.addEventListener('click', hideHistoryModal);
+            }
+        });
+    </script>
+</body>
+</html>

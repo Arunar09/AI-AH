@@ -345,52 +345,6 @@
             to { -webkit-transform: rotate(360deg); }
         }
 
-        /* News Section */
-        .news-section {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 25px;
-            color: white;
-            width: 100%;
-            margin-top: 30px;
-        }
-
-        .news-section h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #ff9900; /* AWS orange accent */
-            text-align: center;
-        }
-
-        .news-item {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .news-item:last-child {
-            border-bottom: none;
-        }
-
-        .news-item h3 {
-            font-size: 1.2rem;
-            color: #ffd700; /* Yellow accent */
-            margin-bottom: 5px;
-        }
-
-        .news-item p {
-            font-size: 0.9rem;
-            color: #e0e0e0;
-        }
-
-        .news-item a {
-            color: #00bcd4; /* Light blue accent */
-            text-decoration: underline;
-            font-size: 0.85rem;
-        }
-
         /* Floating Search Bar Styles */
         .floating-search-container {
             position: fixed;
@@ -527,9 +481,6 @@
             .floating-search-content .search-bar-container {
                 flex-direction: column;
             }
-            .news-section {
-                padding: 15px;
-            }
         }
     </style>
 </head>
@@ -538,7 +489,7 @@
         <h1>☁️ AWS Core Services </h1>
         
 		 <!-- Back to Landing Page Button -->
-<a href="./index.html" class="fixed top-4 left-4 z-50 bg-emerald-700 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-emerald-800 transition duration-300 ease-in-out text-lg font-bold">
+<a href="./The Dubs.html" class="fixed top-4 left-4 z-50 bg-emerald-700 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-emerald-800 transition duration-300 ease-in-out text-lg font-bold">
     &larr; Back to Hub
 </a>
 	
@@ -721,15 +672,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- News Letter Section -->
-            <div class="news-section">
-                <h2>General AWS News & Updates</h2>
-                <ul id="news-list" style="list-style: none; padding: 0;">
-                    <!-- News items will be loaded here by JavaScript -->
-                    <li><div class="loading-indicator"></div> Loading latest AWS news...</li>
-                </ul>
             </div>
         </div>
     </div>
@@ -2362,7 +2304,7 @@
                         subFeatures: [
                             { title: "Canaries", desc: "Create configurable scripts to monitor your endpoints and APIs from outside your VPC." },
                             { title: "Proactive Monitoring", desc: "Simulate user actions to detect issues before they impact real users." },
-                            { title: "Metrics & Screenshots", desc: "Collect performance metrics, screenshots, and HAR files for debugging." }
+                            { title: "Metrics & Screenshots", desc: "Collect performance metrics, screenshots, and HAR files for debugging." },
                         ],
                         navigation: "CloudWatch Console -> Synthetics -> Canaries -> Create canary",
                         options: [
@@ -2782,7 +2724,10 @@
                             { title: "AWS CodePipeline", desc: "Seamlessly integrate as a deployment action in CI/CD pipelines." },
                             { title: "Amazon EC2/Lambda/On-premises", desc: "Deploy to a variety of compute targets." },
                             { title: "AWS Auto Scaling", desc: "Works with Auto Scaling groups to manage instance lifecycle." },
-                            { title: "Amazon CloudWatch", desc: "For monitoring deployment status and performance." }
+                            { title: "Elastic Load Balancing (ELB)", desc: "For traffic shifting in Blue/Green deployments." },
+                            { title: "AWS IAM", desc: "For controlling permissions for CodeDeploy to access resources." },
+                            { title: "Amazon CloudWatch", desc: "For monitoring deployments and triggering rollbacks." },
+                            { title: "AWS CodeBuild", desc: "For creating deployable artifacts." }
                         ],
                         navigation: "CodeDeploy Console -> Applications / CodePipeline Console -> Pipelines -> Deploy action",
                         options: [
@@ -2994,7 +2939,7 @@
                 <div id="llm-service-output" class="llm-output-area" style="display: none;"></div>
                 <hr style="margin: 20px 0; border-color: rgba(255,255,255,0.1);">
 
-                <h3>🌟 Key Features (click to expand)</h3>
+                <h3>🌟 Key Features</h3>
                 <div class="features">
                     ${data.features.map(feature => 
                         // Generate feature tags, replacing spaces for valid IDs in toggleFeatureDetails
@@ -3142,53 +3087,6 @@
         }
 
         /**
-         * Fetches and displays the latest general AWS news using Gemini AI (simulated).
-         */
-        async function fetchAWSNews() {
-            const newsOutputElement = document.getElementById('news-list');
-            newsOutputElement.innerHTML = '<div class="loading-indicator"></div> Fetching latest general AWS news via Gemini AI...';
-
-            const prompt = `Find and summarize at least 10 recent news articles (published within the last 3-6 months) related to general AWS services (non-AI, e.g., EC2, S3, Lambda, VPC, RDS), new features, or significant use cases. For each article, provide the title, a 1-2 sentence summary, and a placeholder URL. Ensure the summaries are concise and informative.`;
-            
-            try {
-                // Simulate a call to a backend service that would perform the deep search with Gemini/Google Search.
-                const simulatedNewsResponse = await new Promise(resolve => {
-                    setTimeout(() => {
-                        // Dummy data as if returned from a Gemini-powered search backend.
-                        const articles = [
-                            { title: "AWS Announces New Graviton4 Processors for Enhanced EC2 Performance", summary: "AWS unveils its next-generation Graviton4 processors, offering significant performance improvements for a wide range of EC2 workloads, enabling more efficient and cost-effective cloud computing.", url: "https://aws.amazon.com/blogs/aws/new-graviton4-processors/" },
-                            { title: "Amazon S3 Express One Zone: A New High-Performance Storage Class for Latency-Sensitive Workloads", summary: "S3 introduces a new single-AZ storage class designed for extremely low-latency access, ideal for high-performance computing, machine learning training, and interactive analytics.", url: "https://aws.amazon.com/blogs/aws/s3-express-one-zone/" },
-                            { title: "AWS Lambda Introduces Response Streaming for Faster Function Performance", summary: "Lambda now supports response streaming, allowing functions to send partial responses to clients before the entire function completes, significantly reducing perceived latency for interactive applications.", url: "https://aws.amazon.com/blogs/aws/lambda-response-streaming/" },
-                            { title: "Amazon RDS Introduces Support for PostgreSQL 16 and Enhanced Performance Features", summary: "RDS expands its PostgreSQL compatibility with version 16, bringing new features, performance optimizations, and enhanced security capabilities to managed PostgreSQL databases.", url: "https://aws.amazon.com/blogs/aws/amazon-rds-postgresql-16/" },
-                            { title: "AWS Transit Gateway Connect Simplifies Connectivity for Hybrid Cloud Deployments", summary: "New Transit Gateway Connect features enable easier and more secure integration between AWS VPCs and on-premises networks, streamlining hybrid cloud architectures.", url: "https://aws.amazon.com/blogs/aws/aws-transit-gateway-connect/" },
-                            { title: "Amazon DynamoDB Adds Support for Incremental Export to S3 for Data Lakes", summary: "DynamoDB now offers incremental export capabilities, allowing seamless and cost-effective integration of NoSQL data into S3-based data lakes for comprehensive analytics.", url: "https://aws.amazon.com/blogs/aws/dynamodb-incremental-export/" },
-                            { title: "AWS CloudFormation Introduces CloudFormation Guard for Policy-as-Code Validation", summary: "CloudFormation Guard enables developers to define and enforce policy rules for infrastructure-as-code templates, enhancing security and compliance throughout the deployment pipeline.", url: "https://aws.amazon.com/blogs/mt/cloudformation-guard/" },
-                            { title: "AWS CodeCatalyst Now Generally Available for Unified Software Development Experience", summary: "CodeCatalyst, an end-to-end development service, is generally available, providing a unified experience for planning, coding, building, testing, and deploying applications on AWS.", url: "https://aws.amazon.com/blogs/aws/codecatalyst-ga/" },
-                            { title: "Amazon CloudWatch Logs Introduces New Pricing Tiers and Query Optimizations", summary: "CloudWatch Logs announces updated pricing tiers and performance enhancements for log queries, making it more cost-effective and efficient to analyze large volumes of log data.", url: "https://aws.amazon.com/blogs/aws/cloudwatch-logs-pricing-optimization/" },
-                            { title: "AWS Security Hub Integrates with Over 100 Partner Solutions for Enhanced Security Posture", summary: "Security Hub expands its integration ecosystem, allowing customers to aggregate security findings from a broader range of AWS and third-party security tools for a more comprehensive security overview.", url: "https://aws.amazon.com/blogs/security/aws-security-hub-partner-integrations/" }
-                        ];
-                        resolve({ articles });
-                    }, 1500); // Simulate 1.5 second network delay
-                });
-
-                if (simulatedNewsResponse.articles && simulatedNewsResponse.articles.length > 0) {
-                    newsOutputElement.innerHTML = simulatedNewsResponse.articles.map(article => `
-                        <li class="news-item">
-                            <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-                            <p>${article.summary}</p>
-                            <p style="font-size: 0.75rem; color: #ccc;">Source: ${article.source || 'Various'} | Published: ${article.date || 'Recent'}</p>
-                        </li>
-                    `).join('');
-                } else {
-                    newsOutputElement.innerHTML = '<p>No general AWS news found at this time. Please try again later.</p>';
-                }
-            } catch (error) {
-                newsOutputElement.innerHTML = `<p style="color: #ffcccc;">Error fetching news: ${error.message}. Displaying placeholder data.</p>`;
-                console.error("Failed to fetch news from simulated backend:", error);
-            }
-        }
-
-        /**
          * Performs a search using Gemini AI and displays the result in the floating search area.
          */
         async function performAISearch() {
@@ -3301,9 +3199,6 @@
             isDragging = false;
             floatingSearchElement.style.cursor = floatingSearchElement.classList.contains('expanded') ? 'auto' : 'grab';
         });
-
-        // Initialize fetching news on page load
-        document.addEventListener('DOMContentLoaded', fetchAWSNews);
 
         // Remove onclick from central node as it does nothing in this version
         document.querySelector('.central-node').onclick = null;
