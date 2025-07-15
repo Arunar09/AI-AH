@@ -154,7 +154,8 @@
         /* Feature Tag Styles within modal */
         .feature-tag {
             display: inline-block;
-            background: #68D391; /* Linux Green accent */
+            /* Original: background: #68D391; */
+            background: linear-gradient(to right, #805AD5, #6B46C1); /* Non-radiating purple gradient */
             color: white;
             padding: 3px 8px;
             margin: 2px;
@@ -164,7 +165,8 @@
         }
 
         .feature-tag:hover {
-            background: #48BB78;
+            /* Original: background: #48BB78; */
+            background: linear-gradient(to right, #6B46C1, #553C9A); /* Darker purple gradient on hover */
             transform: scale(1.05);
         }
 
@@ -344,7 +346,8 @@
         }
 
         .llm-action-button {
-            background-color: #68D391; /* Linux Green accent */
+            /* Original: background-color: #68D391; */
+            background: linear-gradient(to right, #5A67D8, #4C51BF); /* Non-radiating blue/indigo gradient */
             color: white;
             border: none;
             padding: 8px 12px;
@@ -358,7 +361,8 @@
         }
 
         .llm-action-button:hover {
-            background-color: #48BB78;
+            /* Original: background-color: #48BB78; */
+            background: linear-gradient(to right, #4C51BF, #3E3E8C); /* Darker blue/indigo gradient on hover */
             transform: translateY(-1px);
         }
 
@@ -394,53 +398,6 @@
         }
         @-webkit-animation {
             to { -webkit-transform: rotate(360deg); }
-        }
-
-        /* News Section */
-        .news-section {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 25px;
-            color: white;
-            width: 100%;
-            margin-top: 30px;
-            border-radius: 12px;
-        }
-
-        .news-section h2 {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #68D391; /* Linux Green accent */
-            text-align: center;
-        }
-
-        .news-item {
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .news-item:last-child {
-            border-bottom: none;
-        }
-
-        .news-item h3 {
-            font-size: 1.2rem;
-            color: #F6E05E; /* Yellow accent */
-            margin-bottom: 5px;
-        }
-
-        .news-item p {
-            font-size: 0.9rem;
-            color: #e0e0e0;
-        }
-
-        .news-item a {
-            color: #F6AD55; /* Orange accent */
-            text-decoration: underline;
-            font-size: 0.85rem;
         }
 
         /* Floating Search Bar Styles */
@@ -606,7 +563,7 @@
             </div>
             	 
 	<!-- Back to Landing Page Button -->
-    <a href="./index.html" class="fixed top-4 left-4 z-50 bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-purple-800 transition duration-300 ease-in-out text-lg font-bold">
+    <a href="../../index.html" class="fixed top-4 left-4 z-50 bg-purple-700 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-purple-800 transition duration-300 ease-in-out text-lg font-bold">
         &larr; Back to Hub
     </a>
 	
@@ -822,15 +779,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- News Letter Section -->
-            <div class="news-section">
-                <h2>Recent Linux System Administration News</h2>
-                <ul id="news-list" style="list-style: none; padding: 0;">
-                    <!-- News items will be loaded here by JavaScript -->
-                    <li><div class="loading-indicator"></div> Loading latest Linux news...</li>
-                </ul>
             </div>
         </div>
     </div>
@@ -1067,7 +1015,7 @@
                     { title: "Service Units (`.service` files)", desc: "Text files that define how a service is managed by systemd. They contain information about the service (description, dependencies, command to execute, user to run as, restart policies). These files are typically located in `/etc/systemd/system/` or `/usr/lib/systemd/system/`. Learn to read and write these. They are the new `init.d` scripts." },
                     { title: "System V Init (`service` command)", desc: "The older init system used on some legacy Linux distributions (e.g., Ubuntu 14.04, CentOS 6). It uses numbered 'runlevels' and shell scripts in `/etc/init.d/` to manage services. The `service` command (e.g., `service apache2 start`) is a wrapper for these scripts. You might still encounter it on old boxes, but systemd is the future." },
                     { title: "Enabling/Disabling Services", desc: "`systemctl enable <service_name>` creates symbolic links to ensure a service starts automatically on system boot. `systemctl disable <service_name>` removes these links. This is crucial for ensuring essential services are always available and unnecessary ones don't consume resources or pose security risks. Don't run services you don't need." },
-                    { title: "Logging (Journald Integration)", desc: "systemd integrates tightly with `journald`, its logging daemon. All service output (stdout, stderr) is captured by the journal, providing a centralized and structured logging system that can be queried with `journalctl`. This is a *major* improvement over scattered log files. Use `journalctl`." }
+                    { title: "Logging (Journald Integration)", desc: "systemd integrates tightly with `journald`, its logging daemon. All service output (stdout, stderr) is captured by the journal, providing a centralized and structured logging system that can be queried powerfully with `journalctl`. This is a *major* improvement over scattered log files. Use `journalctl`." }
                 ],
                 examples: [
                     "Starting the Nginx web server: `sudo systemctl start nginx`.",
@@ -1523,7 +1471,7 @@
                 purpose: "An open-source automation engine that automates software provisioning, configuration management, and application deployment. It's agentless, relying on SSH for communication, making it easy to set up and manage Linux servers at scale. If you have more than a few servers, Ansible is your friend. It scales.",
                 features: [
                     { title: "Agentless Architecture", desc: "Does not require any special agent software to be installed on target Linux machines. It communicates over standard SSH protocols (or WinRM for Windows), simplifying deployment and reducing overhead on managed nodes. This is a huge advantage; no agents to install, maintain, or troubleshoot." },
-                    { title: "YAML-based Playbooks", desc: "Automation tasks are defined in human-readable YAML files called 'playbooks'. Playbooks describe a desired state for systems, making them easy to write, understand, and version control. They define tasks, roles, and variables. Declarative, not imperative. Describe the *what*, not the *how*." },
+                    { title: "YAML-based Playbooks", desc: "Automation tasks are defined in human-readable YAML files called 'playbooks'. Playbooks describes a desired state for systems, making them easy to write, understand, and version control. They define tasks, roles, and variables. Declarative, not imperative. Describe the *what*, not the *how*." },
                     { title: "Idempotency", desc: "Ansible operations are idempotent, meaning running the same playbook multiple times will result in the same desired state, without creating duplicate resources or unintended side effects. This ensures consistency and makes changes predictable. This is paramount for reliable automation. Run it once, run it a hundred times, same result." },
                     { title: "Modules", desc: "Pre-built, reusable units of code that perform specific tasks (e.g., installing a package, copying a file, starting a service, managing users). Ansible has a vast library of modules for managing almost any aspect of a Linux system. Don't write your own loops for packages; use the `package` module." },
                     { title: "Inventory", desc: "A list of managed nodes (servers) that Ansible can connect to. The inventory can be a simple static text file or a dynamic script that pulls host information from cloud providers or CMDBs. It groups hosts for easier targeting of tasks. Your list of targets. Organize it well." },
@@ -1621,7 +1569,7 @@
                         </div>
                         ${howToStepsHtml} <!-- Include How-to Steps here -->
                         <div class="feature-nav">
-                            <button ${index === 0 ? 'disabled' : ''} onclick="navigateFeature('${categoryId}', ${index - 1})">Previous Feature</button>
+                            <button ${index === 0 ? 'disabled' : ''} onclick="navigateFeature('${categoryId}', ${index + 1})">Previous Feature</button>
                             <span>${index + 1} / ${data.features.length}</span>
                             <button ${index === data.features.length - 1 ? 'disabled' : ''} onclick="navigateFeature('${categoryId}', ${index + 1})">Next Feature</button>
                         </div>
@@ -1672,7 +1620,7 @@
             // Automatically show the first feature details or a specified one
             if (data.features.length > 0) {
                 const featureToShow = initialFeatureTitle || data.features[0].title;
-                toggleFeatureDetails(categoryId, featureToShow);
+                toggleFeatureDetails(categoryId, featureToShow); // Fixed: Changed newFeatureTitle to featureToShow
             }
         }
 
@@ -1824,52 +1772,6 @@
             }
         }
 
-        /**
-         * Fetches and displays the latest Linux System Administration news using Gemini AI (simulated).
-         */
-        async function fetchLinuxNews() {
-            const newsOutputElement = document.getElementById('news-list');
-            newsOutputElement.innerHTML = '<div class="loading-indicator"></div> Fetching latest Linux System Administration news via Gemini AI...';
-
-            const prompt = `Find and summarize at least 10 recent news articles (published within the last 3-6 months) related to Linux System Administration topics (e.g., kernel updates, new commands, security patches, best practices, distribution news, container runtime updates). For each article, provide the title, a 1-2 sentence summary, and a placeholder URL. Ensure the summaries are concise and informative.`;
-            
-            try {
-                // Simulate a call to a backend service that would perform the deep search with Gemini/Google Search.
-                const simulatedNewsResponse = await new Promise(resolve => {
-                    setTimeout(() => {
-                        // Dummy data as if returned from a Gemini-powered search backend.
-                        const articles = [
-                            { title: "Linux Kernel 6.10 Released with Performance Improvements and New Hardware Support", summary: "The latest Linux kernel brings significant performance optimizations and expanded support for a wider range of hardware, enhancing the experience for system administrators and developers.", url: "https://example.com/linux-kernel-6-10" },
-                            { title: "systemd v256 Introduces New Features for Service Management", summary: "The newest release of systemd includes enhancements for managing services, better logging capabilities, and improved system startup performance, making administration more efficient.", url: "https://example.com/systemd-v256" },
-                            { title: "Containerd 1.7.0 Enhances Container Runtime Security on Linux", summary: "Updates to containerd, a core container runtime for Docker and Kubernetes, focus on hardening security and improving resource isolation for containerized applications on Linux systems.", url: "https://example.com/containerd-1-7-0" },
-                            { title: "Ansible 2.16 LTS Released with Expanded Module Library and Automation Capabilities", summary: "The long-term support release of Ansible brings a host of new modules and improvements to its automation engine, simplifying complex configuration management tasks for Linux environments.", url: "https://example.com/ansible-2-16" },
-                            { title: "Ubuntu 24.04 LTS 'Noble Numbat' Focuses on Enterprise Stability and AI/ML", summary: "Canonical's latest Ubuntu LTS release provides a stable platform for enterprise deployments with long-term support, featuring updated packages and optimizations for AI and machine learning workloads.", url: "https://example.com/ubuntu-24-04" },
-                            { title: "New Guide to Linux Security Hardening with SELinux and AppArmor Best Practices", summary: "A comprehensive guide has been published detailing advanced techniques for securing Linux servers using SELinux and AppArmor, offering practical steps for robust system hardening.", url: "https://example.com/linux-security-hardening" },
-                            { title: "Monitoring Linux Server Performance with Grafana and Prometheus: A Deep Dive", summary: "A popular blog series explores advanced strategies for setting up and utilizing Prometheus and Grafana for comprehensive performance monitoring of Linux servers, including custom metrics and alerting.", url: "https://example.com/grafana-prometheus-linux" },
-                            { title: "Exploring NFTables as the Future of Linux Firewalls", summary: "Discussions continue around `nftables` as the modern replacement for `iptables`, highlighting its simplified syntax, improved performance, and dynamic rule management capabilities for Linux firewalls.", url: "https://example.com/nftables-future" },
-                            { title: "Linux Foundation Launches New Certification for Cloud-Native Linux Engineers", summary: "A new professional certification program aims to validate expertise in managing Linux systems within cloud-native environments, covering containers, Kubernetes, and associated tools.", url: "https://example.com/linux-cloud-native-cert" },
-                            { title: "The Rise of Rust in Linux System Programming", summary: "More projects and tools in the Linux ecosystem are adopting Rust for system-level programming, citing its memory safety features and performance benefits for critical infrastructure components.", url: "https://example.com/rust-linux-programming" }
-                        ];
-                        resolve({ articles });
-                    }, 1500); // Simulate 1.5 second network delay
-                });
-
-                if (simulatedNewsResponse.articles && simulatedNewsResponse.articles.length > 0) {
-                    newsOutputElement.innerHTML = simulatedNewsResponse.articles.map(article => `
-                        <li class="news-item">
-                            <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
-                            <p>${article.summary}</p>
-                            <p style="font-size: 0.75rem; color: #ccc;">Source: ${article.source || 'Various'} | Published: ${article.date || 'Recent'}</p>
-                        </li>
-                    `).join('');
-                } else {
-                    newsOutputElement.innerHTML = '<p>No Linux System Administration news found at this time. Please try again later.</p>';
-                }
-            } catch (error) {
-                newsOutputElement.innerHTML = `<p style="color: #ffcccc;">Error fetching news: ${error.message}. Displaying placeholder data.</p>`;
-            }
-        }
-
         // Draggable functionality for the floating search bar
         let isDragging = false;
         let offset = { x: 0, y: 0 };
@@ -1964,9 +1866,6 @@
                 floatingSearch.style.top = 'auto';
             }
         }
-
-        // Initialize fetching news on page load
-        document.addEventListener('DOMContentLoaded', fetchLinuxNews);
 
         // Remove onclick from central node as it does nothing in this version
         document.querySelector('.central-node').onclick = null;
