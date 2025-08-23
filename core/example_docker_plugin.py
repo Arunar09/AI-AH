@@ -50,8 +50,8 @@ class DockerPlugin(ToolPlugin):
         context = query_analysis.get('context', {})
         intent = query_analysis.get('intent', 'general')
         
-        # Check for Docker-specific keywords
-        docker_keywords = ['docker', 'container', 'dockerfile', 'image', 'containerize', 'containerization', 'networking', 'troubleshooting', 'volume', 'build']
+        # Check for Docker-specific keywords (more specific to avoid false positives)
+        docker_keywords = ['docker', 'container', 'dockerfile', 'image', 'containerize', 'containerization', 'docker networking', 'docker troubleshooting', 'docker volume', 'docker build']
         docker_score = sum(1 for keyword in keywords if keyword.lower() in docker_keywords)
         
         # Check tools mentioned in context
@@ -60,10 +60,14 @@ class DockerPlugin(ToolPlugin):
         
         # Calculate base confidence
         if docker_score > 0 or tool_score > 0:
-            confidence = min(0.3 + (docker_score * 0.2) + (tool_score * 0.4), 1.0)
+            confidence = min(0.4 + (docker_score * 0.3) + (tool_score * 0.4), 1.0)
             
             # Boost confidence for relevant intents
             if intent in ['information_request', 'command_request', 'troubleshooting']:
+                confidence += 0.2
+                
+            # Additional boost for command requests (like "How do I run")
+            if intent == 'command_request':
                 confidence += 0.1
                 
             return min(confidence, 1.0)
@@ -87,12 +91,12 @@ class DockerPlugin(ToolPlugin):
             )
         
         # Docker commands
-        if any(word in keywords_lower for word in ['run', 'build', 'command', 'how', 'start', 'create', 'dockerfile', 'installation', 'install', 'guide']):
+        if any(word in keywords_lower for word in ['run', 'build', 'command', 'how', 'start', 'create', 'dockerfile', 'installation', 'install', 'guide', 'container', 'execute']):
             content = self._get_docker_commands(keywords_lower)
             return PluginResponse(
                 success=True,
                 content=content,
-                confidence=0.85,
+                confidence=0.9,
                 source=self.name,
                 additional_data={'topic': 'docker_commands'}
             )
@@ -184,8 +188,8 @@ class DockerPlugin(ToolPlugin):
         """Get Docker commands based on keywords"""
         
         # Check for specific command keywords
-        if 'run' in keywords:
-            return """**Docker Run Command:**
+        if 'run' in keywords or 'container' in keywords:
+            return """**How to Run a Docker Container:**
 
 ```bash
 docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
@@ -204,14 +208,24 @@ docker run -p 8080:80 nginx
 
 # Run container in background
 docker run -d nginx
+
+# Run with custom name
+docker run --name myapp nginx
 ```
 
-**Useful options:**
+**Essential options:**
 • `-it`: Interactive mode with terminal
 • `-d`: Run in background (detached)
-• `-p`: Port mapping
+• `-p`: Port mapping (host:container)
 • `--name`: Give container a name
-• `-v`: Volume mounting"""
+• `-v`: Volume mounting
+• `-e`: Set environment variables
+
+**Step-by-step process:**
+1. Pull the image: `docker pull <image>`
+2. Run the container: `docker run <options> <image>`
+3. Check status: `docker ps`
+4. Stop when done: `docker stop <container_id>`"""
         
         elif 'build' in keywords:
             return """**Docker Build Command:**

@@ -63,23 +63,30 @@ class UniversalDictionary:
                 'can you', 'do you', 'are you able', 'what can you do',
                 'capabilities', 'features', 'support', 'what can you',
                 'what else can you do', 'more capabilities', 'additional features',
-                'what other things', 'are you working', 'do you work'
+                'what other things', 'are you working', 'do you work',
+                'working', 'work', 'functioning', 'operational', 'available'
             ],
             'help_request': [
                 'help me', 'need help', 'assistance', 'support', 'guidance',
                 'can you help', 'could you assist', 'would you help',
-                'i need guidance', 'i need advice', 'i need suggestions'
+                'i need guidance', 'i need advice', 'i need suggestions',
+                'help with', 'assist with', 'support with', 'guidance on',
+                'help me with', 'assist me with', 'support me with'
             ],
             'information_request': [
                 'what is', 'how does', 'explain', 'describe', 'tell me about',
                 'define', 'definition', 'meaning', 'what does mean',
                 'how to', 'instructions', 'steps', 'tutorial', 'guide',
-                'show me', 'demonstrate', 'walk through', 'walk me through'
+                'show me', 'demonstrate', 'walk through', 'walk me through',
+                'how does this work', 'how does it work', 'how does that work'
             ],
             'troubleshooting': [
                 'error', 'problem', 'issue', 'not working', 'failed', 'broken',
                 'stuck', 'debug', 'fix', 'resolve', 'something wrong', 
-                'went wrong', 'not working properly', 'behaving strangely'
+                'went wrong', 'not working properly', 'behaving strangely',
+                'whats wrong', 'help me understand', 'installation problem',
+                'troubleshoot', 'wrong with', 'help me understand this error',
+                'whats wrong with', 'installation problem', 'not working properly'
             ],
             'social': [
                 'thank you', 'thanks', 'appreciate', 'grateful',
@@ -97,7 +104,10 @@ class UniversalDictionary:
             ],
             'command_request': [
                 'create', 'build', 'setup', 'configure', 'deploy', 'install',
-                'run', 'execute', 'start', 'stop', 'delete', 'remove'
+                'run', 'execute', 'start', 'stop', 'delete', 'remove',
+                'how do i', 'how to', 'steps to', 'procedure for',
+                'command', 'instructions', 'steps', 'procedure', 'guide',
+                'installation'
             ]
         }
         
@@ -173,26 +183,38 @@ class UniversalDictionary:
         
         # Priority-ordered intent checking (most specific first)
         intent_priority = [
-            'capability_inquiry',    # Most specific - what can you do, capabilities, etc.
-            'help_request',          # Specific help requests
-            'troubleshooting',       # Error, problem, fix, etc.
-            'information_request',   # What is, how does, explain, etc.
+            'troubleshooting',       # Error, problem, fix, etc. - HIGHEST PRIORITY
+            'information_request',   # What is, how does, explain, etc. - MOVED UP
             'command_request',       # How to, create, build, etc.
+            'capability_inquiry',    # What can you do, capabilities, etc. - MOVED DOWN
+            'help_request',          # Specific help requests
             'social',                # Thank you, sorry, great, etc.
             'clarification',         # Don't understand, confused, etc.
             'conversation',          # Opinion, interesting, etc.
-            'greeting',              # Hi, hello, bye, etc. - moved up from personal
-            'personal'               # Who are you, how are you, etc. - moved to end
+            'greeting',              # Hi, hello, bye, etc.
+            'personal'               # Who are you, how are you, etc.
         ]
         
-        # Check patterns in priority order
+        # Enhanced pattern matching with better accuracy
         for intent in intent_priority:
             if intent in self.intent_patterns:
                 patterns = self.intent_patterns[intent]
-                # Use exact phrase matching for better accuracy
+                
+                # Check for exact phrase matches first (highest priority)
                 for pattern in patterns:
                     if pattern in query_lower:
                         return intent
+                
+                # Check for word-based matches (lower priority but still valid)
+                query_words = set(query_lower.split())
+                for pattern in patterns:
+                    pattern_words = set(pattern.split())
+                    if len(pattern_words) > 1:  # Multi-word patterns
+                        if pattern_words.issubset(query_words):
+                            return intent
+                    elif len(pattern_words) == 1:  # Single word patterns
+                        if pattern in query_words:
+                            return intent
         
         return 'general'
     

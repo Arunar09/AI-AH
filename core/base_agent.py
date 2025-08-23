@@ -334,8 +334,9 @@ class BaseAgent:
         # Clean up response formatting
         curated = response.strip()
         
-        # Add contextual enhancements
-        if query_analysis.complexity == 'beginner':
+        # Add contextual enhancements (exclude social queries)
+        if (query_analysis.complexity == 'beginner' and 
+            query_analysis.intent not in ['social', 'greeting', 'personal']):
             if not any(phrase in curated.lower() for phrase in ['step by step', 'first', 'start']):
                 curated += "\n\nWould you like me to provide step-by-step guidance?"
         

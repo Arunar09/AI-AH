@@ -148,6 +148,12 @@ class PatternMatcher:
                 'response_template': 'I have quite a few capabilities! Beyond basic help, I can:\n\n• Provide detailed technical explanations\n• Walk through complex procedures step-by-step\n• Help debug and solve problems\n• Suggest best practices and alternatives\n• Integrate with various tools through plugins\n• Learn and adapt to your preferences\n\nWhat specific type of assistance are you looking for?',
                 'confidence': 92.0
             },
+            {
+                'category': 'CAPABILITIES',
+                'keywords': 'are you working functioning operational available',
+                'response_template': 'Yes, I\'m fully operational and ready to help! I can assist with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troubleshooting and problem solving\n• Best practices and recommendations\n• Tool-specific knowledge through plugins\n\nWhat would you like to work on?',
+                'confidence': 92.0
+            },
             
             # === HELP & ASSISTANCE ===
             {
@@ -202,12 +208,18 @@ class PatternMatcher:
                 'response_template': 'Let\'s figure out what\'s going wrong. I\'ll help you diagnose and fix the issue. Can you describe:\n\n• What should be happening\n• What\'s actually happening\n• When this started occurring\n• Any recent changes you made\n\nWith these details, I can help you get to the bottom of it.',
                 'confidence': 86.0
             },
+            {
+                'category': 'TROUBLESHOOTING',
+                'keywords': 'whats wrong installation problem help me understand',
+                'response_template': 'I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The specific error message (if any)\n• What you were trying to do\n• What happened instead\n• Your environment details\n\nThis will help me give you targeted solutions.',
+                'confidence': 90.0
+            },
             
             # === SOCIAL & CONVERSATIONAL ===
             {
                 'category': 'SOCIAL',
                 'keywords': 'thank you thanks appreciate it grateful thank you so much',
-                'response_template': 'You\'re very welcome! I\'m glad I could help. If you have any more questions or need further assistance, don\'t hesitate to ask. I\'m here whenever you need me!',
+                'response_template': 'You\'re very welcome! I\'m glad I could help. Feel free to ask if you need anything else.',
                 'confidence': 94.0
             },
             {
@@ -333,7 +345,7 @@ class PatternMatcher:
                         category=category,
                         keywords=pattern_keywords,
                         response_template=response_template,
-                        confidence=highest_score,
+                        confidence=confidence,  # Use stored confidence, not calculated score
                         usage_count=usage_count,
                         success_rate=success_rate
                     )

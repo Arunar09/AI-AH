@@ -1,6 +1,6 @@
 {
   "version": "1.2.0",
-  "test_date": "2025-08-22T22:12:56.668276",
+  "test_date": "2025-08-23T09:20:53.992549",
   "agent_info": {
     "name": "CapabilityTestAgent",
     "version": "1.0.0",
@@ -8,15 +8,15 @@
     "current_user": "default_user",
     "statistics": {
       "patterns": {
-        "total_patterns": 23,
-        "average_usage": 0.0,
-        "average_success_rate": 0.0
+        "total_patterns": 26,
+        "average_usage": 44.77,
+        "average_success_rate": 57.69
       },
       "memory": {
-        "total_interactions": 0,
-        "total_sessions": 0,
-        "average_confidence": 0,
-        "success_rate": 0,
+        "total_interactions": 1760,
+        "total_sessions": 43,
+        "average_confidence": 0.71,
+        "success_rate": 100.0,
         "learned_patterns": 0
       },
       "plugins": {
@@ -26,9 +26,9 @@
         "overall_success_rate": 0.0,
         "plugin_details": {
           "Docker Test Plugin": {
-            "queries_handled": 29,
-            "successful_responses": 29,
-            "average_confidence": 0.898275862068965
+            "queries_handled": 28,
+            "successful_responses": 28,
+            "average_confidence": 0.8999999999999996
           }
         }
       }
@@ -43,328 +43,328 @@
   },
   "test_categories": {
     "Basic Conversation": {
-      "passed": 19,
+      "passed": 20,
       "total": 20,
-      "success_rate": 95.0,
+      "success_rate": 100.0,
       "results": [
         {
           "query": "Hello!",
           "description": "Basic greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.475,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 758.1
+          "response_time_ms": 571.82
         },
         {
           "query": "Hi there",
           "description": "Casual greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.5,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 971.56
+          "response_time_ms": 660.23
         },
         {
           "query": "Hey",
           "description": "Informal greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.5,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1002.39
+          "response_time_ms": 569.26
         },
         {
           "query": "Good morning",
           "description": "Time-specific greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.8,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 747.77
+          "response_time_ms": 569.61
         },
         {
           "query": "Good afternoon",
           "description": "Afternoon greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.8,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 769.28
+          "response_time_ms": 570.6
         },
         {
           "query": "Greetings",
           "description": "Formal greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.5,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1481.13
+          "response_time_ms": 758.16
         },
         {
           "query": "Hi there, how are you?",
           "description": "Extended greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.5,
+          "confidence": 0.95,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 882.45
+          "response_time_ms": 636.69
         },
         {
           "query": "Hello, nice to meet you",
           "description": "Polite greeting",
           "success": true,
           "response": "Nice to meet you too! I'm excited to help you with whatever you're working on. What brings you here ...",
-          "confidence": 0.6916666666666665,
+          "confidence": 0.88,
           "intent": "greeting",
           "expected_intent": "greeting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 869.87
+          "response_time_ms": 636.99
         },
         {
           "query": "What can you do?",
           "description": "Direct capability question",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.975,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 916.79
+          "response_time_ms": 1183.48
         },
         {
           "query": "What can you help me with?",
           "description": "Help capability inquiry",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 1.0,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 767.63
+          "response_time_ms": 625.59
         },
         {
           "query": "What are your features?",
           "description": "Feature inquiry",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.7777777777777777,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1026.25
+          "response_time_ms": 636.32
         },
         {
           "query": "What are your capabilities?",
           "description": "Capabilities question",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.7777777777777777,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1069.19
+          "response_time_ms": 770.76
         },
         {
           "query": "Can you help me?",
           "description": "Help availability question",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.7777777777777777,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 770.18
+          "response_time_ms": 636.42
         },
         {
           "query": "Are you able to assist?",
           "description": "Assistance capability",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.4888888888888889,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 880.13
+          "response_time_ms": 925.47
         },
         {
           "query": "Do you support technical questions?",
           "description": "Technical support inquiry",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.7777777777777777,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 754.3
+          "response_time_ms": 636.27
         },
         {
           "query": "What kind of support do you provide?",
           "description": "Support type inquiry",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 1.0,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 752.0
+          "response_time_ms": 714.63
         },
         {
           "query": "Hi, what can you do?",
           "description": "Combined greeting+capability",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 1.0,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 970.69
+          "response_time_ms": 769.59
         },
         {
           "query": "Hello, are you working?",
           "description": "Greeting+status check",
-          "success": false,
-          "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.35,
+          "success": true,
+          "response": "Yes, I'm fully operational and ready to help! I can assist with:\n\n• Technical guidance and explanati...",
+          "confidence": 0.92,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
-          "confidence_check_passed": false,
-          "response_time_ms": 1358.07
+          "confidence_check_passed": true,
+          "response_time_ms": 636.23
         },
         {
           "query": "Hey there, can you help?",
           "description": "Casual greeting+help",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 0.7777777777777777,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 748.92
+          "response_time_ms": 794.94
         },
         {
           "query": "Good morning, what features do you have?",
           "description": "Formal greeting+features",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 1.0,
+          "confidence": 0.95,
           "intent": "capability_inquiry",
           "expected_intent": "capability_inquiry",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 824.56
+          "response_time_ms": 680.22
         }
       ]
     },
     "Intent Classification": {
-      "passed": 18,
+      "passed": 20,
       "total": 20,
-      "success_rate": 90.0,
+      "success_rate": 100.0,
       "results": [
         {
           "query": "What is Docker?",
           "description": "What is question",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.5083333333333333,
+          "confidence": 0.88,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 748.21
+          "response_time_ms": 747.95
         },
         {
           "query": "Explain containerization",
           "description": "Explain request",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.46388888888888885,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 825.09
+          "response_time_ms": 569.62
         },
         {
           "query": "Describe Kubernetes",
           "description": "Describe request",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.4888888888888889,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1053.51
+          "response_time_ms": 674.32
         },
         {
           "query": "Tell me about cloud computing",
           "description": "Tell me request",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.7777777777777777,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 898.18
+          "response_time_ms": 1224.47
         },
         {
           "query": "Show me how this works",
           "description": "Show me request",
           "success": true,
           "response": "I'll be happy to provide step-by-step instructions! To give you the most accurate guidance, please l...",
-          "confidence": 0.4892857142857143,
+          "confidence": 0.9,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 825.46
+          "response_time_ms": 1013.55
         },
         {
           "query": "How do I install Docker?",
           "description": "Installation command",
           "success": true,
           "response": "I'll be happy to provide step-by-step instructions! To give you the most accurate guidance, please l...",
-          "confidence": 0.3642857142857143,
+          "confidence": 0.9,
           "intent": "command_request",
           "expected_intent": "command_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 747.92
+          "response_time_ms": 1125.01
         },
         {
           "query": "Create a new container",
@@ -376,7 +376,7 @@
           "expected_intent": "command_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 374.7
+          "response_time_ms": 776.12
         },
         {
           "query": "Build an image",
@@ -388,7 +388,7 @@
           "expected_intent": "command_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 559.01
+          "response_time_ms": 741.55
         },
         {
           "query": "Run a deployment",
@@ -400,7 +400,7 @@
           "expected_intent": "command_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 512.97
+          "response_time_ms": 789.36
         },
         {
           "query": "Configure the settings",
@@ -412,79 +412,79 @@
           "expected_intent": "command_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 394.58
+          "response_time_ms": 731.47
         },
         {
           "query": "I have an error with my setup",
           "description": "Error report",
           "success": true,
           "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
-          "confidence": 0.44772727272727275,
+          "confidence": 0.88,
           "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 836.06
+          "response_time_ms": 1324.22
         },
         {
           "query": "My container is not working",
           "description": "Not working issue",
           "success": true,
           "response": "Let's figure out what's going wrong. I'll help you diagnose and fix the issue. Can you describe:\n\n• ...",
-          "confidence": 0.775,
+          "confidence": 0.86,
           "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1338.92
+          "response_time_ms": 1300.82
         },
         {
           "query": "Fix this problem",
           "description": "Fix request",
           "success": true,
           "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
-          "confidence": 0.7454545454545455,
+          "confidence": 0.88,
           "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 880.24
+          "response_time_ms": 1561.93
         },
         {
           "query": "Debug the deployment",
           "description": "Debug request",
           "success": true,
           "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
-          "confidence": 0.4727272727272727,
+          "confidence": 0.88,
           "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 832.57
+          "response_time_ms": 2123.76
         },
         {
           "query": "Resolve connection issues",
           "description": "Resolve request",
           "success": true,
           "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
-          "confidence": 0.4727272727272727,
+          "confidence": 0.88,
           "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 750.57
+          "response_time_ms": 1897.07
         },
         {
           "query": "How does this work and why?",
           "description": "How+why question",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.7777777777777777,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 771.49
+          "response_time_ms": 636.32
         },
         {
           "query": "Install and configure Docker",
@@ -496,57 +496,57 @@
           "expected_intent": "command_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 374.72
+          "response_time_ms": 318.64
         },
         {
           "query": "What's wrong with my installation?",
           "description": "What's wrong question",
-          "success": false,
-          "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.3833333333333333,
-          "intent": "command_request",
+          "success": true,
+          "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
+          "confidence": 0.9,
+          "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
-          "intent_check_passed": false,
+          "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 913.69
+          "response_time_ms": 791.3
         },
         {
           "query": "Help me understand this error",
           "description": "Understanding error",
-          "success": false,
-          "response": "I'm here to help! Please tell me more about what you need assistance with. You can ask me about:\n\n• ...",
-          "confidence": 0.3583333333333333,
-          "intent": "help_request",
+          "success": true,
+          "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
+          "confidence": 0.9,
+          "intent": "troubleshooting",
           "expected_intent": "troubleshooting",
-          "intent_check_passed": false,
+          "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1120.0
+          "response_time_ms": 793.99
         },
         {
           "query": "Explain and then show me how",
           "description": "Explain then show",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.7777777777777777,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "intent": "information_request",
           "expected_intent": "information_request",
           "intent_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1364.68
+          "response_time_ms": 757.18
         }
       ]
     },
     "Plugin Integration": {
-      "passed": 18,
+      "passed": 20,
       "total": 20,
-      "success_rate": 90.0,
+      "success_rate": 100.0,
       "results": [
         {
           "query": "What is Docker?",
           "description": "Docker definition",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.5333333333333333,
+          "confidence": 0.88,
           "plugins_used": [
             "Docker Test Plugin"
           ],
@@ -555,15 +555,15 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 773.62,
+          "response_time_ms": 569.54,
           "intent": "information_request"
         },
         {
           "query": "How do I run a Docker container?",
           "description": "Docker run command",
-          "success": false,
+          "success": true,
           "response": "I'll be happy to provide step-by-step instructions! To give you the most accurate guidance, please l...",
-          "confidence": 0.3642857142857143,
+          "confidence": 0.9,
           "plugins_used": [
             "Docker Test Plugin"
           ],
@@ -571,49 +571,15 @@
             "Docker Test Plugin"
           ],
           "plugin_check_passed": true,
-          "confidence_check_passed": false,
-          "response_time_ms": 748.0,
+          "confidence_check_passed": true,
+          "response_time_ms": 569.94,
           "intent": "command_request"
         },
         {
           "query": "Explain containerization",
           "description": "Containerization concept",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.4888888888888889,
-          "plugins_used": [
-            "Docker Test Plugin"
-          ],
-          "expected_plugins": [
-            "Docker Test Plugin"
-          ],
-          "plugin_check_passed": true,
-          "confidence_check_passed": true,
-          "response_time_ms": 760.55,
-          "intent": "information_request"
-        },
-        {
-          "query": "Docker installation guide",
-          "description": "Docker installation",
-          "success": true,
-          "response": "I'll be happy to provide step-by-step instructions! To give you the most accurate guidance, please l...",
-          "confidence": 0.5142857142857143,
-          "plugins_used": [
-            "Docker Test Plugin"
-          ],
-          "expected_plugins": [
-            "Docker Test Plugin"
-          ],
-          "plugin_check_passed": true,
-          "confidence_check_passed": true,
-          "response_time_ms": 752.32,
-          "intent": "information_request"
-        },
-        {
-          "query": "Create a Dockerfile",
-          "description": "Dockerfile creation",
-          "success": true,
-          "response": "**Essential Docker Commands:**\n\n**Image Management:**\n```bash\ndocker images          # List images\nd...",
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
           "confidence": 0.85,
           "plugins_used": [
             "Docker Test Plugin"
@@ -623,7 +589,41 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 786.42,
+          "response_time_ms": 570.21,
+          "intent": "information_request"
+        },
+        {
+          "query": "Docker installation guide",
+          "description": "Docker installation",
+          "success": true,
+          "response": "I'll be happy to provide step-by-step instructions! To give you the most accurate guidance, please l...",
+          "confidence": 0.9,
+          "plugins_used": [
+            "Docker Test Plugin"
+          ],
+          "expected_plugins": [
+            "Docker Test Plugin"
+          ],
+          "plugin_check_passed": true,
+          "confidence_check_passed": true,
+          "response_time_ms": 569.98,
+          "intent": "information_request"
+        },
+        {
+          "query": "Create a Dockerfile",
+          "description": "Dockerfile creation",
+          "success": true,
+          "response": "**Essential Docker Commands:**\n\n**Image Management:**\n```bash\ndocker images          # List images\nd...",
+          "confidence": 0.9,
+          "plugins_used": [
+            "Docker Test Plugin"
+          ],
+          "expected_plugins": [
+            "Docker Test Plugin"
+          ],
+          "plugin_check_passed": true,
+          "confidence_check_passed": true,
+          "response_time_ms": 278.82,
           "intent": "command_request"
         },
         {
@@ -640,7 +640,7 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 457.61,
+          "response_time_ms": 290.32,
           "intent": "command_request"
         },
         {
@@ -657,8 +657,8 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 386.33,
-          "intent": "general"
+          "response_time_ms": 283.7,
+          "intent": "troubleshooting"
         },
         {
           "query": "Docker image management",
@@ -674,7 +674,7 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 384.22,
+          "response_time_ms": 282.75,
           "intent": "general"
         },
         {
@@ -691,8 +691,8 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 384.56,
-          "intent": "general"
+          "response_time_ms": 326.41,
+          "intent": "capability_inquiry"
         },
         {
           "query": "Docker volumes explained",
@@ -708,7 +708,7 @@
           ],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 369.32,
+          "response_time_ms": 390.71,
           "intent": "information_request"
         },
         {
@@ -716,12 +716,12 @@
           "description": "Basic greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.5,
+          "confidence": 0.95,
           "plugins_used": [],
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 749.99,
+          "response_time_ms": 851.62,
           "intent": "greeting"
         },
         {
@@ -729,40 +729,38 @@
           "description": "Capability inquiry",
           "success": true,
           "response": "I can help you with:\n\n• Technical guidance and explanations\n• Step-by-step instructions\n• Troublesho...",
-          "confidence": 1.0,
+          "confidence": 0.95,
           "plugins_used": [],
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 761.79,
+          "response_time_ms": 759.59,
           "intent": "capability_inquiry"
         },
         {
           "query": "Explain machine learning",
           "description": "ML topic",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.4888888888888889,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "plugins_used": [],
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 803.43,
+          "response_time_ms": 635.65,
           "intent": "information_request"
         },
         {
           "query": "How does networking work?",
           "description": "General networking",
-          "success": false,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.7777777777777777,
-          "plugins_used": [
-            "Docker Test Plugin"
-          ],
+          "success": true,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
+          "plugins_used": [],
           "expected_plugins": [],
-          "plugin_check_passed": false,
+          "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1090.88,
+          "response_time_ms": 636.87,
           "intent": "information_request"
         },
         {
@@ -770,12 +768,12 @@
           "description": "Python help",
           "success": true,
           "response": "I'm here to help! Please tell me more about what you need assistance with. You can ask me about:\n\n• ...",
-          "confidence": 0.5333333333333333,
+          "confidence": 0.9,
           "plugins_used": [],
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 870.57,
+          "response_time_ms": 725.21,
           "intent": "general"
         },
         {
@@ -788,7 +786,7 @@
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 405.83,
+          "response_time_ms": 385.71,
           "intent": "general"
         },
         {
@@ -801,7 +799,7 @@
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 775.96,
+          "response_time_ms": 384.31,
           "intent": "general"
         },
         {
@@ -814,7 +812,7 @@
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 672.79,
+          "response_time_ms": 1123.85,
           "intent": "greeting"
         },
         {
@@ -822,26 +820,26 @@
           "description": "Morning greeting",
           "success": true,
           "response": "Hello! I'm your AI assistant. I can help you with technical questions, provide guidance, and assist ...",
-          "confidence": 0.8,
+          "confidence": 0.95,
           "plugins_used": [],
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1431.27,
+          "response_time_ms": 1427.01,
           "intent": "greeting"
         },
         {
           "query": "Help me understand APIs",
           "description": "API help",
           "success": true,
-          "response": "I'm here to help! Please tell me more about what you need assistance with. You can ask me about:\n\n• ...",
-          "confidence": 0.3833333333333333,
+          "response": "I can help you troubleshoot this issue. To provide the best assistance, could you share:\n\n• The spec...",
+          "confidence": 0.9,
           "plugins_used": [],
           "expected_plugins": [],
           "plugin_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1183.01,
-          "intent": "help_request"
+          "response_time_ms": 727.01,
+          "intent": "troubleshooting"
         }
       ]
     },
@@ -855,12 +853,12 @@
           "description": "Context recall test 1",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.3833333333333333,
+          "confidence": 0.88,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 965.99
+          "response_time_ms": 769.51
         },
         {
           "query": "Continue with that topic",
@@ -872,43 +870,43 @@
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 384.31
+          "response_time_ms": 384.91
         },
         {
           "query": "Tell me more about that",
           "description": "Context elaboration test 1",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 748.26
+          "response_time_ms": 758.64
         },
         {
           "query": "What did we talk about before?",
           "description": "Previous context test 1",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 757.63
+          "response_time_ms": 769.59
         },
         {
           "query": "What were we discussing?",
           "description": "Context recall test 2",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.3833333333333333,
+          "confidence": 0.88,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 826.01
+          "response_time_ms": 769.9
         },
         {
           "query": "Continue with that topic",
@@ -920,43 +918,43 @@
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 567.6
+          "response_time_ms": 485.64
         },
         {
           "query": "Tell me more about that",
           "description": "Context elaboration test 2",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 1282.65
+          "response_time_ms": 983.55
         },
         {
           "query": "What did we talk about before?",
           "description": "Previous context test 2",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 818.98
+          "response_time_ms": 857.85
         },
         {
           "query": "What were we discussing?",
           "description": "Context recall test 3",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.3833333333333333,
+          "confidence": 0.88,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 753.09
+          "response_time_ms": 770.43
         },
         {
           "query": "Continue with that topic",
@@ -968,43 +966,43 @@
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 374.6
+          "response_time_ms": 508.38
         },
         {
           "query": "Tell me more about that",
           "description": "Context elaboration test 3",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 758.3
+          "response_time_ms": 769.76
         },
         {
           "query": "What did we talk about before?",
           "description": "Previous context test 3",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 847.35
+          "response_time_ms": 1015.48
         },
         {
           "query": "What were we discussing?",
           "description": "Context recall test 4",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.3833333333333333,
+          "confidence": 0.88,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 748.31
+          "response_time_ms": 768.59
         },
         {
           "query": "Continue with that topic",
@@ -1016,43 +1014,43 @@
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 366.62
+          "response_time_ms": 385.3
         },
         {
           "query": "Tell me more about that",
           "description": "Context elaboration test 4",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 754.07
+          "response_time_ms": 1103.83
         },
         {
           "query": "What did we talk about before?",
           "description": "Previous context test 4",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 937.54
+          "response_time_ms": 813.62
         },
         {
           "query": "What were we discussing?",
           "description": "Context recall test 5",
           "success": true,
           "response": "Let me provide you with a clear definition and explanation. What specific term or concept would you ...",
-          "confidence": 0.3833333333333333,
+          "confidence": 0.88,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 680.84
+          "response_time_ms": 1060.84
         },
         {
           "query": "Continue with that topic",
@@ -1064,31 +1062,31 @@
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 340.81
+          "response_time_ms": 384.0
         },
         {
           "query": "Tell me more about that",
           "description": "Context elaboration test 5",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 788.55
+          "response_time_ms": 768.97
         },
         {
           "query": "What did we talk about before?",
           "description": "Previous context test 5",
           "success": true,
-          "response": "I'd be happy to explain that for you. Could you be more specific about what aspect you'd like me to ...",
-          "confidence": 0.6277777777777778,
+          "response": "I'd be happy to explain that for you. Based on your question about \"{topic}\", I can provide detailed...",
+          "confidence": 0.85,
           "context_used": true,
           "expected_context": true,
           "context_check_passed": true,
           "confidence_check_passed": true,
-          "response_time_ms": 829.41
+          "response_time_ms": 1020.12
         }
       ]
     },
@@ -1107,7 +1105,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.5
+          "confidence": 0.95
         },
         {
           "query": "Hi",
@@ -1119,7 +1117,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.5
+          "confidence": 0.95
         },
         {
           "query": "Good morning",
@@ -1131,7 +1129,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.8
+          "confidence": 0.95
         },
         {
           "query": "Help",
@@ -1143,19 +1141,19 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.5333333333333333
+          "confidence": 0.9
         },
         {
           "query": "Thanks",
           "description": "Acknowledgment response",
           "success": true,
-          "response_length": 87,
+          "response_length": 156,
           "min_length": 10,
           "max_length": 200,
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.325
+          "confidence": 0.94
         },
         {
           "query": "What can you do?",
@@ -1167,7 +1165,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 1.0
+          "confidence": 0.95
         },
         {
           "query": "What are your features?",
@@ -1179,7 +1177,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.7777777777777777
+          "confidence": 0.95
         },
         {
           "query": "How can you help me?",
@@ -1191,7 +1189,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.7777777777777777
+          "confidence": 0.95
         },
         {
           "query": "What services do you provide?",
@@ -1203,19 +1201,19 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.7777777777777777
+          "confidence": 0.95
         },
         {
           "query": "Tell me about your capabilities",
           "description": "Detailed capability response",
           "success": true,
-          "response_length": 227,
+          "response_length": 211,
           "min_length": 60,
           "max_length": 900,
           "length_check_passed": true,
           "has_suggestions": true,
-          "suggestion_count": 1,
-          "confidence": 0.6277777777777778
+          "suggestion_count": 3,
+          "confidence": 0.85
         },
         {
           "query": "What is Docker?",
@@ -1227,31 +1225,31 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.5333333333333333
+          "confidence": 0.88
         },
         {
           "query": "Explain containerization",
           "description": "Concept explanation thoroughness",
           "success": true,
-          "response_length": 894,
+          "response_length": 878,
           "min_length": 80,
           "max_length": 1200,
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.4888888888888889
+          "confidence": 0.85
         },
         {
           "query": "How does cloud computing work?",
           "description": "Complex topic explanation",
           "success": true,
-          "response_length": 227,
+          "response_length": 211,
           "min_length": 100,
           "max_length": 1500,
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.7777777777777777
+          "confidence": 0.85
         },
         {
           "query": "What is Kubernetes?",
@@ -1263,19 +1261,19 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.5333333333333333
+          "confidence": 0.88
         },
         {
           "query": "Describe microservices",
           "description": "Architecture explanation completeness",
           "success": true,
-          "response_length": 227,
+          "response_length": 211,
           "min_length": 90,
           "max_length": 1300,
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.4888888888888889
+          "confidence": 0.85
         },
         {
           "query": "Fix my computer",
@@ -1287,13 +1285,13 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.4727272727272727
+          "confidence": 0.88
         },
         {
           "query": "Make it work",
           "description": "Unclear request response",
           "success": true,
-          "response_length": 168,
+          "response_length": 202,
           "min_length": 25,
           "max_length": 500,
           "length_check_passed": true,
@@ -1311,7 +1309,7 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 1,
-          "confidence": 0.7166666666666666
+          "confidence": 0.9
         },
         {
           "query": "This is broken",
@@ -1323,19 +1321,19 @@
           "length_check_passed": true,
           "has_suggestions": true,
           "suggestion_count": 3,
-          "confidence": 0.4727272727272727
+          "confidence": 0.88
         },
         {
           "query": "Can you solve all my problems?",
           "description": "Unrealistic request response",
           "success": true,
-          "response_length": 256,
+          "response_length": 161,
           "min_length": 30,
           "max_length": 400,
           "length_check_passed": true,
           "has_suggestions": true,
-          "suggestion_count": 1,
-          "confidence": 0.4888888888888889
+          "suggestion_count": 3,
+          "confidence": 0.91
         }
       ]
     },
@@ -1490,75 +1488,75 @@
       "total_queries": 20,
       "successful_responses": 20,
       "success_rate": 100.0,
-      "average_response_time_ms": 1010.72,
-      "average_confidence": 0.571,
-      "average_response_length": 385.4,
-      "min_response_time_ms": 350.22,
-      "max_response_time_ms": 2085.4,
+      "average_response_time_ms": 646.87,
+      "average_confidence": 0.825,
+      "average_response_length": 386.4,
+      "min_response_time_ms": 316.51,
+      "max_response_time_ms": 1240.2,
       "performance_breakdown": {
         "fast_responses_under_200ms": 0,
-        "medium_responses_200_1000ms": 10,
-        "slow_responses_over_1000ms": 10
+        "medium_responses_200_1000ms": 18,
+        "slow_responses_over_1000ms": 2
       },
       "response_times": [
-        1842.94,
-        1482.02,
-        2085.4,
-        1381.66,
-        449.77,
-        769.97,
-        766.61,
-        1086.51,
-        431.99,
-        1166.4,
-        1697.42,
-        1220.34,
-        1607.4,
-        1043.34,
-        856.85,
-        350.22,
-        350.65,
-        351.85,
-        350.91,
-        922.08
+        1097.83,
+        840.98,
+        776.56,
+        1240.2,
+        576.28,
+        628.12,
+        642.49,
+        627.7,
+        323.01,
+        628.21,
+        641.6,
+        704.67,
+        809.42,
+        637.63,
+        628.09,
+        480.11,
+        376.48,
+        316.51,
+        316.78,
+        644.68
       ],
       "confidences": [
-        0.5,
-        0.5,
-        0.533,
-        0.35,
+        0.95,
+        0.95,
+        0.9,
+        0.94,
         0.6,
-        1.0,
-        0.778,
-        0.489,
+        0.95,
+        0.85,
+        0.85,
         0.6,
-        0.473,
-        0.778,
-        0.383,
-        0.364,
-        0.489,
-        0.533,
+        0.88,
+        0.9,
+        0.88,
+        0.9,
+        0.85,
+        0.88,
         0.9,
         0.6,
         0.6,
         0.6,
-        0.35
+        0.92
       ],
       "response_lengths": [
         171,
         171,
         278,
-        87,
+        156,
         158,
         309,
-        227,
-        894,
+        211,
+        878,
         171,
         308,
-        923,
+        922,
         785,
         945,
-        841,
+        825,
         118,
         690,
         177,
@@ -1574,8 +1572,8 @@
   },
   "overall_performance": {
     "total_tests": 120,
-    "total_passed": 115,
-    "overall_success_rate": 95.83,
+    "total_passed": 120,
+    "overall_success_rate": 100.0,
     "agent_version": "1.0.0",
     "capabilities_tested": [
       "Basic Conversation",
