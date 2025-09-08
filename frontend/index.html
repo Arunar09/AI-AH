@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-AH Terraform Engineer - Full Chat Interface</title>
+    <link rel="stylesheet" href="styles.css?v=2.0.1">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Header -->
+        <header class="chat-header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🏗️</span>
+                    <h1>AI-AH Terraform Engineer</h1>
+                </div>
+                <div class="header-info">
+                    <span class="status-indicator online">● Online</span>
+                    <span class="version">v2.0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Chat Area -->
+        <main class="chat-main">
+            <!-- Chat Messages -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome Message -->
+                <div class="message system-message">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-avatar">🤖</span>
+                            <span class="message-name">AI-AH Terraform Engineer</span>
+                            <span class="message-time">Now</span>
+                        </div>
+                        <div class="message-text">
+                            <h3>🚀 Welcome to AI-AH Terraform Engineer!</h3>
+                            <p>I'm your intelligent infrastructure architect. I can:</p>
+                            <ul>
+                                <li>🏗️ <strong>Design & Architect</strong> - Create complete infrastructure solutions</li>
+                                <li>⚡ <strong>Generate & Create</strong> - Write production Terraform code</li>
+                                <li>🚀 <strong>Execute & Deploy</strong> - Run actual Terraform commands</li>
+                                <li>🔧 <strong>Troubleshoot & Fix</strong> - Debug and resolve issues</li>
+                                <li>📊 <strong>Manage & Monitor</strong> - Track infrastructure state</li>
+                            </ul>
+                            <p><strong>Try asking:</strong> "Create a serverless architecture with Lambda and DynamoDB"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Ask me to create, design, or deploy infrastructure... (Press Enter to send, Shift+Enter for new line)"
+                            rows="1"
+                        ></textarea>
+                        <button id="sendButton" class="send-button">
+                            <span class="send-icon">🚀</span>
+                        </button>
+                    </div>
+                    <div class="input-actions">
+                        <button class="action-button" id="clearChat" title="Clear Chat">
+                            🗑️ Clear
+                        </button>
+                        <button class="action-button" id="exportChat" title="Export Chat">
+                            📤 Export
+                        </button>
+                        <button class="action-button" id="workspaceStatus" title="Check System Status">
+                            📊 Status
+                        </button>
+                        <button class="action-button" id="requirementsFormBtn" title="Open Requirements Form">
+                            📋 Requirements Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Sidebar (Collapsible) -->
+        <aside class="chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header">
+                <h3>🔧 Quick Actions</h3>
+                <button class="sidebar-toggle" id="sidebarToggle">◀</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="action-group">
+                    <h4>🏗️ Infrastructure</h4>
+                    <button class="quick-action" data-action="serverless">Serverless Architecture</button>
+                    <button class="quick-action" data-action="microservices">Microservices</button>
+                    <button class="quick-action" data-action="three-tier">3-Tier Web App</button>
+                    <button class="quick-action" data-action="container">Container-Based</button>
+                </div>
+                
+                <div class="action-group">
+                    <h4>☁️ Cloud Providers</h4>
+                    <button class="quick-action" data-action="aws">AWS</button>
+                    <button class="quick-action" data-action="azure">Azure</button>
+                    <button class="quick-action" data-action="gcp">Google Cloud</button>
+                </div>
+                
+                <div class="action-group">
+                    <h4>🔧 Operations</h4>
+                    <button class="quick-action" data-action="init">Terraform Init</button>
+                    <button class="quick-action" data-action="plan">Terraform Plan</button>
+                    <button class="quick-action" data-action="apply">Terraform Apply</button>
+                    <button class="quick-action" data-action="destroy">Terraform Destroy</button>
+                </div>
+                
+                <div class="action-group">
+                    <h4>📊 Status</h4>
+                    <button class="quick-action" data-action="workspace">Workspace Status</button>
+                    <button class="quick-action" data-action="stats">Session Stats</button>
+                    <button class="quick-action" data-action="help">Help</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading-indicator" id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <span>AI is thinking...</span>
+    </div>
+
+    <!-- Requirements Collection Form Modal -->
+    <div id="requirementsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🏗️ Infrastructure Requirements Collection</h2>
+                <span class="close" onclick="closeRequirementsModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">0% Complete</div>
+                </div>
+                
+                <!-- Form Tabs -->
+                <div class="form-tabs">
+                    <button class="tab-button active" onclick="showTab('basic')">Basic Info</button>
+                    <button class="tab-button" onclick="showTab('performance')">Performance</button>
+                    <button class="tab-button" onclick="showTab('security')">Security</button>
+                    <button class="tab-button" onclick="showTab('cost')">Cost & Budget</button>
+                    <button class="tab-button" onclick="showTab('compliance')">Compliance</button>
+                    <button class="tab-button" onclick="showTab('advanced')">Advanced</button>
+                </div>
+                
+                <!-- Form Content -->
+                <form id="requirementsForm">
+                    <!-- Basic Info Tab -->
+                    <div id="basic" class="tab-content active">
+                        <h3>📋 Basic Infrastructure Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="projectName">Project Name *</label>
+                            <input type="text" id="projectName" name="projectName" required placeholder="Enter project name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="environment">Target Environment *</label>
+                            <select id="environment" name="environment" required>
+                                <option value="">Select environment</option>
+                                <option value="aws">AWS</option>
+                                <option value="azure">Azure</option>
+                                <option value="gcp">Google Cloud</option>
+                                <option value="hybrid">Multi-Cloud (Hybrid)</option>
+                                <option value="onpremise">On-Premise</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pattern">Infrastructure Pattern *</label>
+                            <select id="pattern" name="pattern" required>
+                                <option value="">Select pattern</option>
+                                <option value="serverless">Serverless</option>
+                                <option value="microservices">Microservices</option>
+                                <option value="3tier">3-Tier Architecture</option>
+                                <option value="container">Container-based</option>
+                                <option value="eventdriven">Event-Driven</option>
+                                <option value="monolithic">Monolithic</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="region">Primary Region</label>
+                            <input type="text" id="region" name="region" placeholder="e.g., us-east-1, eastus, us-central1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Project Description</label>
+                            <textarea id="description" name="description" rows="3" placeholder="Describe your infrastructure needs"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="documentUpload">Upload Existing Specifications (Optional)</label>
+                            <div class="file-upload-container">
+                                <input type="file" id="documentUpload" name="documentUpload" accept=".pdf,.doc,.docx,.txt,.md" multiple>
+                                <div class="file-upload-info">
+                                    <p>Supported formats: PDF, Word, Text, Markdown</p>
+                                    <p>Upload existing infrastructure docs, requirements, or specifications</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Tab -->
+                    <div id="performance" class="tab-content">
+                        <h3>⚡ Performance Requirements</h3>
+                        
+                        <div class="form-group">
+                            <label for="expectedUsers">Expected Users</label>
+                            <select id="expectedUsers" name="expectedUsers">
+                                <option value="">Select range</option>
+                                <option value="1-100">1-100 users</option>
+                                <option value="100-1000">100-1,000 users</option>
+                                <option value="1000-10000">1,000-10,000 users</option>
+                                <option value="10000+">10,000+ users</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="responseTime">Response Time Requirement</label>
+                            <select id="responseTime" name="responseTime">
+                                <option value="">Select requirement</option>
+                                <option value="<100ms">< 100ms (Critical)</option>
+                                <option value="<500ms">< 500ms (High)</option>
+                                <option value="<1s">< 1 second (Medium)</option>
+                                <option value="<5s">< 5 seconds (Low)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="availability">Availability Requirement</label>
+                            <select id="availability" name="availability">
+                                <option value="">Select requirement</option>
+                                <option value="99.9%">99.9% (High)</option>
+                                <option value="99.5%">99.5% (Medium)</option>
+                                <option value="99%">99% (Standard)</option>
+                                <option value="95%">95% (Basic)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="scaling">Scaling Requirements</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="scaling" value="auto"> Auto-scaling</label>
+                                <label><input type="checkbox" name="scaling" value="manual"> Manual scaling</label>
+                                <label><input type="checkbox" name="scaling" value="scheduled"> Scheduled scaling</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Tab -->
+                    <div id="security" class="tab-content">
+                        <h3>🔒 Security Requirements</h3>
+                        
+                        <div class="form-group">
+                            <label for="securityLevel">Security Level</label>
+                            <select id="securityLevel" name="securityLevel">
+                                <option value="">Select level</option>
+                                <option value="basic">Basic (Public)</option>
+                                <option value="standard">Standard (Internal)</option>
+                                <option value="high">High (Sensitive)</option>
+                                <option value="enterprise">Enterprise (Critical)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="compliance">Compliance Requirements</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="compliance" value="soc2"> SOC2</label>
+                                <label><input type="checkbox" name="compliance" value="hipaa"> HIPAA</label>
+                                <label><input type="checkbox" name="compliance" value="pci"> PCI-DSS</label>
+                                <label><input type="checkbox" name="compliance" value="gdpr"> GDPR</label>
+                                <label><input type="checkbox" name="compliance" value="iso27001"> ISO 27001</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="encryption">Encryption Requirements</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="encryption" value="atrest"> Data at Rest</label>
+                                <label><input type="checkbox" name="encryption" value="intransit"> Data in Transit</label>
+                                <label><input type="checkbox" name="encryption" value="endtoend"> End-to-End</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="networkSecurity">Network Security</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="networkSecurity" value="vpc"> VPC/Private Networks</label>
+                                <label><input type="checkbox" name="networkSecurity" value="firewall"> Firewall Rules</label>
+                                <label><input type="checkbox" name="networkSecurity" value="waf"> Web Application Firewall</label>
+                                <label><input type="checkbox" name="networkSecurity" value="ddos"> DDoS Protection</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cost Tab -->
+                    <div id="cost" class="tab-content">
+                        <h3>💰 Cost & Budget Constraints</h3>
+                        
+                        <div class="form-group">
+                            <label for="budgetRange">Budget Range</label>
+                            <select id="budgetRange" name="budgetRange">
+                                <option value="">Select range</option>
+                                <option value="<100">Under $100/month</option>
+                                <option value="100-500">$100-$500/month</option>
+                                <option value="500-1000">$500-$1,000/month</option>
+                                <option value="1000-5000">$1,000-$5,000/month</option>
+                                <option value="5000+">$5,000+/month</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="costOptimization">Cost Optimization Preferences</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="costOptimization" value="reserved"> Reserved Instances</label>
+                                <label><input type="checkbox" name="costOptimization" value="spot"> Spot Instances</label>
+                                <label><input type="checkbox" name="costOptimization" value="autoscaling"> Auto-scaling</label>
+                                <label><input type="checkbox" name="costOptimization" value="monitoring"> Cost Monitoring</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="budgetAlerts">Budget Alerts</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="budgetAlerts" value="50%"> At 50% of budget</label>
+                                <label><input type="checkbox" name="budgetAlerts" value="80%"> At 80% of budget</label>
+                                <label><input type="checkbox" name="budgetAlerts" value="100%"> At 100% of budget</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Compliance Tab -->
+                    <div id="compliance" class="tab-content">
+                        <h3>📋 Compliance & Governance</h3>
+                        
+                        <div class="form-group">
+                            <label for="industry">Industry</label>
+                            <select id="industry" name="industry">
+                                <option value="">Select industry</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="finance">Finance</option>
+                                <option value="retail">Retail</option>
+                                <option value="technology">Technology</option>
+                                <option value="government">Government</option>
+                                <option value="education">Education</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dataClassification">Data Classification</label>
+                            <select id="dataClassification" name="dataClassification">
+                                <option value="">Select classification</option>
+                                <option value="public">Public</option>
+                                <option value="internal">Internal</option>
+                                <option value="confidential">Confidential</option>
+                                <option value="restricted">Restricted</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="auditRequirements">Audit Requirements</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="auditRequirements" value="monthly"> Monthly</label>
+                                <label><input type="checkbox" name="auditRequirements" value="quarterly"> Quarterly</label>
+                                <label><input type="checkbox" name="auditRequirements" value="annually"> Annually</label>
+                                <label><input type="checkbox" name="auditRequirements" value="continuous"> Continuous</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Tab -->
+                    <div id="advanced" class="tab-content">
+                        <h3>🔧 Advanced Configuration</h3>
+                        
+                        <div class="form-group">
+                            <label for="deploymentStrategy">Deployment Strategy</label>
+                            <select id="deploymentStrategy" name="deploymentStrategy">
+                                <option value="">Select strategy</option>
+                                <option value="bluegreen">Blue-Green Deployment</option>
+                                <option value="canary">Canary Deployment</option>
+                                <option value="rolling">Rolling Update</option>
+                                <option value="recreate">Recreate</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="monitoring">Monitoring & Logging</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="monitoring" value="metrics"> Metrics Collection</label>
+                                <label><input type="checkbox" name="monitoring" value="logs"> Log Aggregation</label>
+                                <label><input type="checkbox" name="monitoring" value="alerts"> Alerting</label>
+                                <label><input type="checkbox" name="monitoring" value="dashboards"> Dashboards</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="backup">Backup & Recovery</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="backup" value="automated"> Automated Backups</label>
+                                <label><input type="checkbox" name="backup" value="disaster"> Disaster Recovery</label>
+                                <label><input type="checkbox" name="backup" value="crossregion"> Cross-Region</label>
+                                <label><input type="checkbox" name="backup" value="testing"> Backup Testing</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="additionalNotes">Additional Notes</label>
+                            <textarea id="additionalNotes" name="additionalNotes" rows="4" placeholder="Any additional requirements or special considerations"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeRequirementsModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="previousTab()" id="prevBtn" style="display: none;">Previous</button>
+                <button type="button" class="btn btn-primary" onclick="nextTab()" id="nextBtn">Next</button>
+                <button type="button" class="btn btn-success" onclick="submitRequirements()" id="submitBtn" style="display: none;">Submit Requirements</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=2.0.1"></script>
+</body>
+</html>

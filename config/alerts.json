@@ -1,0 +1,22 @@
+{
+  "email": {
+    "enabled": true,
+    "smtp_server": "smtp.gmail.com",
+    "smtp_port": 587,
+    "username": "your-email@gmail.com",
+    "password": "your-app-password",
+    "from_addr": "alerts@ai-ah.example.com",
+    "to_addrs": ["admin@example.com"]
+  },
+  "slack": {
+    "enabled": false,
+    "webhook_url": "https://hooks.slack.com/services/...",
+    "channel": "#alerts"
+  },
+  "thresholds": {
+    "critical_security_findings": 1,
+    "high_security_findings": 3,
+    "cost_increase_percent": 20,
+    "unmanaged_resources": 1
+  }
+}

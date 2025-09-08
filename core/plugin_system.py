@@ -249,7 +249,8 @@ class PluginManager:
         # Create query analysis for plugin selection
         query_analysis = {
             'keywords': keywords,
-            'context': context
+            'context': context,
+            'intent': 'general'  # Default intent for plugin selection
         }
         
         # Select relevant plugins
@@ -304,6 +305,10 @@ class PluginManager:
                 source=plugin_name,
                 additional_data={'error': str(e)}
             )
+    
+    def get_plugin(self, plugin_name: str) -> Optional[ToolPlugin]:
+        """Get a plugin instance by name"""
+        return self.plugins.get(plugin_name)
     
     def get_plugin_info(self, plugin_name: str = None) -> Dict[str, Any]:
         """Get information about plugins"""

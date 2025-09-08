@@ -10,22 +10,21 @@ Flow: Query + Context → Memory Lookup → Context Enhancement → Learning Upd
 """
 
 import sqlite3
-import json
-from typing import Dict, List, Any, Optional
+import threading
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
-
+import json
 
 @dataclass
 class ConversationContext:
-    """Current conversation context"""
+    """Conversation context and memory"""
     session_id: str
     user_id: str
     conversation_history: List[Dict[str, Any]]
-    user_preferences: Dict[str, Any]
+    user_preferences: Dict[str, str]
     current_topic: Optional[str]
     context_confidence: float
-
 
 class MemorySystem:
     """
@@ -41,20 +40,38 @@ class MemorySystem:
     def __init__(self, db_path: str = "base_agent.db"):
         """Initialize memory system with database"""
         self.db_path = db_path
-        self.conn = None
-        self.cursor = None
+        self._local = threading.local()
         self._init_database()
-        self.current_session = None
-        self.max_history_length = 10  # Keep last 10 interactions
+    
+    def _get_connection(self):
+        """Get a thread-safe database connection"""
+        if not hasattr(self._local, 'connection'):
+            self._local.connection = sqlite3.connect(
+                self.db_path, 
+                check_same_thread=False,
+                timeout=30.0
+            )
+            # Enable foreign keys and WAL mode for better concurrency
+            self._local.connection.execute("PRAGMA foreign_keys = ON")
+            self._local.connection.execute("PRAGMA journal_mode = WAL")
+            self._local.connection.execute("PRAGMA synchronous = NORMAL")
+            self._local.connection.execute("PRAGMA cache_size = 10000")
+            self._local.connection.execute("PRAGMA temp_store = MEMORY")
+        return self._local.connection
+    
+    def _close_connection(self):
+        """Close the current thread's database connection"""
+        if hasattr(self._local, 'connection'):
+            self._local.connection.close()
+            delattr(self._local, 'connection')
     
     def _init_database(self):
         """Initialize SQLite database with memory tables"""
         try:
-            self.conn = sqlite3.connect(self.db_path)
-            self.cursor = self.conn.cursor()
+            conn = self._get_connection()
             
             # Conversation history table
-            self.cursor.execute('''
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS conversation_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_id TEXT NOT NULL,
@@ -69,9 +86,8 @@ class MemorySystem:
             ''')
             
             # User preferences table
-            self.cursor.execute('''
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS user_preferences (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id TEXT NOT NULL,
                     preference_key TEXT NOT NULL,
                     preference_value TEXT NOT NULL,
@@ -82,7 +98,7 @@ class MemorySystem:
             ''')
             
             # Session management table
-            self.cursor.execute('''
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS sessions (
                     session_id TEXT PRIMARY KEY,
                     user_id TEXT NOT NULL,
@@ -94,7 +110,7 @@ class MemorySystem:
             ''')
             
             # Learned patterns table
-            self.cursor.execute('''
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS learned_patterns (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id TEXT NOT NULL,
@@ -106,13 +122,11 @@ class MemorySystem:
                 )
             ''')
             
-            self.conn.commit()
+            conn.commit()
             print("✅ Memory system database initialized")
             
         except Exception as e:
             print(f"❌ Error initializing memory database: {e}")
-            self.conn = None
-            self.cursor = None
     
     def start_session(self, user_id: str = "default_user", 
                      session_id: str = None) -> str:
@@ -120,18 +134,15 @@ class MemorySystem:
         if session_id is None:
             session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
-        if not self.conn:
-            return session_id
-        
         try:
-            self.cursor.execute('''
+            conn = self._get_connection()
+            conn.execute('''
                 INSERT OR REPLACE INTO sessions 
                 (session_id, user_id, started_at, last_activity)
                 VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ''', (session_id, user_id))
             
-            self.conn.commit()
-            self.current_session = session_id
+            conn.commit()
             print(f"✅ Started session: {session_id}")
             return session_id
             
@@ -143,24 +154,22 @@ class MemorySystem:
                        intent: str = None, confidence: float = 0.8,
                        was_successful: bool = True, user_id: str = "default_user"):
         """Add an interaction to conversation history"""
-        if not self.conn:
-            return
-        
         try:
-            self.cursor.execute('''
+            conn = self._get_connection()
+            conn.execute('''
                 INSERT INTO conversation_history 
                 (session_id, user_id, query, response, intent, confidence, was_successful)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (session_id, user_id, query, response, intent, confidence, was_successful))
             
             # Update session activity
-            self.cursor.execute('''
+            conn.execute('''
                 UPDATE sessions 
                 SET last_activity = CURRENT_TIMESTAMP
                 WHERE session_id = ?
             ''', (session_id,))
             
-            self.conn.commit()
+            conn.commit()
             
         except Exception as e:
             print(f"❌ Error adding interaction: {e}")
@@ -168,27 +177,19 @@ class MemorySystem:
     def get_conversation_context(self, session_id: str, 
                                user_id: str = "default_user") -> ConversationContext:
         """Get current conversation context"""
-        if not self.conn:
-            return ConversationContext(
-                session_id=session_id,
-                user_id=user_id,
-                conversation_history=[],
-                user_preferences={},
-                current_topic=None,
-                context_confidence=0.5
-            )
-        
         try:
+            conn = self._get_connection()
+            
             # Get recent conversation history
-            self.cursor.execute('''
+            cursor = conn.execute('''
                 SELECT query, response, intent, confidence, was_successful, created_at
                 FROM conversation_history 
                 WHERE session_id = ? AND user_id = ?
                 ORDER BY created_at DESC
-                LIMIT ?
-            ''', (session_id, user_id, self.max_history_length))
+                LIMIT 10
+            ''', (session_id, user_id))
             
-            history_rows = self.cursor.fetchall()
+            history_rows = cursor.fetchall()
             conversation_history = []
             
             for row in history_rows:
@@ -202,13 +203,13 @@ class MemorySystem:
                 })
             
             # Get user preferences
-            self.cursor.execute('''
+            cursor = conn.execute('''
                 SELECT preference_key, preference_value
                 FROM user_preferences
                 WHERE user_id = ?
             ''', (user_id,))
             
-            prefs_rows = self.cursor.fetchall()
+            prefs_rows = cursor.fetchall()
             user_preferences = {row[0]: row[1] for row in prefs_rows}
             
             # Determine current topic from recent interactions
@@ -239,17 +240,15 @@ class MemorySystem:
     
     def update_user_preference(self, user_id: str, key: str, value: str):
         """Update user preference"""
-        if not self.conn:
-            return
-        
         try:
-            self.cursor.execute('''
+            conn = self._get_connection()
+            conn.execute('''
                 INSERT OR REPLACE INTO user_preferences 
                 (user_id, preference_key, preference_value, updated_at)
                 VALUES (?, ?, ?, CURRENT_TIMESTAMP)
             ''', (user_id, key, value))
             
-            self.conn.commit()
+            conn.commit()
             
         except Exception as e:
             print(f"❌ Error updating user preference: {e}")
@@ -257,19 +256,17 @@ class MemorySystem:
     def learn_pattern(self, user_id: str, pattern_type: str, 
                      pattern_data: Dict[str, Any], confidence: float = 70.0):
         """Learn a new pattern from user behavior"""
-        if not self.conn:
-            return
-        
         try:
+            conn = self._get_connection()
             pattern_json = json.dumps(pattern_data)
             
             # Check if similar pattern exists
-            self.cursor.execute('''
+            cursor = conn.execute('''
                 SELECT id, usage_count, confidence FROM learned_patterns
                 WHERE user_id = ? AND pattern_type = ? AND pattern_data = ?
             ''', (user_id, pattern_type, pattern_json))
             
-            existing = self.cursor.fetchone()
+            existing = cursor.fetchone()
             
             if existing:
                 # Update existing pattern
@@ -277,20 +274,20 @@ class MemorySystem:
                 new_confidence = (old_confidence + confidence) / 2  # Average
                 new_usage_count = usage_count + 1
                 
-                self.cursor.execute('''
+                conn.execute('''
                     UPDATE learned_patterns 
                     SET confidence = ?, usage_count = ?
                     WHERE id = ?
                 ''', (new_confidence, new_usage_count, pattern_id))
             else:
                 # Add new pattern
-                self.cursor.execute('''
+                conn.execute('''
                     INSERT INTO learned_patterns 
                     (user_id, pattern_type, pattern_data, confidence)
                     VALUES (?, ?, ?, ?)
                 ''', (user_id, pattern_type, pattern_json, confidence))
             
-            self.conn.commit()
+            conn.commit()
             
         except Exception as e:
             print(f"❌ Error learning pattern: {e}")
@@ -362,12 +359,11 @@ class MemorySystem:
     
     def get_memory_stats(self) -> Dict[str, Any]:
         """Get memory system statistics"""
-        if not self.conn:
-            return {}
-        
         try:
+            conn = self._get_connection()
+            
             # Get conversation stats
-            self.cursor.execute('''
+            cursor = conn.execute('''
                 SELECT 
                     COUNT(*) as total_interactions,
                     COUNT(DISTINCT session_id) as total_sessions,
@@ -376,15 +372,15 @@ class MemorySystem:
                 FROM conversation_history
             ''')
             
-            stats = self.cursor.fetchone()
+            stats = cursor.fetchone()
             
             # Get learning stats
-            self.cursor.execute('''
+            cursor = conn.execute('''
                 SELECT COUNT(*) as learned_patterns
                 FROM learned_patterns
             ''')
             
-            learned_count = self.cursor.fetchone()[0]
+            learned_count = cursor.fetchone()[0]
             
             return {
                 'total_interactions': stats[0],
@@ -397,6 +393,23 @@ class MemorySystem:
         except Exception as e:
             print(f"❌ Error getting memory stats: {e}")
             return {}
+    
+    def __del__(self):
+        """Cleanup when the object is destroyed"""
+        self._close_connection()
+
+# Global thread-safe memory system instance
+_memory_system = None
+_memory_lock = threading.Lock()
+
+def get_thread_safe_memory() -> MemorySystem:
+    """Get a thread-safe memory system instance"""
+    global _memory_system
+    if _memory_system is None:
+        with _memory_lock:
+            if _memory_system is None:
+                _memory_system = MemorySystem()
+    return _memory_system
 
 
 # Example usage and testing
