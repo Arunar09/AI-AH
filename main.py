@@ -25,10 +25,10 @@ if __name__ == "__main__":
     print("🔌 WebSocket: ws://localhost:8000/ws/connect")
     print("=" * 60)
     
-            uvicorn.run(
-                "ai_ah_platform.api.main:app",
-                host="0.0.0.0",
-                port=8000,
-                reload=True,
-                log_level="info"
-            )
+    uvicorn.run(
+        "ai_ah_platform.api.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )
