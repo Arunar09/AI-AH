@@ -11,12 +11,12 @@ import os
 from unittest.mock import Mock, AsyncMock
 from datetime import datetime
 
-from platform.core.base_platform import PlatformConfig
-from platform.agents.terraform_agent import TerraformAgent
-from platform.agents.ansible_agent import AnsibleAgent
-from platform.agents.kubernetes_agent import KubernetesAgent
-from platform.agents.security_agent import SecurityAgent
-from platform.agents.monitoring_agent import MonitoringAgent
+from ai_ah_platform.core.base_platform import PlatformConfig
+from ai_ah_platform.agents.terraform_agent import TerraformAgent
+from ai_ah_platform.agents.ansible_agent import AnsibleAgent
+from ai_ah_platform.agents.kubernetes_agent import KubernetesAgent
+from ai_ah_platform.agents.security_agent import SecurityAgent
+from ai_ah_platform.agents.monitoring_agent import MonitoringAgent
 
 
 @pytest.fixture(scope="session")

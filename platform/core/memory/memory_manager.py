@@ -16,7 +16,7 @@ import sqlite3
 import threading
 from collections import defaultdict
 
-from ..base_platform import BasePlatformComponent, PlatformConfig
+from ..base_platform import BasePlatformComponent, PlatformConfig, Task
 
 
 class MemoryType(Enum):

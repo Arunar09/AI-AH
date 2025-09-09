@@ -214,7 +214,6 @@ async def conversation(request: ConversationRequest):
             confidence=response.confidence,
             suggestions=response.suggestions,
             status="success",
-            message="Conversation processed successfully",
             timestamp=datetime.now()
         )
     except Exception as e:
@@ -277,7 +276,6 @@ async def get_agent_status(agent_type: str):
             last_activity=datetime.now(),
             active_tasks=len(agent.tasks),
             total_tasks=len(agent.tasks),
-            status="success",
             message="Agent status retrieved successfully"
         )
     except Exception as e:
@@ -303,7 +301,6 @@ async def get_agent_capabilities(agent_type: str):
             version=agent.config.version,
             status=agent.status.value,
             last_updated=datetime.now(),
-            status="success",
             message="Agent capabilities retrieved successfully"
         )
     except Exception as e:
@@ -322,7 +319,6 @@ async def get_agent_health(agent_type: str):
             status=health["status"],
             metrics=health,
             last_activity=datetime.now(),
-            status="success",
             message="Agent health check completed"
         )
     except Exception as e:

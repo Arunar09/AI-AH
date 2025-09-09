@@ -82,7 +82,6 @@ async def get_platform_status(request: StatusRequest = Depends()):
             last_activity=datetime.now(),
             active_tasks=0,  # Would be calculated from active tasks
             total_tasks=0,   # Would be calculated from total tasks
-            status="success",
             message="Platform status retrieved successfully"
         )
     except Exception as e:

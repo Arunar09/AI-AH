@@ -11,11 +11,11 @@ import os
 from pathlib import Path
 
 # Add platform to Python path
-platform_path = Path(__file__).parent / "platform"
+platform_path = Path(__file__).parent / "ai_ah_platform"
 sys.path.insert(0, str(platform_path))
 
 # Import and run the platform
-from platform.api.main import app
+from ai_ah_platform.api.main import app
 
 if __name__ == "__main__":
     import uvicorn
@@ -25,10 +25,10 @@ if __name__ == "__main__":
     print("🔌 WebSocket: ws://localhost:8000/ws/connect")
     print("=" * 60)
     
-    uvicorn.run(
-        "platform.api.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+            uvicorn.run(
+                "ai_ah_platform.api.main:app",
+                host="0.0.0.0",
+                port=8000,
+                reload=True,
+                log_level="info"
+            )

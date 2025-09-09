@@ -10,10 +10,10 @@ import asyncio
 from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timedelta
 
-from platform.core.base_platform import BasePlatform, PlatformConfig, Task, Priority, PlatformStatus
-from platform.core.agent_framework import BaseAgent, ConversationManager, MemoryManager, ToolRegistry
-from platform.core.nlp.natural_language_processor import NaturalLanguageProcessor
-from platform.core.memory.memory_manager import MemoryManager as CoreMemoryManager
+from ai_ah_platform.core.base_platform import BasePlatformComponent, PlatformConfig, Task, Priority, ComponentStatus, PlatformOrchestrator
+from ai_ah_platform.core.agent_framework import BaseAgent, ConversationManager, MemoryManager, ToolRegistry
+from ai_ah_platform.core.nlp.natural_language_processor import NaturalLanguageProcessor
+from ai_ah_platform.core.memory.memory_manager import MemoryManager as CoreMemoryManager
 
 
 class TestPlatformConfig:

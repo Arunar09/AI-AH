@@ -12,7 +12,7 @@ import re
 import json
 from enum import Enum
 
-from ..base_platform import BasePlatformComponent, PlatformConfig
+from ..base_platform import BasePlatformComponent, PlatformConfig, Task
 
 
 class IntentType(Enum):
