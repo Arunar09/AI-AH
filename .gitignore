@@ -47,6 +47,58 @@ workspace/
 ai_ah.log
 base_agent.db
 
+# Platform specific
+platform/data/
+platform/logs/
+platform/cache/
+platform/temp/
+
+# Agent data
+agents/data/
+agents/logs/
+agents/cache/
+
+# Tool data
+tools/data/
+tools/logs/
+tools/cache/
+
+# API data
+api/logs/
+api/cache/
+
+# UI data
+ui/logs/
+ui/cache/
+ui/build/
+ui/dist/
+
+# Config overrides
+config/local/
+config/secrets/
+config/*.local.*
+
+# Docker data
+docker/data/
+docker/logs/
+
+# Kubernetes data
+k8s/data/
+k8s/logs/
+
+# Scripts data
+scripts/data/
+scripts/logs/
+
+# Documentation build
+docs/build/
+docs/site/
+
+# Test data
+tests/data/
+tests/logs/
+tests/cache/
+
 # Terraform
 .terraform/
 *.tfstate
