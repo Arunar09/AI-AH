@@ -1,39 +1,42 @@
-# 🚀 AI-AH Terraform Engineer Agent
+# 🤖 AI-AH Multi-Agent Infrastructure Intelligence Platform
 
-## 🧹 Cleanup and Maintenance
+A comprehensive platform for intelligent infrastructure management using specialized AI agents.
 
-### Cleaning Up Temporary Files
-```powershell
-# Run the cleanup script
-.\cleanup.ps1
-```
+## 🚀 Quick Start
 
-### Git Workflow
+### Start the Platform
 ```bash
-# Stage all changes
-git add .
-
-# Commit with a descriptive message
-git commit -m "chore: clean up project files and update documentation"
-
-# Push changes to remote
-git push
+python main.py
 ```
 
-## Project Structure
+### Access the Platform
+- **API Documentation**: http://localhost:8000/docs
+- **Web Interface**: http://localhost:8000
+- **WebSocket**: ws://localhost:8000/ws/connect
+
+### Run Tests
+```bash
+python tests/run_tests.py --all
+```
+
+## 🏗️ Platform Architecture
+
 ```
 AI-AH/
-├── agent/                  # Agent implementations
-│   ├── terraform_agent.py  # Terraform agent
-│   ├── ansible_agent.py    # Ansible agent
-│   └── base_agent.py       # Base agent class
-├── api/                    # FastAPI routes and schemas
-├── core/                   # Core functionality
-├── workspace/              # Workspace directories (gitignored)
-├── tests/                  # Test files
-├── local-dev/              # Local development configs
-├── requirements.txt        # Project dependencies
-├── cleanup.ps1            # Cleanup script
+├── platform/               # Core platform implementation
+│   ├── core/              # Base framework and utilities
+│   ├── agents/            # Specialized AI agents
+│   ├── api/               # FastAPI REST API
+│   ├── ui/                # User interfaces (web, CLI, mobile)
+│   └── tools/             # Tool integrations
+├── tests/                 # Comprehensive test suite
+├── docs/                  # Documentation
+├── config/                # Configuration files
+├── docker/                # Docker configurations
+├── k8s/                   # Kubernetes manifests
+├── local-dev/             # Local development setup
+├── scripts/               # Utility scripts
+├── requirements.txt       # Project dependencies
 └── README.md              # This file
 ```
 

@@ -1,63 +1,34 @@
-import uvicorn
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-import logging
+#!/usr/bin/env python3
+"""
+AI-AH Multi-Agent Infrastructure Intelligence Platform - Main Entry Point
+
+This is the main entry point for the AI-AH platform. It provides a simple
+way to start the platform with the new unified architecture.
+"""
+
+import sys
+import os
 from pathlib import Path
 
-# Set up logging
-logging.basicConfig(
-    level=logging.DEBUG,  # More verbose logging
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("ai_ah.log", encoding='utf-8')
-    ]
-)
+# Add platform to Python path
+platform_path = Path(__file__).parent / "platform"
+sys.path.insert(0, str(platform_path))
 
-# Set log level for uvicorn and fastapi
-logging.getLogger("uvicorn").setLevel(logging.DEBUG)
-logging.getLogger("uvicorn.access").setLevel(logging.DEBUG)
-logging.getLogger("fastapi").setLevel(logging.DEBUG)
-
-# Create workspace directory
-workspace_dir = Path("./workspace")
-workspace_dir.mkdir(exist_ok=True)
-
-# Create FastAPI app
-app = FastAPI(
-    title="AI-AH API",
-    description="Agentic AI for Infrastructure Management",
-    version="0.1.0"
-)
-
-# Configure CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include API routes
-from api.routes import router as api_router
-app.include_router(api_router, prefix="/api")
-
-@app.get("/")
-async def root():
-    return {
-        "status": "AI-AH is running",
-        "version": "0.1.0",
-        "docs": "/docs"
-    }
-
-@app.on_event("startup")
-async def startup_event():
-    logging.info("Starting AI-AH server...")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    logging.info("Shutting down AI-AH server...")
+# Import and run the platform
+from platform.api.main import app
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    import uvicorn
+    print("🚀 Starting AI-AH Multi-Agent Infrastructure Intelligence Platform...")
+    print("📖 API Documentation: http://localhost:8000/docs")
+    print("🌐 Web Interface: http://localhost:8000")
+    print("🔌 WebSocket: ws://localhost:8000/ws/connect")
+    print("=" * 60)
+    
+    uvicorn.run(
+        "platform.api.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )
