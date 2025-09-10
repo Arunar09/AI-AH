@@ -562,3 +562,4 @@ class LocalKnowledgeBase:
         ), reverse=True)
         
         return results[:10]  # Return top 10 results
+

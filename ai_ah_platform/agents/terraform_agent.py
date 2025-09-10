@@ -218,13 +218,16 @@ class TerraformAgent(IntelligentAgent):
                 # Fallback to original parsing for low confidence
                 parsed_request = await self._parse_terraform_request(request)
                 
-                if parsed_request.intent.type == IntentType.CREATE_INFRASTRUCTURE:
+                # Fix: Handle intent as dictionary
+                intent_type = parsed_request.intent.get("type") if isinstance(parsed_request.intent, dict) else parsed_request.intent.type
+                
+                if intent_type == IntentType.CREATE_INFRASTRUCTURE:
                     return await self._handle_create_infrastructure(parsed_request, context)
-                elif parsed_request.intent.type == IntentType.MODIFY_INFRASTRUCTURE:
+                elif intent_type == IntentType.MODIFY_INFRASTRUCTURE:
                     return await self._handle_modify_infrastructure(parsed_request, context)
-                elif parsed_request.intent.type == IntentType.DELETE_INFRASTRUCTURE:
+                elif intent_type == IntentType.DELETE_INFRASTRUCTURE:
                     return await self._handle_delete_infrastructure(parsed_request, context)
-                elif parsed_request.intent.type == IntentType.GET_STATUS:
+                elif intent_type == IntentType.GET_STATUS:
                     return await self._handle_get_status(parsed_request, context)
                 else:
                     return AgentResponse(

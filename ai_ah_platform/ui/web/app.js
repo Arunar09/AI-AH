@@ -225,18 +225,33 @@ class AIAHPlatform {
     }
 
     handleWebSocketMessage(data) {
-        switch (data.message_type) {
-            case 'agent_update':
-                this.handleAgentUpdate(data.data);
-                break;
-            case 'task_update':
-                this.handleTaskUpdate(data.data);
-                break;
-            case 'notification':
-                this.showNotification(data.data.notification.message, 'info');
-                break;
-            default:
-                console.log('Unknown WebSocket message:', data);
+        // Fix: Handle the actual WebSocket message structure
+        if (data.message_type) {
+            switch (data.message_type) {
+                case 'agent_update':
+                    this.handleAgentUpdate(data.data);
+                    break;
+                case 'task_update':
+                    this.handleTaskUpdate(data.data);
+                    break;
+                case 'notification':
+                    this.showNotification(data.data.notification.message, 'info');
+                    break;
+                case 'welcome':
+                    console.log('WebSocket welcome:', data.data);
+                    break;
+                case 'pong':
+                    console.log('WebSocket pong received');
+                    break;
+                case 'error':
+                    console.error('WebSocket error:', data.data.error);
+                    this.showNotification('WebSocket error: ' + data.data.error, 'error');
+                    break;
+                default:
+                    console.log('Unknown WebSocket message:', data);
+            }
+        } else {
+            console.log('Unknown WebSocket message format:', data);
         }
     }
 
@@ -256,10 +271,12 @@ class AIAHPlatform {
         try {
             // Load platform status
             const status = await this.apiCall('/platform/status');
-            this.updateDashboardStats(status.data);
+            // Fix: Access the correct response structure - metrics is at root level
+            this.updateDashboardStats(status.metrics);
 
             // Load agent statuses
             const agents = await this.apiCall('/agents/');
+            // Fix: Access the correct response structure
             this.updateAgentStatuses(agents.data.agents);
 
         } catch (error) {
@@ -268,8 +285,8 @@ class AIAHPlatform {
     }
 
     updateDashboardStats(status) {
-        // Update dashboard statistics
-        document.getElementById('activeAgents').textContent = status.agents_count || 0;
+        // Fix: Access the correct properties from the API response
+        document.getElementById('activeAgents').textContent = status.agent_statuses ? Object.keys(status.agent_statuses).length : 0;
         document.getElementById('runningTasks').textContent = status.active_tasks || 0;
         document.getElementById('alerts').textContent = status.alerts || 0;
         document.getElementById('successRate').textContent = (status.success_rate || 98.5) + '%';
@@ -519,7 +536,9 @@ class AIAHPlatform {
                 session_id: this.getSessionId()
             });
             
-            this.addChatMessage(response.response, 'assistant');
+            // Fix: Access the correct response structure
+            const responseText = response.data?.content || response.data?.response || response.response || 'No response received';
+            this.addChatMessage(responseText, 'assistant');
         } catch (error) {
             this.addChatMessage('Sorry, I encountered an error: ' + error.message, 'assistant');
         }
