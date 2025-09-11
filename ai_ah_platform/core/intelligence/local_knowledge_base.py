@@ -13,6 +13,22 @@ from dataclasses import dataclass
 from datetime import datetime
 import logging
 
+# Import conversation context system
+try:
+    from .conversation_context import ConversationContextManager
+    CONTEXT_AVAILABLE = True
+except ImportError:
+    CONTEXT_AVAILABLE = False
+    ConversationContextManager = None
+
+# Import adaptive learning system
+try:
+    from .adaptive_learning import AdaptiveLearningEngine
+    LEARNING_AVAILABLE = True
+except ImportError:
+    LEARNING_AVAILABLE = False
+    AdaptiveLearningEngine = None
+
 # Optional imports for enhanced components
 try:
     from ..search.vector_search import VectorSearchEngine
@@ -61,18 +77,24 @@ class LocalKnowledgeBase:
     4. Rule-based decision making
     """
     
-    def __init__(self, vector_search_engine: Optional[Any] = None, 
+    def __init__(self, vector_search_engine: Optional[Any] = None,
                  nlp_processor: Optional[Any] = None):
         self.knowledge_entries: Dict[str, KnowledgeEntry] = {}
         self.infrastructure_patterns: List[InfrastructurePattern] = []
         self.templates: Dict[str, Dict[str, Any]] = {}
         self.best_practices: Dict[str, List[str]] = {}
         self.scenarios: Dict[str, Dict[str, Any]] = {}
-        
+
         # Enhanced components (only if available)
         self.vector_search_engine = vector_search_engine if ENHANCED_COMPONENTS_AVAILABLE else None
         self.nlp_processor = nlp_processor if ENHANCED_COMPONENTS_AVAILABLE else None
         
+        # Conversation context system
+        self.context_manager = ConversationContextManager() if CONTEXT_AVAILABLE else None
+        
+        # Adaptive learning system
+        self.learning_engine = AdaptiveLearningEngine() if LEARNING_AVAILABLE else None
+
         self._initialize_knowledge_base()
         self._initialize_patterns()
         self._initialize_templates()
@@ -828,17 +850,25 @@ class LocalKnowledgeBase:
             }
         }
     
-    def analyze_request(self, user_input: str) -> Dict[str, Any]:
+    def analyze_request(self, user_input: str, user_id: str = "default", 
+                       context: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Analyze user input and determine the best response with enhanced keyword analysis.
+        Analyze user input and determine the best response with enhanced keyword analysis and context awareness.
         
         Args:
             user_input: User's natural language input
+            user_id: User identifier for context tracking
+            context: Additional context information
             
         Returns:
             Dictionary with analysis results, recommendations, and actions
         """
         user_input_lower = user_input.lower()
+        
+        # Get conversation context if available
+        conversation_context = None
+        if self.context_manager:
+            conversation_context = self.context_manager.get_conversation_context(user_id)
         
         # Check for error cases first
         error_response = self._handle_error_cases(user_input)
@@ -889,8 +919,8 @@ class LocalKnowledgeBase:
         
         best_match = matched_patterns[0]
         
-        # Enhanced reasoning based on keywords
-        reasoning = self._generate_reasoning(keywords, best_match, user_input)
+        # Enhanced reasoning based on keywords and context
+        reasoning = self._generate_reasoning(keywords, best_match, user_input, conversation_context)
         
         # Get relevant knowledge entries
         relevant_knowledge = self._get_relevant_knowledge(best_match.agent_type, user_input)
@@ -901,7 +931,8 @@ class LocalKnowledgeBase:
         # Generate recommendations
         recommendations = self._generate_recommendations(best_match, user_input)
         
-        return {
+        # Create response with context awareness
+        response_data = {
             "intent": best_match.action,
             "agent_type": best_match.agent_type,
             "confidence": best_match.confidence,
@@ -912,8 +943,49 @@ class LocalKnowledgeBase:
             "best_practices": best_practices,
             "recommendations": recommendations,
             "templates": self._get_relevant_templates(best_match.agent_type),
-            "scenarios": self._get_relevant_scenarios(user_input)
+            "scenarios": self._get_relevant_scenarios(user_input),
+            "conversation_context": conversation_context
         }
+        
+        # Store conversation turn for context learning
+        if self.context_manager:
+            self.context_manager.add_conversation_turn(
+                user_id=user_id,
+                query=user_input,
+                response="",  # Will be filled by the agent
+                intent=best_match.action,
+                confidence=best_match.confidence,
+                technology_focus=best_match.parameters.get("technology")
+            )
+        
+        return response_data
+    
+    def process_response_with_learning(self, user_id: str, query: str, response: str, 
+                                     analysis: Dict[str, Any], user_feedback: Optional[Dict[str, Any]] = None) -> str:
+        """Process response with adaptive learning and context awareness."""
+        # Learn from the interaction
+        if self.learning_engine:
+            self.learning_engine.learn_from_interaction(
+                user_id=user_id,
+                query=query,
+                response=response,
+                intent=analysis.get("intent", "unknown"),
+                confidence=analysis.get("confidence", 0.5),
+                user_feedback=user_feedback
+            )
+        
+        # Get adaptive response
+        if self.learning_engine:
+            adapted_response = self.learning_engine.get_adaptive_response(user_id, query, response)
+        else:
+            adapted_response = response
+        
+        # Apply context-aware adaptation
+        if self.context_manager:
+            context = analysis.get("conversation_context", {})
+            adapted_response = self.context_manager.adapt_response_to_context(adapted_response, context, user_id)
+        
+        return adapted_response
     
     def _calculate_semantic_similarity(self, query: str, pattern: str) -> float:
         """Calculate semantic similarity between query and pattern."""
@@ -1780,7 +1852,8 @@ class LocalKnowledgeBase:
         
         return matches
     
-    def _generate_reasoning(self, keywords: Dict[str, List[str]], best_match: InfrastructurePattern, user_input: str) -> List[str]:
+    def _generate_reasoning(self, keywords: Dict[str, List[str]], best_match: InfrastructurePattern, 
+                          user_input: str, conversation_context: Dict[str, Any] = None) -> List[str]:
         """Generate advanced reasoning based on comprehensive keyword analysis and context."""
         reasoning = []
         
@@ -1885,6 +1958,16 @@ class LocalKnowledgeBase:
             if compliance_frameworks:
                 reasoning.append(f"Compliance requirements: {', '.join(compliance_frameworks).upper()}")
                 reasoning.append("Implementing audit logging, data protection, and governance controls")
+        
+        # Context-aware reasoning
+        if conversation_context and conversation_context.get("has_context"):
+            recent_topics = conversation_context.get("recent_topics", [])
+            if recent_topics:
+                reasoning.append(f"Building on previous discussion about {', '.join(recent_topics[-2:])}")
+            
+            context_pattern = conversation_context.get("context_pattern")
+            if context_pattern and context_pattern != "general_infrastructure":
+                reasoning.append(f"Following {context_pattern.replace('_', ' ')} pattern from conversation history")
         
         # Query-specific reasoning
         user_input_lower = user_input.lower()
