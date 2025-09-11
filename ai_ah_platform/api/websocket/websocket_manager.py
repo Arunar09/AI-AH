@@ -159,19 +159,23 @@ class WebSocketManager:
                 except WebSocketDisconnect:
                     break
                 except Exception as e:
+                    error_str = str(e)
                     # Check if the error is due to disconnected WebSocket
-                    if "WebSocket is not connected" in str(e) or "Need to call" in str(e):
-                        self.logger.warning(f"WebSocket {connection_id} disconnected, removing from active connections")
+                    if ("WebSocket is not connected" in error_str or 
+                        "Need to call" in error_str or
+                        "Connection is closed" in error_str or
+                        "Connection lost" in error_str):
+                        # Don't log as error, just disconnect silently
                         self.connection_manager.disconnect(connection_id)
                         break
                     else:
-                        self.logger.error(f"Error handling message from {connection_id}: {str(e)}")
+                        self.logger.error(f"Error handling message from {connection_id}: {error_str}")
                         # Only try to send error message if connection is still active
                         if connection_id in self.connection_manager.active_connections:
                             error_message = WebSocketResponse(
                                 message_type="error",
                                 data={
-                                    "error": str(e),
+                                    "error": error_str,
                                     "timestamp": datetime.now().isoformat()
                                 }
                             )
