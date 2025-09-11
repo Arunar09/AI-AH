@@ -80,11 +80,47 @@ class TerraformAgent(IntelligentAgent):
         self.workspace_path = workspace_path or tempfile.mkdtemp(prefix="terraform_agent_")
         self.plans: Dict[str, TerraformPlan] = {}
         self.executions: Dict[str, TerraformExecution] = {}
+        self.conversation_memory = {}  # Store conversation context per session
+        self.response_variants = {
+            "greeting": [
+                "Hello! 👋 I'm your AI infrastructure assistant. How can I help you today?",
+                "Hi there! 🚀 Ready to build some infrastructure? What can I help you with?",
+                "Greetings! 💻 I'm here to assist with your infrastructure needs. What's on your mind?",
+                "Hello! 🏗️ Let's design some amazing infrastructure together. What do you need?"
+            ],
+            "capabilities": [
+                "I'm trained to support you with cloud architecture, DevOps, and infrastructure management.",
+                "I specialize in infrastructure automation, security, and optimization.",
+                "I can help you with everything from basic setups to complex cloud architectures.",
+                "I'm your go-to expert for infrastructure design, deployment, and management."
+            ]
+        }
         self.resource_templates: Dict[str, Dict[str, Any]] = {}
         self.provider_configs: Dict[str, Dict[str, Any]] = {}
         
         # Initialize local knowledge base for intelligent responses
         self.knowledge_base = LocalKnowledgeBase()
+    
+    def _get_conversation_context(self, session_id: str) -> Dict[str, Any]:
+        """Get conversation context for a session"""
+        if session_id not in self.conversation_memory:
+            self.conversation_memory[session_id] = {
+                "message_count": 0,
+                "last_intent": None,
+                "repeated_intents": 0,
+                "conversation_history": []
+            }
+        return self.conversation_memory[session_id]
+    
+    def _get_varied_response(self, response_type: str, context: Dict[str, Any]) -> str:
+        """Get a varied response based on conversation context"""
+        variants = self.response_variants.get(response_type, [])
+        if not variants:
+            return ""
+        
+        # Use message count to cycle through variants
+        variant_index = context["message_count"] % len(variants)
+        return variants[variant_index]
         
         # Terraform-specific capabilities
         self.capabilities = [
@@ -208,12 +244,26 @@ class TerraformAgent(IntelligentAgent):
     async def process_request(self, request: str, context: Dict[str, Any] = None) -> AgentResponse:
         """Process a Terraform-related request using local intelligence."""
         try:
+            # Get session context for conversation memory
+            session_id = context.get("session_id", "default") if context else "default"
+            conv_context = self._get_conversation_context(session_id)
+            conv_context["message_count"] += 1
+            conv_context["conversation_history"].append(request)
+            
             # Use knowledge base to analyze the request
             analysis = self.knowledge_base.analyze_request(request)
             
+            # Check for repeated intents
+            current_intent = analysis.get("intent")
+            if current_intent == conv_context["last_intent"]:
+                conv_context["repeated_intents"] += 1
+            else:
+                conv_context["repeated_intents"] = 0
+            conv_context["last_intent"] = current_intent
+            
             # Generate intelligent response based on analysis
-            if analysis["confidence"] > 0.7:
-                return await self._generate_intelligent_response(analysis, request, context)
+            if analysis["confidence"] > 0.4:  # Lower threshold to use intelligent responses more often
+                return await self._generate_intelligent_response(analysis, request, context, conv_context)
             else:
                 # Fallback to original parsing for low confidence
                 parsed_request = await self._parse_terraform_request(request)
@@ -247,48 +297,376 @@ class TerraformAgent(IntelligentAgent):
                 metadata={"error": str(e)}
             )
     
-    async def _generate_intelligent_response(self, analysis: Dict[str, Any], request: str, context: Dict[str, Any] = None) -> AgentResponse:
-        """Generate intelligent response using knowledge base analysis."""
+    async def _generate_intelligent_response(self, analysis: Dict[str, Any], request: str, context: Dict[str, Any] = None, conv_context: Dict[str, Any] = None) -> AgentResponse:
+        """Generate professional infrastructure assistant response using knowledge base analysis."""
         try:
-            # Build comprehensive response content
+            # Build structured response content following professional guidelines
             content_parts = []
             
-            # Add main response
+            # Brief summary of user's request
+            intent_type = analysis.get("intent", "general_infrastructure")
+            if intent_type == "greeting":
+                # Handle repeated greetings with different responses
+                if conv_context and conv_context["repeated_intents"] > 0:
+                    content_parts.append("## I'm still here! 😊")
+                    content_parts.append("I see you're saying hello again. Is there something specific you'd like to work on?")
+                    content_parts.append("\n## **Quick Actions**")
+                    content_parts.append("• 'list me terraform' - See Terraform capabilities")
+                    content_parts.append("• 'create a web server' - Get infrastructure examples")
+                    content_parts.append("• 'help me optimize costs' - Cost optimization guidance")
+                    content_parts.append("• 'what else' - See more options")
+                else:
+                    # First greeting - use varied response
+                    greeting_text = self._get_varied_response("greeting", conv_context) if conv_context else "Hello! 👋 I'm your AI infrastructure assistant. How can I help you today?"
+                    content_parts.append(f"## {greeting_text}")
+                    content_parts.append("\n## **What I Can Help You With**")
+                    content_parts.append("• **Infrastructure Setup**: Web servers, databases, load balancers")
+                    content_parts.append("• **Security & Compliance**: Hardening, vulnerability scanning, IAM policies")
+                    content_parts.append("• **Monitoring & Observability**: Prometheus, Grafana, ELK stack")
+                    content_parts.append("• **Cost Optimization**: Rightsizing, reserved instances, auto-scaling")
+                    content_parts.append("\n## **Quick Start**")
+                    content_parts.append("• Ask me about specific technologies (e.g., 'list me terraform')")
+                    content_parts.append("• Request infrastructure examples (e.g., 'create a web server')")
+                    content_parts.append("• Get help with optimization (e.g., 'help me optimize costs')")
+                    content_parts.append("\n## **What would you like to work on today?**")
+                
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.9,
+                    metadata={"intent": intent_type, "format": "professional", "conversation_context": conv_context}
+                )
+            elif intent_type == "explain_technology":
+                # Handle technology explanation requests
+                technology = analysis.get("parameters", {}).get("technology", "unknown")
+                knowledge_entries = analysis.get("knowledge", [])
+                
+                if knowledge_entries:
+                    # Use the comprehensive knowledge from our enhanced knowledge base
+                    entry = knowledge_entries[0]  # Get the most relevant entry
+                    content_parts.append(f"## {entry.title}")
+                    content_parts.append(f"{entry.content}")
+                    
+                    # Add best practices if available
+                    best_practices = analysis.get("best_practices", [])
+                    if best_practices:
+                        content_parts.append("\n## **Best Practices**")
+                        for practice in best_practices[:5]:  # Show top 5
+                            content_parts.append(f"• {practice}")
+                    
+                    # Add recommendations if available
+                    recommendations = analysis.get("recommendations", [])
+                    if recommendations:
+                        content_parts.append("\n## **Recommendations**")
+                        for rec in recommendations[:3]:  # Show top 3
+                            content_parts.append(f"• {rec}")
+                else:
+                    # Fallback if no knowledge found
+                    content_parts.append(f"## {technology.upper()} Overview")
+                    content_parts.append(f"I'd be happy to explain {technology} in detail!")
+                    content_parts.append("Let me provide you with comprehensive information about this technology.")
+                
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=analysis.get("confidence", 0.8),
+                    metadata={"intent": intent_type, "technology": technology, "format": "comprehensive"}
+                )
+            elif intent_type == "list_terraform":
+                content_parts.append("## Terraform Infrastructure Management")
+                content_parts.append("I'll provide you with Terraform capabilities and examples.")
+                content_parts.append("\n## **Terraform Capabilities**")
+                content_parts.append("• **Infrastructure as Code**: Define and manage cloud resources")
+                content_parts.append("• **Multi-Cloud Support**: AWS, Azure, GCP, and 100+ providers")
+                content_parts.append("• **State Management**: Track and manage infrastructure changes")
+                content_parts.append("• **Plan & Apply**: Preview changes before execution")
+                content_parts.append("\n## **Common Terraform Operations**")
+                content_parts.append("• **Web Servers**: EC2 instances, load balancers, auto-scaling")
+                content_parts.append("• **Databases**: RDS, managed databases, backup strategies")
+                content_parts.append("• **Networking**: VPCs, subnets, security groups, routes")
+                content_parts.append("• **Storage**: S3 buckets, EBS volumes, file systems")
+                content_parts.append("\n## **Implementation Examples**")
+                content_parts.append("### Basic Web Server")
+                content_parts.append("```hcl")
+                content_parts.append("resource \"aws_instance\" \"web_server\" {")
+                content_parts.append("  ami           = \"ami-0c02fb55956c7d316\"")
+                content_parts.append("  instance_type = \"t3.micro\"")
+                content_parts.append("  security_groups = [aws_security_group.web_sg.name]")
+                content_parts.append("}")
+                content_parts.append("```")
+                content_parts.append("\n## **Next Steps**")
+                content_parts.append("• Specify your infrastructure requirements")
+                content_parts.append("• Choose your cloud provider (AWS, Azure, GCP)")
+                content_parts.append("• Define your resource needs and constraints")
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.9,
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+            elif intent_type == "show_more_options":
+                content_parts.append("## Additional Infrastructure Capabilities")
+                content_parts.append("Here are additional capabilities and options I can help you with:")
+                content_parts.append("\n## **Advanced Infrastructure**")
+                content_parts.append("• **Microservices**: Service mesh, API gateways, container orchestration")
+                content_parts.append("• **Serverless**: AWS Lambda, Azure Functions, Google Cloud Functions")
+                content_parts.append("• **Edge Computing**: CDN, edge locations, distributed processing")
+                content_parts.append("\n## **DevOps Automation**")
+                content_parts.append("• **CI/CD Pipelines**: Jenkins, GitLab CI, GitHub Actions")
+                content_parts.append("• **Deployment Strategies**: Blue-green, canary, rolling deployments")
+                content_parts.append("• **Testing**: Infrastructure testing, security scanning, performance testing")
+                content_parts.append("\n## **Cloud Migration & Optimization**")
+                content_parts.append("• **Migration Strategies**: Lift-and-shift, refactoring, hybrid cloud")
+                content_parts.append("• **Disaster Recovery**: Backup strategies, failover, business continuity")
+                content_parts.append("• **Performance Tuning**: Optimization, scaling, load testing")
+                content_parts.append("\n## **Next Steps**")
+                content_parts.append("• Ask about specific technologies or use cases")
+                content_parts.append("• Request detailed implementation examples")
+                content_parts.append("• Get help with your specific infrastructure challenges")
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.9,
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+            elif intent_type == "explain_behavior":
+                content_parts.append("## Understanding My Responses")
+                content_parts.append("I understand your concern about repetitive responses. Let me explain:")
+                content_parts.append("\n## **My Approach**")
+                content_parts.append("• I provide consistent, professional infrastructure guidance")
+                content_parts.append("• Each response is tailored to your specific query and context")
+                content_parts.append("• I can provide more detailed, specific information if you ask targeted questions")
+                content_parts.append("• Try asking about specific technologies, use cases, or implementation details")
+                content_parts.append("\n## **For More Specific Responses**")
+                content_parts.append("• 'Show me terraform examples for AWS'")
+                content_parts.append("• 'How do I set up monitoring with Prometheus?'")
+                content_parts.append("• 'What's the best way to secure my Kubernetes cluster?'")
+                content_parts.append("• 'Compare different database options for my application'")
+                content_parts.append("• 'Help me design a microservices architecture'")
+                content_parts.append("\n## **Next Steps**")
+                content_parts.append("• Ask specific questions about your infrastructure needs")
+                content_parts.append("• Request code examples and implementation details")
+                content_parts.append("• Get help with your particular use case or technology stack")
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.9,
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+            elif intent_type == "explain_agent_functionality":
+                content_parts.append("## 🤖 How I Work - AI Infrastructure Assistant")
+                content_parts.append("")
+                content_parts.append("## **My Intelligence System**")
+                content_parts.append("• **Natural Language Processing**: I analyze your queries using keyword extraction and pattern matching")
+                content_parts.append("• **Local Knowledge Base**: I have a comprehensive database of infrastructure patterns, best practices, and scenarios")
+                content_parts.append("• **Context-Aware Responses**: I remember our conversation and provide contextual, non-repetitive responses")
+                content_parts.append("• **Multi-Agent Architecture**: I can route requests to specialized agents (Terraform, Ansible, Kubernetes, Security, Monitoring)")
+                content_parts.append("")
+                content_parts.append("## **My Capabilities**")
+                content_parts.append("• **Infrastructure Analysis**: I understand complex infrastructure requirements and provide detailed recommendations")
+                content_parts.append("• **Technology Expertise**: Deep knowledge of cloud platforms, DevOps tools, and infrastructure patterns")
+                content_parts.append("• **Cost Optimization**: I can analyze costs and suggest optimization strategies")
+                content_parts.append("• **Security & Compliance**: I provide security hardening and compliance guidance")
+                content_parts.append("")
+                content_parts.append("## **How to Get the Best Results**")
+                content_parts.append("• Ask specific questions about technologies or use cases")
+                content_parts.append("• Provide context about your infrastructure needs")
+                content_parts.append("• Ask follow-up questions for deeper insights")
+                content_parts.append("• Use clear, descriptive language about your requirements")
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.9,
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+            elif intent_type == "follow_up_question":
+                # Handle follow-up questions with specific recommendations
+                recommendations = analysis.get("recommendations", [])
+                if recommendations:
+                    content_parts.append("## Request Summary")
+                    content_parts.append(f"Analyzing your infrastructure request: {request}")
+                    content_parts.append("\n## **Setup & Architecture**")
+                    for rec in recommendations[:3]:  # Limit to top 3
+                        content_parts.append(f"• {rec}")
+                    content_parts.append("\n## **Best Practices**")
+                    content_parts.append("• Implement health checks and monitoring")
+                    content_parts.append("• Use multiple availability zones")
+                    content_parts.append("• Implement proper backup strategies")
+                    content_parts.append("\n## **Key Insights**")
+                    knowledge = analysis.get("knowledge", [])
+                    if knowledge:
+                        for k in knowledge[:2]:  # Limit to top 2
+                            title = getattr(k, 'title', 'Infrastructure Insight')
+                            content = getattr(k, 'content', '')
+                            content_parts.append(f"• {title}: {content[:100]}...")
+                    content_parts.append("\n## **Next Steps**")
+                    content_parts.append("• Review the recommended architecture")
+                    content_parts.append("• Implement security hardening measures")
+                    content_parts.append("• Set up monitoring and alerting")
+                    content_parts.append("• Plan for disaster recovery and backup")
+                else:
+                    content_parts.append("## Request Summary")
+                    content_parts.append(f"Analyzing your infrastructure request: {request}")
+                    content_parts.append("\n## **Setup & Architecture**")
+                    content_parts.append("• I'd be happy to provide more details! Could you please specify:")
+                    content_parts.append("•   • What specific aspect would you like me to explain further?")
+                    content_parts.append("•   • Are you looking for implementation details, best practices, or cost estimates?")
+                    content_parts.append("\n## **Best Practices**")
+                    content_parts.append("• Implement health checks and monitoring")
+                    content_parts.append("• Use multiple availability zones")
+                    content_parts.append("• Implement proper backup strategies")
+                    content_parts.append("\n## **Key Insights**")
+                    content_parts.append("• Web Server Infrastructure Basics: A web server infrastructure typically includes: 1) Load balancer for traffic distribution, 2) Web servers (Apache/Nginx) for serving content, 3) Application servers for business logic, 4) Database servers for data storage, 5) CDN for content delivery, 6) Security layers (firewalls, SSL certificates), 7) Monitoring and logging systems, 8) Backup and disaster recovery systems, 9) Auto-scaling capabilities, 10) Load balancing strategies")
+                    content_parts.append("• Server Security Hardening: Security hardening includes: 1) Regular security updates and patches, 2) Firewall configuration and network segmentation, 3) SSH key authentication and disable password login, 4) Disable unnecessary services and ports, 5) Implement fail2ban for intrusion prevention, 6) Regular security audits and vulnerability scanning, 7) User access control and privilege management, 8) File system permissions and ownership, 9) Log monitoring and analysis, 10) Incident response and backup strategies")
+                    content_parts.append("\n## **Next Steps**")
+                    content_parts.append("• Review the recommended architecture")
+                    content_parts.append("• Implement security hardening measures")
+                    content_parts.append("• Set up monitoring and alerting")
+                    content_parts.append("• Plan for disaster recovery and backup")
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.8,
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+            elif intent_type in ["show_capabilities", "general_help"]:
+                content_parts.append("## AI Infrastructure Assistant Capabilities")
+                content_parts.append("I'm trained to support you with cloud architecture, DevOps, and infrastructure management.")
+                content_parts.append("\n## **Core Capabilities**")
+                content_parts.append("• **Infrastructure Management**: Terraform, Ansible, Kubernetes")
+                content_parts.append("• **Security & Compliance**: Hardening, vulnerability scanning, IAM policies")
+                content_parts.append("• **Monitoring & Observability**: Prometheus, Grafana, ELK stack")
+                content_parts.append("• **Cost Optimization**: Rightsizing, reserved instances, auto-scaling")
+                content_parts.append("\n## **Next Steps**")
+                content_parts.append("• Specify your infrastructure requirements")
+                content_parts.append("• Choose your preferred cloud provider (AWS, Azure, GCP)")
+                content_parts.append("• Define your security and compliance needs")
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=0.9,
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+            else:
+                content_parts.append(f"## Request Summary")
+                content_parts.append(f"Analyzing your infrastructure request: {request[:100]}{'...' if len(request) > 100 else ''}")
+            
+            # Main recommendations with structured sections
             if analysis["recommendations"]:
-                content_parts.append("## Infrastructure Analysis\n")
-                content_parts.extend([f"• {rec}" for rec in analysis["recommendations"]])
+                content_parts.append("\n## **Setup & Architecture**")
+                # Limit to top 3 recommendations to avoid clutter
+                for rec in analysis["recommendations"][:3]:
+                    if rec.startswith("##"):
+                        content_parts.append(rec)  # Keep existing headers
+                    else:
+                        content_parts.append(f"• {rec}")
             
-            # Add knowledge insights
-            if analysis["knowledge"]:
-                content_parts.append("\n## Knowledge Insights\n")
-                for knowledge in analysis["knowledge"][:2]:  # Show top 2 insights
-                    content_parts.append(f"**{knowledge.title}**: {knowledge.content[:200]}...")
+            # Technical analysis and reasoning
+            if analysis.get("reasoning"):
+                content_parts.append("\n## **Technical Analysis**")
+                # Limit to top 2 reasoning points to avoid clutter
+                for reason in analysis["reasoning"][:2]:
+                    content_parts.append(f"• {reason}")
             
-            # Add best practices
+            # Security considerations
+            keywords = analysis.get("keywords", {})
+            security_keywords = keywords.get("security", []) if isinstance(keywords.get("security"), list) else []
+            if ("security" in str(analysis.get("intent", "")).lower() or 
+                any("security" in str(kw).lower() for kw in security_keywords)):
+                content_parts.append("\n## **Security**")
+                content_parts.append("• Implement IAM policies with least privilege access")
+                content_parts.append("• Enable encryption at rest and in transit")
+                content_parts.append("• Configure network security groups and firewalls")
+                content_parts.append("• Set up security monitoring and alerting")
+            
+            # Monitoring and observability
+            monitoring_keywords = keywords.get("monitoring", []) if isinstance(keywords.get("monitoring"), list) else []
+            if ("monitoring" in str(analysis.get("intent", "")).lower() or 
+                any("monitoring" in str(kw).lower() for kw in monitoring_keywords)):
+                content_parts.append("\n## **Monitoring**")
+                content_parts.append("• Deploy Prometheus for metrics collection")
+                content_parts.append("• Configure Grafana dashboards for visualization")
+                content_parts.append("• Set up log aggregation with ELK stack")
+                content_parts.append("• Implement health checks and alerting")
+            
+            # Cost optimization
+            cost_keywords = keywords.get("cost", []) if isinstance(keywords.get("cost"), list) else []
+            if ("cost" in str(analysis.get("intent", "")).lower() or 
+                any("cost" in str(kw).lower() for kw in cost_keywords)):
+                content_parts.append("\n## **Cost Optimization**")
+                content_parts.append("• Right-size instances based on actual usage")
+                content_parts.append("• Implement reserved instances for predictable workloads")
+                content_parts.append("• Use spot instances for flexible workloads")
+                content_parts.append("• Set up automated scaling policies")
+            
+            # Add technical examples and commands
+            if analysis.get("intent") in ["create_web_server", "create_database", "create_load_balancer"]:
+                content_parts.append("\n## **Implementation Examples**")
+                
+                if "web_server" in str(analysis.get("intent", "")):
+                    content_parts.append("### Terraform Configuration")
+                    content_parts.append("```hcl")
+                    content_parts.append("# Web server with load balancer")
+                    content_parts.append("resource \"aws_instance\" \"web_server\" {")
+                    content_parts.append("  ami           = \"ami-0c02fb55956c7d316\"")
+                    content_parts.append("  instance_type = \"t3.micro\"")
+                    content_parts.append("  security_groups = [aws_security_group.web_sg.name]")
+                    content_parts.append("  user_data = file(\"user_data.sh\")")
+                    content_parts.append("}")
+                    content_parts.append("```")
+                
+                if "database" in str(analysis.get("intent", "")):
+                    content_parts.append("### Database Setup")
+                    content_parts.append("```bash")
+                    content_parts.append("# Install and configure PostgreSQL")
+                    content_parts.append("sudo apt update")
+                    content_parts.append("sudo apt install postgresql postgresql-contrib")
+                    content_parts.append("sudo systemctl start postgresql")
+                    content_parts.append("sudo systemctl enable postgresql")
+                    content_parts.append("```")
+            
+            # Best practices
             if analysis["best_practices"]:
-                content_parts.append("\n## Best Practices\n")
-                content_parts.extend([f"• {practice}" for practice in analysis["best_practices"][:3]])
+                content_parts.append("\n## **Best Practices**")
+                for practice in analysis["best_practices"][:3]:
+                    content_parts.append(f"• {practice}")
             
-            # Add relevant templates
-            if analysis["templates"]:
-                content_parts.append("\n## Recommended Templates\n")
-                for template in analysis["templates"]:
-                    content_parts.append(f"• **{template['name']}**: {template['description']} (Cost: {template['estimated_cost']})")
+            # Knowledge insights (condensed)
+            if analysis["knowledge"]:
+                content_parts.append("\n## **Key Insights**")
+                for knowledge in analysis["knowledge"][:1]:  # Show top 1 insight
+                    content = knowledge.content
+                    if len(content) > 150:
+                        content = content[:150] + "..."
+                    content_parts.append(f"• **{knowledge.title}**: {content}")
             
-            # Add scenarios
-            if analysis["scenarios"]:
-                content_parts.append("\n## Similar Scenarios\n")
-                for scenario in analysis["scenarios"]:
-                    content_parts.append(f"• **{scenario['name']}**: {scenario['description']} (Cost: {scenario['estimated_cost']})")
-            
-            # Generate plan if it's a creation request
-            if analysis["intent"] in ["create_web_server", "create_database", "create_load_balancer"]:
-                plan = await self._generate_plan_from_analysis(analysis, request)
-                if plan:
-                    content_parts.append(f"\n## Generated Plan\n")
-                    content_parts.append(f"Plan ID: {plan.id}")
-                    content_parts.append(f"Resources: {len(plan.resources)}")
-                    content_parts.append(f"Status: {plan.status}")
+            # Next steps
+            content_parts.append("\n## **Next Steps**")
+            if analysis.get("intent") == "show_capabilities":
+                content_parts.append("• Specify your infrastructure requirements")
+                content_parts.append("• Choose your preferred cloud provider (AWS, Azure, GCP)")
+                content_parts.append("• Define your security and compliance needs")
+            else:
+                content_parts.append("• Review the recommended architecture")
+                content_parts.append("• Implement security hardening measures")
+                content_parts.append("• Set up monitoring and alerting")
+                content_parts.append("• Plan for disaster recovery and backup")
             
             content = "\n".join(content_parts)
             
@@ -301,7 +679,7 @@ class TerraformAgent(IntelligentAgent):
                     "intent": analysis["intent"],
                     "agent_type": analysis["agent_type"],
                     "knowledge_used": len(analysis["knowledge"]),
-                    "templates_suggested": len(analysis["templates"]),
+                    "templates_suggested": len(analysis.get("templates", [])),
                     "best_practices_included": len(analysis["best_practices"])
                 },
                 suggestions=[

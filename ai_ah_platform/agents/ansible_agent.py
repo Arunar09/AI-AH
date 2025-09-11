@@ -243,27 +243,48 @@ class AnsibleAgent(IntelligentAgent):
         }
     
     async def process_request(self, request: str, context: Dict[str, Any] = None) -> AgentResponse:
-        """Process an Ansible-related request."""
+        """Process an Ansible-related request using local intelligence."""
         try:
-            # Parse the request
-            parsed_request = await self._parse_ansible_request(request)
+            # Get session context for conversation memory
+            session_id = context.get("session_id", "default") if context else "default"
+            conv_context = self._get_conversation_context(session_id)
+            conv_context["message_count"] += 1
+            conv_context["conversation_history"].append(request)
             
-            # Generate response based on intent
-            if parsed_request.intent.type == IntentType.CREATE_INFRASTRUCTURE:
-                return await self._handle_deploy_application(parsed_request, context)
-            elif parsed_request.intent.type == IntentType.MODIFY_INFRASTRUCTURE:
-                return await self._handle_configure_system(parsed_request, context)
-            elif "security" in parsed_request.original_text.lower():
-                return await self._handle_security_harden(parsed_request, context)
-            elif "compliance" in parsed_request.original_text.lower():
-                return await self._handle_compliance_check(parsed_request, context)
+            # Use knowledge base to analyze the request
+            analysis = self.knowledge_base.analyze_request(request)
+            
+            # Check for repeated intents
+            current_intent = analysis.get("intent")
+            if current_intent == conv_context["last_intent"]:
+                conv_context["repeated_intents"] += 1
             else:
-                return AgentResponse(
-                    agent_id=self.config.name,
-                    response_type="text",
-                    content="I can help you with Ansible configuration management and deployment. What would you like to do?",
-                    confidence=0.8
-                )
+                conv_context["repeated_intents"] = 0
+            conv_context["last_intent"] = current_intent
+            
+            # Generate intelligent response based on analysis
+            if analysis["confidence"] > 0.4:  # Lower threshold to use intelligent responses more often
+                return await self._generate_intelligent_response(analysis, request, context, conv_context)
+            else:
+                # Fallback to original parsing for low confidence
+                parsed_request = await self._parse_ansible_request(request)
+                
+                # Generate response based on intent
+                if parsed_request.intent.type == IntentType.CREATE_INFRASTRUCTURE:
+                    return await self._handle_deploy_application(parsed_request, context)
+                elif parsed_request.intent.type == IntentType.MODIFY_INFRASTRUCTURE:
+                    return await self._handle_configure_system(parsed_request, context)
+                elif "security" in parsed_request.original_text.lower():
+                    return await self._handle_security_harden(parsed_request, context)
+                elif "compliance" in parsed_request.original_text.lower():
+                    return await self._handle_compliance_check(parsed_request, context)
+                else:
+                    return AgentResponse(
+                        agent_id=self.config.name,
+                        response_type="text",
+                        content="I can help you with Ansible configuration management and deployment. What would you like to do?",
+                        confidence=0.8
+                    )
                 
         except Exception as e:
             self.logger.error(f"Error processing Ansible request: {str(e)}")
@@ -271,6 +292,76 @@ class AnsibleAgent(IntelligentAgent):
                 agent_id=self.config.name,
                 response_type="error",
                 content=f"I encountered an error: {str(e)}",
+                confidence=0.0,
+                metadata={"error": str(e)}
+            )
+    
+    async def _generate_intelligent_response(self, analysis: Dict[str, Any], request: str, context: Dict[str, Any] = None, conv_context: Dict[str, Any] = None) -> AgentResponse:
+        """Generate professional infrastructure assistant response using knowledge base analysis."""
+        try:
+            # Build structured response content following professional guidelines
+            content_parts = []
+            
+            # Brief summary of user's request
+            intent_type = analysis.get("intent", "general_infrastructure")
+            if intent_type == "explain_technology":
+                # Handle technology explanation requests
+                technology = analysis.get("parameters", {}).get("technology", "unknown")
+                knowledge_entries = analysis.get("knowledge", [])
+                
+                if knowledge_entries:
+                    # Use the comprehensive knowledge from our enhanced knowledge base
+                    entry = knowledge_entries[0]  # Get the most relevant entry
+                    content_parts.append(f"## {entry.title}")
+                    content_parts.append(f"{entry.content}")
+                    
+                    # Add best practices if available
+                    best_practices = analysis.get("best_practices", [])
+                    if best_practices:
+                        content_parts.append("\n## **Best Practices**")
+                        for practice in best_practices[:5]:  # Show top 5
+                            content_parts.append(f"• {practice}")
+                    
+                    # Add recommendations if available
+                    recommendations = analysis.get("recommendations", [])
+                    if recommendations:
+                        content_parts.append("\n## **Recommendations**")
+                        for rec in recommendations[:3]:  # Show top 3
+                            content_parts.append(f"• {rec}")
+                else:
+                    # Fallback if no knowledge found
+                    content_parts.append(f"## {technology.upper()} Overview")
+                    content_parts.append(f"I'd be happy to explain {technology} in detail!")
+                    content_parts.append("Let me provide you with comprehensive information about this technology.")
+                
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=analysis.get("confidence", 0.8),
+                    metadata={"intent": intent_type, "technology": technology, "format": "comprehensive"}
+                )
+            else:
+                # Default response for other intents
+                content_parts.append("## Ansible Configuration Management")
+                content_parts.append("I'll help you with Ansible automation and configuration management.")
+                
+                content = "\n".join(content_parts)
+                return AgentResponse(
+                    agent_id=self.config.name,
+                    response_type="text",
+                    content=content,
+                    confidence=analysis.get("confidence", 0.7),
+                    metadata={"intent": intent_type, "format": "professional"}
+                )
+                
+        except Exception as e:
+            self.logger.error(f"Error generating intelligent response: {str(e)}")
+            return AgentResponse(
+                agent_id=self.config.name,
+                response_type="error",
+                content=f"Error generating response: {str(e)}",
                 confidence=0.0,
                 metadata={"error": str(e)}
             )
