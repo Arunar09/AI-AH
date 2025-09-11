@@ -57,6 +57,7 @@ class AdaptiveLearningEngine:
         self.total_interactions = 0
         self.successful_learnings = 0
         self.learning_accuracy = 0.0
+        self.confidence_threshold = 0.7  # Threshold for considering a response successful
         
         # Initialize with some basic patterns
         self._initialize_basic_patterns()
@@ -162,9 +163,10 @@ class AdaptiveLearningEngine:
                     complexity = self._assess_query_complexity(interaction["query"])
                     profile.technology_expertise[tech] = min(1.0, profile.technology_expertise[tech] + complexity * 0.1)
         
-        # Update success/failure counts
-        if interaction["confidence"] > 0.8:
+        # Update success/failure counts based on confidence threshold
+        if interaction["confidence"] > self.confidence_threshold:
             profile.successful_interactions += 1
+            self.successful_learnings += 1
         else:
             profile.failed_interactions += 1
         
@@ -435,6 +437,8 @@ class AdaptiveLearningEngine:
         # Calculate learning accuracy
         if self.total_interactions > 0:
             self.learning_accuracy = self.successful_learnings / self.total_interactions
+        else:
+            self.learning_accuracy = 0.0
         
         # Get most common patterns
         common_patterns = sorted(

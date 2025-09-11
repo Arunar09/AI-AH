@@ -29,6 +29,14 @@ except ImportError:
     LEARNING_AVAILABLE = False
     AdaptiveLearningEngine = None
 
+# Import response generator
+try:
+    from .response_generator import IntelligentResponseGenerator
+    RESPONSE_GENERATOR_AVAILABLE = True
+except ImportError:
+    RESPONSE_GENERATOR_AVAILABLE = False
+    IntelligentResponseGenerator = None
+
 # Optional imports for enhanced components
 try:
     from ..search.vector_search import VectorSearchEngine
@@ -94,6 +102,9 @@ class LocalKnowledgeBase:
         
         # Adaptive learning system
         self.learning_engine = AdaptiveLearningEngine() if LEARNING_AVAILABLE else None
+        
+        # Response generator
+        self.response_generator = IntelligentResponseGenerator() if RESPONSE_GENERATOR_AVAILABLE else None
 
         self._initialize_knowledge_base()
         self._initialize_patterns()
@@ -879,15 +890,25 @@ class LocalKnowledgeBase:
         keywords = self._extract_keywords(user_input_lower)
         print(f"🔍 Keywords detected: {keywords}")  # Debug output
         
-        # Find matching patterns with enhanced matching
+        # Find matching patterns with enhanced matching and precision
         matched_patterns = []
         for pattern in self.infrastructure_patterns:
             if re.search(pattern.regex, user_input_lower, re.IGNORECASE):
-                matched_patterns.append(pattern)
+                # Calculate semantic similarity for better ranking
+                similarity = self._calculate_semantic_similarity(user_input_lower, pattern.pattern)
+                
+                # Only include patterns with reasonable confidence and similarity
+                if pattern.confidence > 0.3 and similarity > 0.2:
+                    # Boost confidence based on semantic similarity
+                    adjusted_confidence = min(pattern.confidence + similarity * 0.2, 1.0)
+                    pattern.confidence = adjusted_confidence
+                    matched_patterns.append(pattern)
         
-        # Enhanced pattern matching based on keywords
+        # Enhanced pattern matching based on keywords (more selective)
         keyword_matches = self._match_by_keywords(keywords)
-        matched_patterns.extend(keyword_matches)
+        for pattern in keyword_matches:
+            if pattern.confidence > 0.4:  # Higher threshold for keyword matches
+                matched_patterns.append(pattern)
         
         # Remove duplicates and sort by confidence
         unique_patterns = {}
@@ -896,6 +917,10 @@ class LocalKnowledgeBase:
                 unique_patterns[pattern.pattern] = pattern
         
         matched_patterns = list(unique_patterns.values())
+        
+        # Sort by confidence and limit to top 3 matches for precision
+        matched_patterns.sort(key=lambda p: p.confidence, reverse=True)
+        matched_patterns = matched_patterns[:3]  # Limit to top 3 matches
         
         # Enhanced pattern matching with semantic similarity
         def enhanced_pattern_priority(pattern):
@@ -963,12 +988,23 @@ class LocalKnowledgeBase:
     def process_response_with_learning(self, user_id: str, query: str, response: str, 
                                      analysis: Dict[str, Any], user_feedback: Optional[Dict[str, Any]] = None) -> str:
         """Process response with adaptive learning and context awareness."""
+        
+        # Generate intelligent response if response generator is available
+        if self.response_generator:
+            intelligent_response = self.response_generator.generate_response(
+                analysis=analysis,
+                user_query=query,
+                context=analysis.get("conversation_context", {})
+            )
+        else:
+            intelligent_response = response
+        
         # Learn from the interaction
         if self.learning_engine:
             self.learning_engine.learn_from_interaction(
                 user_id=user_id,
                 query=query,
-                response=response,
+                response=intelligent_response,
                 intent=analysis.get("intent", "unknown"),
                 confidence=analysis.get("confidence", 0.5),
                 user_feedback=user_feedback
@@ -976,9 +1012,9 @@ class LocalKnowledgeBase:
         
         # Get adaptive response
         if self.learning_engine:
-            adapted_response = self.learning_engine.get_adaptive_response(user_id, query, response)
+            adapted_response = self.learning_engine.get_adaptive_response(user_id, query, intelligent_response)
         else:
-            adapted_response = response
+            adapted_response = intelligent_response
         
         # Apply context-aware adaptation
         if self.context_manager:

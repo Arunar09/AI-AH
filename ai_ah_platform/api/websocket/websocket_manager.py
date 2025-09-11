@@ -67,7 +67,12 @@ class ConnectionManager:
         if connection_id in self.active_connections:
             websocket = self.active_connections[connection_id]
             try:
-                await websocket.send_text(message)
+                # Check if WebSocket is still connected
+                if websocket.client_state.name == "CONNECTED":
+                    await websocket.send_text(message)
+                else:
+                    self.logger.warning(f"WebSocket {connection_id} is not connected, removing from active connections")
+                    self.disconnect(connection_id)
             except Exception as e:
                 self.logger.error(f"Error sending message to {connection_id}: {str(e)}")
                 self.disconnect(connection_id)
@@ -154,15 +159,28 @@ class WebSocketManager:
                 except WebSocketDisconnect:
                     break
                 except Exception as e:
-                    self.logger.error(f"Error handling message from {connection_id}: {str(e)}")
-                    error_message = WebSocketResponse(
-                        message_type="error",
-                        data={
-                            "error": str(e),
-                            "timestamp": datetime.now().isoformat()
-                        }
-                    )
-                    await self.connection_manager.send_json_message(error_message.dict(), connection_id)
+                    # Check if the error is due to disconnected WebSocket
+                    if "WebSocket is not connected" in str(e) or "Need to call" in str(e):
+                        self.logger.warning(f"WebSocket {connection_id} disconnected, removing from active connections")
+                        self.connection_manager.disconnect(connection_id)
+                        break
+                    else:
+                        self.logger.error(f"Error handling message from {connection_id}: {str(e)}")
+                        # Only try to send error message if connection is still active
+                        if connection_id in self.connection_manager.active_connections:
+                            error_message = WebSocketResponse(
+                                message_type="error",
+                                data={
+                                    "error": str(e),
+                                    "timestamp": datetime.now().isoformat()
+                                }
+                            )
+                            try:
+                                await self.connection_manager.send_json_message(error_message.dict(), connection_id)
+                            except:
+                                # If we can't send the error message, disconnect
+                                self.connection_manager.disconnect(connection_id)
+                                break
         
         except WebSocketDisconnect:
             self.logger.info(f"WebSocket {connection_id} disconnected")
