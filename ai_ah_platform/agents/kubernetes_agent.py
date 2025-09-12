@@ -245,9 +245,9 @@ class KubernetesAgent(IntelligentAgent):
             parsed_request = await self._parse_kubernetes_request(request)
             
             # Generate response based on intent
-            if parsed_request.intent.type == IntentType.CREATE_INFRASTRUCTURE:
+            if parsed_request.intent["type"] == IntentType.CREATE_INFRASTRUCTURE:
                 return await self._handle_deploy_application(parsed_request, context)
-            elif parsed_request.intent.type == IntentType.MODIFY_INFRASTRUCTURE:
+            elif parsed_request.intent["type"] == IntentType.MODIFY_INFRASTRUCTURE:
                 return await self._handle_scale_application(parsed_request, context)
             elif "cluster" in parsed_request.original_text.lower():
                 return await self._handle_manage_cluster(parsed_request, context)

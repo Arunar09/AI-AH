@@ -20,6 +20,7 @@ from ..core.base_platform import BasePlatformComponent, PlatformConfig, Task, Pr
 from ..core.agent_framework import IntelligentAgent, AgentResponse, ConversationType, MemoryType
 from ..core.nlp.natural_language_processor import ParsedRequest, IntentType, EntityType
 from ..core.intelligence.local_knowledge_base import LocalKnowledgeBase
+from ..core.intelligence.reasoning_engine import IntelligentReasoningEngine
 
 
 @dataclass
@@ -100,6 +101,7 @@ class TerraformAgent(IntelligentAgent):
         
         # Initialize local knowledge base for intelligent responses
         self.knowledge_base = LocalKnowledgeBase()
+        self.reasoning_engine = IntelligentReasoningEngine()
     
     def _get_conversation_context(self, session_id: str) -> Dict[str, Any]:
         """Get conversation context for a session"""
@@ -261,9 +263,12 @@ class TerraformAgent(IntelligentAgent):
                 conv_context["repeated_intents"] = 0
             conv_context["last_intent"] = current_intent
             
-            # Generate intelligent response based on analysis
-            if analysis["confidence"] > 0.4:  # Lower threshold to use intelligent responses more often
-                return await self._generate_intelligent_response(analysis, request, context, conv_context)
+            # Use reasoning engine for intelligent response generation
+            reasoning_result = self.reasoning_engine.reason_through_request(request, context)
+            
+            # Generate response based on reasoning
+            if reasoning_result.confidence > 0.3:
+                return await self._generate_reasoned_response(reasoning_result, request, context, conv_context)
             else:
                 # Fallback to original parsing for low confidence
                 parsed_request = await self._parse_terraform_request(request)
@@ -297,6 +302,39 @@ class TerraformAgent(IntelligentAgent):
                 metadata={"error": str(e)}
             )
     
+    async def _generate_reasoned_response(self, reasoning_result, request: str, context: Dict[str, Any] = None, conv_context: Dict[str, Any] = None) -> AgentResponse:
+        """Generate response based on reasoning engine results."""
+        try:
+            # Use the curated response from reasoning engine
+            content = reasoning_result.final_recommendation
+            
+            # Add reasoning metadata for transparency
+            metadata = {
+                "reasoning_confidence": reasoning_result.confidence,
+                "reasoning_steps": len(reasoning_result.steps),
+                "reasoning_chain": reasoning_result.reasoning_chain,
+                "format": "reasoned_response"
+            }
+            
+            return AgentResponse(
+                agent_id=self.config.name,
+                response_type="text",
+                content=content,
+                confidence=reasoning_result.confidence,
+                metadata=metadata
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Error generating reasoned response: {str(e)}")
+            # Fallback to simple response
+            return AgentResponse(
+                agent_id=self.config.name,
+                response_type="text",
+                content=f"I analyzed your request: {request}. Let me provide you with a comprehensive response.",
+                confidence=0.5,
+                metadata={"error": str(e), "fallback": True}
+            )
+
     async def _generate_intelligent_response(self, analysis: Dict[str, Any], request: str, context: Dict[str, Any] = None, conv_context: Dict[str, Any] = None) -> AgentResponse:
         """Generate professional infrastructure assistant response using knowledge base analysis."""
         try:

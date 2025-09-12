@@ -30,8 +30,11 @@ class AIAHPlatform {
         document.querySelectorAll('nav a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = e.target.getAttribute('href').substring(1);
-                this.showSection(section);
+                const href = e.target.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    const section = href.substring(1);
+                    this.showSection(section);
+                }
             });
         });
 
@@ -488,13 +491,27 @@ class AIAHPlatform {
         this.sendMessageToAgent(message);
     }
 
+    formatMessage(message) {
+        // Convert GitHub-flavored Markdown to HTML with compact, modern styling
+        return message
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-800">$1</strong>')  // Bold
+            .replace(/\*(.*?)\*/g, '<em class="text-gray-600">$1</em>')              // Italic
+            .replace(/## (.*?)(?=\n|$)/g, '<div class="font-bold text-base text-blue-700 mt-2 mb-1 border-b border-gray-200 pb-1">$1</div>')  // Main headers
+            .replace(/### (.*?)(?=\n|$)/g, '<div class="font-semibold text-sm text-gray-700 mt-1 mb-1">$1</div>')  // Sub headers
+            .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre class="bg-gray-100 border border-gray-300 rounded p-2 my-1 text-sm overflow-x-auto"><code class="text-gray-800">$2</code></pre>')  // Code blocks
+            .replace(/`([^`]+)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">$1</code>')  // Inline code
+            .replace(/• (.*?)(?=\n|$)/g, '<div class="ml-2 mb-0.5 text-sm"><span class="text-gray-400 mr-1">•</span>$1</div>')  // Ultra-compact bullet points
+            .replace(/\n\n/g, '<br>')  // Single line break for double newlines
+            .replace(/\n/g, '');  // Remove single line breaks to prevent extra spacing
+    }
+
     addChatMessage(message, sender) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message mb-4';
+        messageDiv.className = 'chat-message mb-3';
         
         const isUser = sender === 'user';
-        const bgColor = isUser ? 'bg-blue-500 text-white' : 'bg-gray-100';
+        const bgColor = isUser ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200';
         const alignment = isUser ? 'justify-end' : 'justify-start';
         const icon = isUser ? 'fas fa-user' : 'fas fa-robot';
         const iconBg = isUser ? 'bg-blue-500' : 'bg-gray-500';
@@ -508,11 +525,11 @@ class AIAHPlatform {
                         </div>
                     </div>
                 ` : ''}
-                <div class="ml-3 max-w-xs lg:max-w-md">
-                    <div class="${bgColor} rounded-lg p-3">
-                        <p class="text-sm">${message}</p>
+                <div class="ml-3 max-w-xs lg:max-w-2xl">
+                    <div class="${bgColor} rounded-lg p-2 shadow-sm">
+                        <div class="text-sm whitespace-pre-wrap leading-tight">${this.formatMessage(message)}</div>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">${isUser ? 'You' : 'AI Assistant'} • Just now</p>
+                    <p class="text-xs text-gray-400 mt-1">${isUser ? 'You' : 'AI Assistant'} • Just now</p>
                 </div>
                 ${isUser ? `
                     <div class="flex-shrink-0 ml-3">

@@ -19,14 +19,90 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Logs and databases
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
-*.sql
-*.sqlite
-*.db
+logs/
 
-# Environment variables
+# Database
+*.db
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Kubernetes
+*.kubeconfig
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Ansible
+*.retry
+
+# MinIO
+minio-data/
+
+# Lab data
+lab/data/
+lab/logs/
+
+# Backup
+backup_pre_cleanup/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
 .env
 .venv
 env/
@@ -35,117 +111,20 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE specific files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
+# Spyder project settings
+.spyderproject
+.spyproject
 
-# Local development
-workspace/
-ai_ah.log
-base_agent.db
+# Rope project settings
+.ropeproject
 
-# Platform specific
-platform/data/
-platform/logs/
-platform/cache/
-platform/temp/
+# mkdocs documentation
+/site
 
-# Agent data
-agents/data/
-agents/logs/
-agents/cache/
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Tool data
-tools/data/
-tools/logs/
-tools/cache/
-
-# API data
-api/logs/
-api/cache/
-
-# UI data
-ui/logs/
-ui/cache/
-ui/build/
-ui/dist/
-
-# Config overrides
-config/local/
-config/secrets/
-config/*.local.*
-
-# Docker data
-docker/data/
-docker/logs/
-
-# Kubernetes data
-k8s/data/
-k8s/logs/
-
-# Scripts data
-scripts/data/
-scripts/logs/
-
-# Documentation build
-docs/build/
-docs/site/
-
-# Test data
-tests/data/
-tests/logs/
-tests/cache/
-
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.*
-.terraform.lock.hcl
-
-# Ansible
-*.retry
-
-# Local development configuration
-local-dev/
-
-# Test coverage
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Distribution / packaging
-.Python
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+# Pyre type checker
+.pyre/

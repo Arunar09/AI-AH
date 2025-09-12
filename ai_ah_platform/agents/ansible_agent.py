@@ -19,6 +19,8 @@ import yaml
 from ..core.base_platform import BasePlatformComponent, PlatformConfig, Task, Priority, ComponentStatus, AgentCapability
 from ..core.agent_framework import IntelligentAgent, AgentResponse, ConversationType, MemoryType
 from ..core.nlp.natural_language_processor import ParsedRequest, IntentType, EntityType
+from ..core.intelligence.local_knowledge_base import LocalKnowledgeBase
+from ..core.intelligence.reasoning_engine import IntelligentReasoningEngine
 
 
 @dataclass
@@ -81,6 +83,7 @@ class AnsibleAgent(IntelligentAgent):
         self.playbooks: Dict[str, AnsiblePlaybook] = {}
         self.executions: Dict[str, AnsibleExecution] = {}
         self.inventories: Dict[str, AnsibleInventory] = {}
+        self.conversation_memory = {}  # Store conversation context per session
         self.roles: Dict[str, Dict[str, Any]] = {}
         
         # Ansible-specific capabilities
@@ -115,7 +118,21 @@ class AnsibleAgent(IntelligentAgent):
         
         # Initialize task templates
         self._initialize_task_templates()
-        self._initialize_role_templates()
+    
+    def _get_conversation_context(self, session_id: str) -> Dict[str, Any]:
+        """Get conversation context for a session"""
+        if session_id not in self.conversation_memory:
+            self.conversation_memory[session_id] = {
+                "message_count": 0,
+                "last_intent": None,
+                "repeated_intents": 0,
+                "conversation_history": []
+            }
+        return self.conversation_memory[session_id]
+        
+        # Initialize knowledge base and reasoning engine
+        self.knowledge_base = LocalKnowledgeBase()
+        self.reasoning_engine = IntelligentReasoningEngine()
     
     async def _initialize_capabilities(self):
         """Initialize Ansible-specific capabilities."""
@@ -262,9 +279,12 @@ class AnsibleAgent(IntelligentAgent):
                 conv_context["repeated_intents"] = 0
             conv_context["last_intent"] = current_intent
             
-            # Generate intelligent response based on analysis
-            if analysis["confidence"] > 0.4:  # Lower threshold to use intelligent responses more often
-                return await self._generate_intelligent_response(analysis, request, context, conv_context)
+            # Use reasoning engine for intelligent response generation
+            reasoning_result = self.reasoning_engine.reason_through_request(request, context)
+            
+            # Generate response based on reasoning
+            if reasoning_result.confidence > 0.3:
+                return await self._generate_reasoned_response(reasoning_result, request, context, conv_context)
             else:
                 # Fallback to original parsing for low confidence
                 parsed_request = await self._parse_ansible_request(request)
@@ -294,6 +314,39 @@ class AnsibleAgent(IntelligentAgent):
                 content=f"I encountered an error: {str(e)}",
                 confidence=0.0,
                 metadata={"error": str(e)}
+            )
+    
+    async def _generate_reasoned_response(self, reasoning_result, request: str, context: Dict[str, Any] = None, conv_context: Dict[str, Any] = None) -> AgentResponse:
+        """Generate response based on reasoning engine results."""
+        try:
+            # Use the curated response from reasoning engine
+            content = reasoning_result.final_recommendation
+            
+            # Add reasoning metadata for transparency
+            metadata = {
+                "reasoning_confidence": reasoning_result.confidence,
+                "reasoning_steps": len(reasoning_result.steps),
+                "reasoning_chain": reasoning_result.reasoning_chain,
+                "format": "reasoned_response"
+            }
+            
+            return AgentResponse(
+                agent_id=self.config.name,
+                response_type="text",
+                content=content,
+                confidence=reasoning_result.confidence,
+                metadata=metadata
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Error generating reasoned response: {str(e)}")
+            # Fallback to simple response
+            return AgentResponse(
+                agent_id=self.config.name,
+                response_type="text",
+                content=f"I analyzed your request: {request}. Let me provide you with a comprehensive response.",
+                confidence=0.5,
+                metadata={"error": str(e), "fallback": True}
             )
     
     async def _generate_intelligent_response(self, analysis: Dict[str, Any], request: str, context: Dict[str, Any] = None, conv_context: Dict[str, Any] = None) -> AgentResponse:
