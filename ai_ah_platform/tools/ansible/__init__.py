@@ -1,3 +1,0 @@
-"""
-Ansible tool integrations.
-"""
