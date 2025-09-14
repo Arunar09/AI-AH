@@ -645,9 +645,18 @@ def process_requirements():
     
     # Generate request from requirements
     request_parts = []
-    for req in requirements:
-        if req.get('answer'):
-            request_parts.append(f"{req['question']}: {req['answer']}")
+    
+    # Handle both list format and dict format
+    if isinstance(requirements, dict):
+        # Convert dict to list format
+        for key, value in requirements.items():
+            if value:
+                request_parts.append(f"{key.replace('_', ' ').title()}: {value}")
+    else:
+        # Handle list format
+        for req in requirements:
+            if isinstance(req, dict) and req.get('answer'):
+                request_parts.append(f"{req['question']}: {req['answer']}")
     
     request_text = "\n".join(request_parts)
     

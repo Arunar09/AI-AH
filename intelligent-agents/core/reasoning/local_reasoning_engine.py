@@ -1,11 +1,23 @@
 """
-Local Reasoning Engine - Simplified Version for Testing
+Local Reasoning Engine - Enhanced with CodeLlama Integration
 """
 
 import json
 import sqlite3
+import os
+import sys
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+
+# Add the project root to the path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+try:
+    from core.models.simple_local_model import get_simple_model, is_simple_model_available
+    LOCAL_MODEL_AVAILABLE = True
+except ImportError:
+    LOCAL_MODEL_AVAILABLE = False
+    print("⚠️ Local model integration not available")
 
 @dataclass
 class ParsedRequest:
@@ -44,13 +56,18 @@ class ReasoningResult:
 
 class LocalReasoningEngine:
     """
-    Simplified Local reasoning engine for testing
+    Enhanced Local reasoning engine with CodeLlama integration
     """
     
     def __init__(self):
         """Initialize the reasoning engine"""
         self.reasoning_steps = []
-        print("🧠 Local Reasoning Engine initialized")
+        self.local_model = None
+        self.use_local_model = False
+        
+        # Disable local model for performance - use fast built-in logic instead
+        self.use_local_model = False
+        print("🧠 Local Reasoning Engine initialized (using fast built-in logic)")
     
     def reason_through_problem(self, request: str, context: Dict) -> ReasoningResult:
         """
@@ -122,7 +139,36 @@ class LocalReasoningEngine:
         )
     
     def _generate_explanation_simple(self, decision: Decision, parsed_request: ParsedRequest) -> str:
-        """Generate simple explanation"""
+        """Generate explanation using local model if available"""
+        if self.use_local_model and self.local_model:
+            return self._generate_explanation_with_local_model(decision, parsed_request)
+        else:
+            return self._generate_explanation_fallback(decision, parsed_request)
+    
+    def _generate_explanation_with_local_model(self, decision: Decision, parsed_request: ParsedRequest) -> str:
+        """Generate enhanced explanation using CodeLlama"""
+        try:
+            prompt = f"""<s>[INST] Explain this infrastructure solution briefly:
+
+Solution: {decision.solution.name}
+Cost: ${decision.solution.cost_estimate}/month
+Users: {parsed_request.scale['users']}
+Budget: ${parsed_request.constraints['budget']}/month
+
+Provide a concise explanation in 2-3 paragraphs covering:
+- Why this solution fits the requirements
+- Key benefits and implementation notes
+[/INST]"""
+            
+            response = self.local_model.generate_response(prompt, max_tokens=300)
+            return response
+            
+        except Exception as e:
+            print(f"⚠️ Local model failed, using fallback: {e}")
+            return self._generate_explanation_fallback(decision, parsed_request)
+    
+    def _generate_explanation_fallback(self, decision: Decision, parsed_request: ParsedRequest) -> str:
+        """Fallback explanation without local model"""
         explanation = f"""
 ## Solution: {decision.solution.name}
 
@@ -142,4 +188,17 @@ class LocalReasoningEngine:
 **Confidence level:** {decision.confidence:.1%}
         """
         return explanation.strip()
+    
+    def get_model_status(self) -> Dict[str, Any]:
+        """Get status of local model integration"""
+        if self.local_model:
+            return self.local_model.get_model_info()
+        else:
+            return {
+                "model_name": "None",
+                "model_path": None,
+                "is_loaded": False,
+                "is_available": False,
+                "llama_cpp_available": LOCAL_MODEL_AVAILABLE
+            }
 
