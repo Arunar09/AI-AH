@@ -1,0 +1,213 @@
+[
+  {
+    "action_id": "44132676",
+    "timestamp": "2025-09-18 20:46:45.525607",
+    "action_type": "terraform_generation",
+    "input_request": "",
+    "processing_time": 0.0,
+    "success": true,
+    "error_message": null,
+    "confidence_score": 0.85,
+    "cost_estimate": 100,
+    "complexity_score": 8,
+    "validation_results": {
+      "syntax_valid": false,
+      "security_compliant": false,
+      "cost_optimized": false,
+      "architecture_sound": false,
+      "domain_appropriate": true,
+      "issues": [
+        "Security issue: Found hardcoded credentials pattern: password\\s*=\\s*[\\\"'][^\\\"']*[\\\"']",
+        "Missing required variable: region",
+        "Missing required variable: environment",
+        "Security issue: EC2 instances should have IAM roles",
+        "Architecture issue: Missing storage resources",
+        "Architecture issue: Missing CloudWatch monitoring"
+      ],
+      "warnings": [
+        "Cost optimization: Consider using autoscaling for better cost efficiency",
+        "Cost optimization: Consider using spot instances for non-critical workloads"
+      ],
+      "recommendations": [
+        "Add CloudWatch monitoring for better observability",
+        "Consider using autoscaling groups for better cost efficiency"
+      ],
+      "validation_score": 34.0
+    },
+    "domain": "web",
+    "terraform_files_generated": 4,
+    "implementation_steps": 7
+  },
+  {
+    "action_id": "89375849",
+    "timestamp": "2025-09-18 20:46:45.567978",
+    "action_type": "terraform_generation",
+    "input_request": "",
+    "processing_time": 0.0,
+    "success": true,
+    "error_message": null,
+    "confidence_score": 0.7999999999999999,
+    "cost_estimate": 100,
+    "complexity_score": 8,
+    "validation_results": {
+      "syntax_valid": false,
+      "security_compliant": false,
+      "cost_optimized": false,
+      "architecture_sound": false,
+      "domain_appropriate": false,
+      "issues": [
+        "Security issue: Found hardcoded credentials pattern: password\\s*=\\s*[\\\"'][^\\\"']*[\\\"']",
+        "Missing required variable: region",
+        "Missing required variable: environment",
+        "Security issue: EC2 instances should have IAM roles",
+        "Architecture issue: Missing storage resources",
+        "Architecture issue: Missing CloudWatch monitoring",
+        "ML domain issue: Missing sagemaker for ML workloads",
+        "ML domain issue: Missing emr for ML workloads",
+        "ML domain issue: Missing lambda for ML workloads",
+        "ML domain issue: Missing s3 for ML workloads"
+      ],
+      "warnings": [
+        "Cost optimization: Consider using autoscaling for better cost efficiency",
+        "Cost optimization: Consider using spot instances for non-critical workloads"
+      ],
+      "recommendations": [
+        "Add CloudWatch monitoring for better observability",
+        "Consider using autoscaling groups for better cost efficiency"
+      ],
+      "validation_score": 0.0
+    },
+    "domain": "ml",
+    "terraform_files_generated": 4,
+    "implementation_steps": 7
+  },
+  {
+    "action_id": "7d2e7b15",
+    "timestamp": "2025-09-18 20:46:45.577738",
+    "action_type": "terraform_generation",
+    "input_request": "",
+    "processing_time": 0.0,
+    "success": true,
+    "error_message": null,
+    "confidence_score": 0.85,
+    "cost_estimate": 100,
+    "complexity_score": 8,
+    "validation_results": {
+      "syntax_valid": false,
+      "security_compliant": false,
+      "cost_optimized": false,
+      "architecture_sound": false,
+      "domain_appropriate": false,
+      "issues": [
+        "Security issue: Found hardcoded credentials pattern: password\\s*=\\s*[\\\"'][^\\\"']*[\\\"']",
+        "Missing required variable: region",
+        "Missing required variable: environment",
+        "Security issue: EC2 instances should have IAM roles",
+        "Architecture issue: Missing storage resources",
+        "Architecture issue: Missing CloudWatch monitoring",
+        "IoT domain issue: Missing iot_core for IoT workloads",
+        "IoT domain issue: Missing kinesis for IoT workloads",
+        "IoT domain issue: Missing dynamodb for IoT workloads",
+        "IoT domain issue: Missing lambda for IoT workloads"
+      ],
+      "warnings": [
+        "Cost optimization: Consider using autoscaling for better cost efficiency",
+        "Cost optimization: Consider using spot instances for non-critical workloads"
+      ],
+      "recommendations": [
+        "Add CloudWatch monitoring for better observability",
+        "Consider using autoscaling groups for better cost efficiency"
+      ],
+      "validation_score": 0.0
+    },
+    "domain": "iot",
+    "terraform_files_generated": 4,
+    "implementation_steps": 7
+  },
+  {
+    "action_id": "5bcf655a",
+    "timestamp": "2025-09-18 20:46:45.585738",
+    "action_type": "terraform_generation",
+    "input_request": "",
+    "processing_time": 0.0,
+    "success": true,
+    "error_message": null,
+    "confidence_score": 0.7999999999999999,
+    "cost_estimate": 100,
+    "complexity_score": 8,
+    "validation_results": {
+      "syntax_valid": false,
+      "security_compliant": false,
+      "cost_optimized": false,
+      "architecture_sound": false,
+      "domain_appropriate": false,
+      "issues": [
+        "Security issue: Found hardcoded credentials pattern: password\\s*=\\s*[\\\"'][^\\\"']*[\\\"']",
+        "Missing required variable: region",
+        "Missing required variable: environment",
+        "Security issue: EC2 instances should have IAM roles",
+        "Architecture issue: Missing storage resources",
+        "Architecture issue: Missing CloudWatch monitoring",
+        "Analytics domain issue: Missing emr for analytics workloads",
+        "Analytics domain issue: Missing redshift for analytics workloads",
+        "Analytics domain issue: Missing athena for analytics workloads",
+        "Analytics domain issue: Missing glue for analytics workloads"
+      ],
+      "warnings": [
+        "Cost optimization: Consider using autoscaling for better cost efficiency",
+        "Cost optimization: Consider using spot instances for non-critical workloads"
+      ],
+      "recommendations": [
+        "Add CloudWatch monitoring for better observability",
+        "Consider using autoscaling groups for better cost efficiency"
+      ],
+      "validation_score": 0.0
+    },
+    "domain": "analytics",
+    "terraform_files_generated": 4,
+    "implementation_steps": 7
+  },
+  {
+    "action_id": "cbbb7ae0",
+    "timestamp": "2025-09-18 20:46:45.594241",
+    "action_type": "terraform_generation",
+    "input_request": "",
+    "processing_time": 0.0,
+    "success": true,
+    "error_message": null,
+    "confidence_score": 0.9,
+    "cost_estimate": 100,
+    "complexity_score": 8,
+    "validation_results": {
+      "syntax_valid": false,
+      "security_compliant": false,
+      "cost_optimized": false,
+      "architecture_sound": false,
+      "domain_appropriate": false,
+      "issues": [
+        "Security issue: Found hardcoded credentials pattern: password\\s*=\\s*[\\\"'][^\\\"']*[\\\"']",
+        "Missing required variable: region",
+        "Missing required variable: environment",
+        "Security issue: EC2 instances should have IAM roles",
+        "Architecture issue: Missing storage resources",
+        "Architecture issue: Missing CloudWatch monitoring",
+        "Enterprise domain issue: Missing eks for enterprise workloads",
+        "Enterprise domain issue: Missing istio for enterprise workloads",
+        "Enterprise domain issue: Missing prometheus for enterprise workloads",
+        "Enterprise domain issue: Missing grafana for enterprise workloads"
+      ],
+      "warnings": [
+        "Cost optimization: Consider using autoscaling for better cost efficiency",
+        "Cost optimization: Consider using spot instances for non-critical workloads"
+      ],
+      "recommendations": [
+        "Add CloudWatch monitoring for better observability",
+        "Consider using autoscaling groups for better cost efficiency"
+      ],
+      "validation_score": 0.0
+    },
+    "domain": "enterprise",
+    "terraform_files_generated": 4,
+    "implementation_steps": 7
+  }
+]

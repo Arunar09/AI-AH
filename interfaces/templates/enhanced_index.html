@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Hub - Enhanced Interface</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .agent-card {
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .agent-card:hover {
+            transform: translateY(-5px);
+        }
+        .task-item {
+            border-left: 4px solid #dee2e6;
+            transition: all 0.2s;
+        }
+        .task-item.pending { border-left-color: #ffc107; }
+        .task-item.in-progress { border-left-color: #0d6efd; }
+        .task-item.completed { border-left-color: #198754; }
+        .task-item.failed { border-left-color: #dc3545; }
+        .requirement-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .agent-capability {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .status-badge {
+            font-size: 0.8em;
+            padding: 0.25em 0.5em;
+        }
+        .task-priority {
+            font-size: 0.8em;
+            padding: 0.25em 0.5em;
+        }
+        .priority-low { background-color: #6c757d; }
+        .priority-medium { background-color: #ffc107; }
+        .priority-high { background-color: #fd7e14; }
+        .priority-critical { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-robot"></i> AI Agent Hub
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#dashboard">Dashboard</a>
+                <a class="nav-link" href="#agents">Agents</a>
+                <a class="nav-link" href="#projects">Projects</a>
+                <a class="nav-link" href="#tasks">Tasks</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="row">
+            <div class="col-12">
+                <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body">
+                                <h5 class="card-title">Active Projects</h5>
+                                <h2 id="active-projects-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success">
+                            <div class="card-body">
+                                <h5 class="card-title">Completed Tasks</h5>
+                                <h2 id="completed-tasks-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body">
+                                <h5 class="card-title">Pending Tasks</h5>
+                                <h2 id="pending-tasks-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info">
+                            <div class="card-body">
+                                <h5 class="card-title">Available Agents</h5>
+                                <h2 id="available-agents-count">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents Section -->
+        <div id="agents" class="row mt-5">
+            <div class="col-12">
+                <h2><i class="bi bi-robot"></i> Available Agents</h2>
+                <div class="row" id="agents-container">
+                    <!-- Agents will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Creation Section -->
+        <div id="project-creation" class="row mt-5">
+            <div class="col-12">
+                <h2><i class="bi bi-plus-circle"></i> Create New Project</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <form id="project-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="project-name" class="form-label">Project Name</label>
+                                        <input type="text" class="form-control" id="project-name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="project-description" class="form-label">Project Description</label>
+                                        <input type="text" class="form-control" id="project-description" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Requirements Collection -->
+                            <div id="requirements-container">
+                                <!-- Requirements will be loaded here -->
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Create Project
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div id="projects" class="row mt-5">
+            <div class="col-12">
+                <h2><i class="bi bi-folder"></i> Projects</h2>
+                <div id="projects-container">
+                    <!-- Projects will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Section -->
+        <div id="tasks" class="row mt-5">
+            <div class="col-12">
+                <h2><i class="bi bi-list-task"></i> Tasks</h2>
+                <div class="row">
+                    <div class="col-md-8">
+                        <div id="tasks-container">
+                            <!-- Tasks will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5><i class="bi bi-plus-circle"></i> Create Task</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="task-form">
+                                    <div class="mb-3">
+                                        <label for="task-project" class="form-label">Project</label>
+                                        <select class="form-select" id="task-project" required>
+                                            <option value="">Select a project</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="task-name" class="form-label">Task Name</label>
+                                        <input type="text" class="form-control" id="task-name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="task-description" class="form-label">Description</label>
+                                        <textarea class="form-control" id="task-description" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="task-agent" class="form-label">Agent Type</label>
+                                        <select class="form-select" id="task-agent" required>
+                                            <option value="">Select an agent</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="task-priority" class="form-label">Priority</label>
+                                        <select class="form-select" id="task-priority" required>
+                                            <option value="low">Low</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="high">High</option>
+                                            <option value="critical">Critical</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-plus"></i> Create Task
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Execution Modal -->
+    <div class="modal fade" id="taskModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Task Execution</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="task-details">
+                        <!-- Task details will be loaded here -->
+                    </div>
+                    <div id="task-result" class="mt-3">
+                        <!-- Task results will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="execute-task-btn">
+                        <i class="bi bi-play-circle"></i> Execute Task
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class EnhancedAIAgentHub {
+            constructor() {
+                this.requirementTemplates = {};
+                this.agentCapabilities = {};
+                this.projects = {};
+                this.tasks = {};
+                this.currentTaskId = null;
+                
+                this.init();
+            }
+            
+            async init() {
+                await this.loadRequirementTemplates();
+                await this.loadAgentCapabilities();
+                await this.loadProjects();
+                this.renderAgents();
+                this.renderRequirements();
+                this.setupEventListeners();
+                this.updateDashboard();
+            }
+            
+            async loadRequirementTemplates() {
+                try {
+                    const response = await fetch('/api/requirement-templates');
+                    this.requirementTemplates = await response.json();
+                } catch (error) {
+                    console.error('Error loading requirement templates:', error);
+                }
+            }
+            
+            async loadAgentCapabilities() {
+                try {
+                    const response = await fetch('/api/agent-capabilities');
+                    this.agentCapabilities = await response.json();
+                } catch (error) {
+                    console.error('Error loading agent capabilities:', error);
+                }
+            }
+            
+            async loadProjects() {
+                try {
+                    const response = await fetch('/api/projects');
+                    this.projects = await response.json();
+                    this.renderProjects();
+                    this.updateProjectSelect();
+                } catch (error) {
+                    console.error('Error loading projects:', error);
+                }
+            }
+            
+            renderAgents() {
+                const container = document.getElementById('agents-container');
+                container.innerHTML = '';
+                
+                Object.entries(this.agentCapabilities).forEach(([agentType, capability]) => {
+                    const agentCard = this.createAgentCard(agentType, capability);
+                    container.appendChild(agentCard);
+                });
+            }
+            
+            createAgentCard(agentType, capability) {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-3';
+                
+                col.innerHTML = `
+                    <div class="card agent-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-robot"></i> ${capability.name}
+                            </h5>
+                            <p class="card-text">${capability.description}</p>
+                            <div class="mb-2">
+                                <strong>Input Types:</strong>
+                                <span class="badge bg-secondary ms-1">${capability.input_types.join(', ')}</span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Output Types:</strong>
+                                <span class="badge bg-success ms-1">${capability.output_types.join(', ')}</span>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary btn-sm" onclick="app.showAgentDetails('${agentType}')">
+                                    <i class="bi bi-info-circle"></i> Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                return col;
+            }
+            
+            renderRequirements() {
+                const container = document.getElementById('requirements-container');
+                container.innerHTML = '';
+                
+                // Group requirements by category
+                const categories = {};
+                Object.values(this.requirementTemplates).forEach(template => {
+                    if (!categories[template.category]) {
+                        categories[template.category] = [];
+                    }
+                    categories[template.category].push(template);
+                });
+                
+                // Render each category
+                Object.entries(categories).forEach(([category, templates]) => {
+                    const section = document.createElement('div');
+                    section.className = 'requirement-section';
+                    
+                    section.innerHTML = `
+                        <h5><i class="bi bi-collection"></i> ${category}</h5>
+                        <div class="row">
+                            ${templates.map(template => this.createRequirementInput(template)).join('')}
+                        </div>
+                    `;
+                    
+                    container.appendChild(section);
+                });
+            }
+            
+            createRequirementInput(template) {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 mb-3';
+                
+                let inputHtml = '';
+                const inputId = `req-${template.id}`;
+                
+                switch (template.input_type) {
+                    case 'text':
+                        inputHtml = `
+                            <input type="text" class="form-control" id="${inputId}" 
+                                   placeholder="${template.examples ? template.examples[0] : ''}"
+                                   data-template-id="${template.id}">
+                        `;
+                        break;
+                    case 'select':
+                        inputHtml = `
+                            <select class="form-select" id="${inputId}" data-template-id="${template.id}">
+                                <option value="">Select an option</option>
+                                ${template.options.map(option => `<option value="${option}">${option}</option>`).join('')}
+                            </select>
+                        `;
+                        break;
+                    case 'multi_select':
+                        inputHtml = `
+                            <div id="${inputId}" data-template-id="${template.id}">
+                                ${template.options.map(option => `
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="${option}" id="${inputId}-${option}">
+                                        <label class="form-check-label" for="${inputId}-${option}">${option}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                        break;
+                }
+                
+                col.innerHTML = `
+                    <label for="${inputId}" class="form-label">
+                        ${template.question}
+                        ${template.is_required ? '<span class="text-danger">*</span>' : ''}
+                    </label>
+                    ${inputHtml}
+                    ${template.help_text ? `<div class="form-text">${template.help_text}</div>` : ''}
+                `;
+                
+                return col;
+            }
+            
+            setupEventListeners() {
+                // Project form submission
+                document.getElementById('project-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createProject();
+                });
+                
+                // Task form submission
+                document.getElementById('task-form').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.createTask();
+                });
+                
+                // Task execution
+                document.getElementById('execute-task-btn').addEventListener('click', () => {
+                    this.executeTask();
+                });
+            }
+            
+            async createProject() {
+                const name = document.getElementById('project-name').value;
+                const description = document.getElementById('project-description').value;
+                
+                // Collect requirements
+                const requirements = {};
+                Object.values(this.requirementTemplates).forEach(template => {
+                    const inputId = `req-${template.id}`;
+                    const element = document.getElementById(inputId);
+                    
+                    if (element) {
+                        if (template.input_type === 'multi_select') {
+                            const checkboxes = element.querySelectorAll('input[type="checkbox"]:checked');
+                            requirements[template.id] = Array.from(checkboxes).map(cb => cb.value);
+                        } else {
+                            requirements[template.id] = element.value;
+                        }
+                    }
+                });
+                
+                try {
+                    const response = await fetch('/api/projects', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name,
+                            description,
+                            requirements
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Project created successfully!');
+                        this.loadProjects();
+                        document.getElementById('project-form').reset();
+                    } else {
+                        alert('Error creating project');
+                    }
+                } catch (error) {
+                    console.error('Error creating project:', error);
+                    alert('Error creating project');
+                }
+            }
+            
+            async createTask() {
+                const projectId = document.getElementById('task-project').value;
+                const name = document.getElementById('task-name').value;
+                const description = document.getElementById('task-description').value;
+                const agentType = document.getElementById('task-agent').value;
+                const priority = document.getElementById('task-priority').value;
+                
+                // Get project requirements as task parameters
+                const project = this.projects[projectId];
+                const parameters = project ? project.requirements : {};
+                
+                try {
+                    const response = await fetch(`/api/projects/${projectId}/tasks`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name,
+                            description,
+                            agent_type: agentType,
+                            priority,
+                            parameters
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('Task created successfully!');
+                        this.loadProjects();
+                        document.getElementById('task-form').reset();
+                    } else {
+                        alert('Error creating task');
+                    }
+                } catch (error) {
+                    console.error('Error creating task:', error);
+                    alert('Error creating task');
+                }
+            }
+            
+            async executeTask() {
+                if (!this.currentTaskId) return;
+                
+                try {
+                    const response = await fetch(`/api/tasks/${this.currentTaskId}/execute`, {
+                        method: 'POST'
+                    });
+                    
+                    const result = await response.json();
+                    this.displayTaskResult(result);
+                } catch (error) {
+                    console.error('Error executing task:', error);
+                    alert('Error executing task');
+                }
+            }
+            
+            displayTaskResult(result) {
+                const resultContainer = document.getElementById('task-result');
+                
+                if (result.error) {
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <h6>Error:</h6>
+                            <p>${result.error}</p>
+                        </div>
+                    `;
+                } else {
+                    resultContainer.innerHTML = `
+                        <div class="alert alert-success">
+                            <h6>Task Completed Successfully!</h6>
+                            <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
+                            <p><strong>Cost Estimate:</strong> $${result.cost_estimate}</p>
+                            <p><strong>Files Generated:</strong> ${result.files_generated}</p>
+                            ${result.terraform_code ? `
+                                <div class="mt-3">
+                                    <h6>Generated Files:</h6>
+                                    ${Object.entries(result.terraform_code).map(([filename, content]) => `
+                                        <div class="mb-2">
+                                            <strong>${filename}:</strong>
+                                            <pre class="bg-light p-2"><code>${content}</code></pre>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }
+            
+            renderProjects() {
+                const container = document.getElementById('projects-container');
+                container.innerHTML = '';
+                
+                Object.values(this.projects).forEach(project => {
+                    const projectCard = this.createProjectCard(project);
+                    container.appendChild(projectCard);
+                });
+            }
+            
+            createProjectCard(project) {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 mb-3';
+                
+                col.innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">${project.name}</h5>
+                            <p class="card-text">${project.description}</p>
+                            <p class="text-muted small">
+                                Created: ${new Date(project.created_at).toLocaleDateString()}
+                            </p>
+                            <div class="mb-2">
+                                <strong>Tasks:</strong> ${project.tasks.length}
+                            </div>
+                            <button class="btn btn-primary btn-sm" onclick="app.viewProject('${project.id}')">
+                                <i class="bi bi-eye"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                return col;
+            }
+            
+            updateProjectSelect() {
+                const select = document.getElementById('task-project');
+                select.innerHTML = '<option value="">Select a project</option>';
+                
+                Object.entries(this.projects).forEach(([id, project]) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = project.name;
+                    select.appendChild(option);
+                });
+            }
+            
+            updateDashboard() {
+                const activeProjects = Object.values(this.projects).length;
+                const allTasks = Object.values(this.projects).flatMap(p => p.tasks);
+                const completedTasks = allTasks.filter(t => t.status === 'completed').length;
+                const pendingTasks = allTasks.filter(t => t.status === 'pending').length;
+                const availableAgents = Object.keys(this.agentCapabilities).length;
+                
+                document.getElementById('active-projects-count').textContent = activeProjects;
+                document.getElementById('completed-tasks-count').textContent = completedTasks;
+                document.getElementById('pending-tasks-count').textContent = pendingTasks;
+                document.getElementById('available-agents-count').textContent = availableAgents;
+            }
+            
+            showAgentDetails(agentType) {
+                const capability = this.agentCapabilities[agentType];
+                alert(`${capability.name}\n\n${capability.description}\n\nExamples:\n${capability.examples.join('\n')}`);
+            }
+            
+            viewProject(projectId) {
+                const project = this.projects[projectId];
+                if (project) {
+                    alert(`Project: ${project.name}\n\nDescription: ${project.description}\n\nTasks: ${project.tasks.length}`);
+                }
+            }
+        }
+        
+        // Initialize the application
+        const app = new EnhancedAIAgentHub();
+    </script>
+</body>
+</html>
+

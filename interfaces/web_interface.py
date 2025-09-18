@@ -35,6 +35,9 @@ except ImportError as e:
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Change this in production
 
+# Chat session storage
+chat_sessions = {}
+
 @dataclass
 class Requirement:
     """Individual requirement with validation"""
@@ -561,6 +564,185 @@ def favicon():
     """Favicon route"""
     return '', 204  # No content
 
+# Chat Interface Routes
+@app.route('/chat')
+def chat_interface():
+    """Chat interface page"""
+    return render_template('chat.html')
+
+@app.route('/api/chat/send', methods=['POST'])
+def send_chat_message():
+    """Send a message to the chat agent"""
+    try:
+        data = request.json
+        message = data.get('message', '').strip()
+        session_id = data.get('session_id', 'default')
+        agent_type = data.get('agent_type', 'terraform')
+        
+        if not message:
+            return jsonify({"error": "Message cannot be empty"}), 400
+        
+        # Initialize chat session if it doesn't exist
+        if session_id not in chat_sessions:
+            chat_sessions[session_id] = {
+                'messages': [],
+                'context': {},
+                'agent_type': agent_type
+            }
+        
+        # Add user message to session
+        user_message = {
+            'type': 'user',
+            'content': message,
+            'timestamp': time.time()
+        }
+        chat_sessions[session_id]['messages'].append(user_message)
+        
+        # Process with agent
+        if agents and agent_type in agents:
+            try:
+                agent = agents[agent_type]
+                
+                # Build context from chat history
+                context = chat_sessions[session_id]['context']
+                chat_history = chat_sessions[session_id]['messages'][-10:]  # Last 10 messages for context
+                
+                # Process message with agent (with timeout protection)
+                import threading
+                import queue
+                
+                result_queue = queue.Queue()
+                
+                def process_with_agent():
+                    try:
+                        response = agent.process_request(message, session_id)
+                        result_queue.put(('success', response))
+                    except Exception as e:
+                        result_queue.put(('error', str(e)))
+                
+                # Start agent processing in a separate thread
+                agent_thread = threading.Thread(target=process_with_agent)
+                agent_thread.daemon = True
+                agent_thread.start()
+                
+                # Wait for result with timeout (15 seconds)
+                try:
+                    result_type, result_data = result_queue.get(timeout=15)
+                    if result_type == 'success':
+                        response = result_data
+                    else:
+                        raise Exception(result_data)
+                except queue.Empty:
+                    return jsonify({
+                        "success": False,
+                        "error": "Request timeout - agent processing took too long"
+                    }), 408
+            except Exception as e:
+                print(f"Error processing with agent: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": f"Agent processing failed: {str(e)}"
+                }), 500
+            
+            # Add agent response to session
+            agent_message = {
+                'type': 'agent',
+                'content': response.content,
+                'confidence': response.confidence,
+                'reasoning_steps': response.reasoning_steps,
+                'design_plan': getattr(response, 'design_plan', None),
+                'implementation_plan': getattr(response, 'implementation_plan', None),
+                'terraform_code': response.terraform_code,
+                'cost_estimate': response.cost_estimate,
+                'implementation_steps': response.implementation_steps,
+                'timestamp': time.time()
+            }
+            chat_sessions[session_id]['messages'].append(agent_message)
+            
+            # Update context
+            chat_sessions[session_id]['context'].update({
+                'last_agent_response': response,
+                'last_message_time': time.time()
+            })
+            
+            return jsonify({
+                "success": True,
+                "response": agent_message
+            })
+        else:
+            # Demo mode response or fallback
+            print(f"Agent {agent_type} not available. Available agents: {list(agents.keys())}")
+            demo_response = {
+                'type': 'agent',
+                'content': f"I understand you want help with: '{message}'. The {agent_type} agent is not currently available. Please try again or contact support.",
+                'confidence': 0.5,
+                'reasoning_steps': [
+                    "Attempted to process your request",
+                    "Agent not available - using fallback response",
+                    "Please try again or contact support"
+                ],
+                'design_plan': None,
+                'implementation_plan': None,
+                'terraform_code': {},
+                'cost_estimate': 0,
+                'implementation_steps': [
+                    "Analyze requirements",
+                    "Design architecture",
+                    "Generate Terraform code",
+                    "Provide implementation plan"
+                ],
+                'timestamp': time.time()
+            }
+            chat_sessions[session_id]['messages'].append(demo_response)
+            
+            return jsonify({
+                "success": True,
+                "response": demo_response
+            })
+            
+    except Exception as e:
+        return jsonify({"error": f"Chat processing failed: {str(e)}"}), 500
+
+@app.route('/api/chat/history/<session_id>')
+def get_chat_history(session_id):
+    """Get chat history for a session"""
+    if session_id in chat_sessions:
+        return jsonify({
+            "success": True,
+            "messages": chat_sessions[session_id]['messages']
+        })
+    else:
+        return jsonify({
+            "success": True,
+            "messages": []
+        })
+
+@app.route('/api/chat/clear/<session_id>', methods=['POST'])
+def clear_chat_history(session_id):
+    """Clear chat history for a session"""
+    if session_id in chat_sessions:
+        chat_sessions[session_id]['messages'] = []
+        chat_sessions[session_id]['context'] = {}
+    
+    return jsonify({"success": True})
+
+@app.route('/api/chat/sessions')
+def list_chat_sessions():
+    """List all chat sessions"""
+    sessions = []
+    for session_id, data in chat_sessions.items():
+        sessions.append({
+            'session_id': session_id,
+            'agent_type': data['agent_type'],
+            'message_count': len(data['messages']),
+            'last_activity': max([msg['timestamp'] for msg in data['messages']]) if data['messages'] else 0
+        })
+    
+    return jsonify({
+        "success": True,
+        "sessions": sessions
+    })
+
 @app.route('/project-types')
 def project_types():
     """Get available project types"""
@@ -673,7 +855,9 @@ def process_requirements():
                 "implementation_steps": response.implementation_steps,
                 "terraform_code": response.terraform_code,
                 "content": response.content,
-                "reasoning_steps": response.reasoning_steps
+                "reasoning_steps": response.reasoning_steps,
+                "design_plan": getattr(response, 'design_plan', None),
+                "implementation_plan": getattr(response, 'implementation_plan', None)
             }
         })
     except Exception as e:

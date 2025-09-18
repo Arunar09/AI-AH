@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Chat - Terraform Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #333333;
+            --text-secondary: #6c757d;
+            --border-color: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --user-bg: #007bff;
+            --agent-bg: #ffffff;
+            --system-bg: #fff3cd;
+            --system-border: #ffeaa7;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3d3d3d;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --user-bg: #0d6efd;
+            --agent-bg: #2d2d2d;
+            --system-bg: #664d03;
+            --system-border: #ffc107;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .chat-container {
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message.agent {
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-content {
+            background-color: var(--user-bg);
+            color: white;
+        }
+        
+        .message.agent .message-content {
+            background-color: var(--agent-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+        
+        .message.user .message-avatar {
+            background-color: var(--user-bg);
+            color: white;
+        }
+        
+        .message.agent .message-avatar {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .typing-indicator {
+            display: none;
+            padding: 10px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .agent-response-details {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .confidence-bar {
+            height: 8px;
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background-color: #28a745;
+            transition: width 0.3s ease;
+        }
+        
+        [data-theme="dark"] .confidence-fill {
+            background-color: #20c997;
+        }
+        
+        .code-block {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            color: var(--text-primary);
+        }
+        
+        .chat-input-container {
+            position: sticky;
+            bottom: 0;
+            background-color: var(--bg-primary);
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .agent-selector {
+            margin-bottom: 15px;
+        }
+        
+        .session-info {
+            background-color: var(--bg-tertiary);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+        
+        .card, .form-control, .form-select, .btn {
+            background-color: var(--bg-secondary);
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .card {
+            box-shadow: 0 2px 10px var(--shadow);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: var(--bg-secondary);
+            border-color: var(--user-bg);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .btn-outline-primary {
+            border-color: var(--user-bg);
+            color: var(--user-bg);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--user-bg);
+            border-color: var(--user-bg);
+        }
+        
+        .btn-outline-secondary {
+            border-color: var(--text-secondary);
+            color: var(--text-secondary);
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--text-secondary);
+            border-color: var(--text-secondary);
+        }
+        
+        .btn-outline-warning {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+        
+        .btn-outline-warning:hover {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #000;
+        }
+        
+        .btn-outline-info {
+            border-color: #0dcaf0;
+            color: #0dcaf0;
+        }
+        
+        .btn-outline-info:hover {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+            color: #000;
+        }
+        
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+        
+        .bg-light {
+            background-color: var(--bg-secondary) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </div>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 bg-light p-3">
+                <h4><i class="fas fa-robot me-2"></i>AI Agent Chat</h4>
+                
+                <div class="session-info">
+                    <h6>Session Info</h6>
+                    <p class="mb-1"><strong>Session ID:</strong> <span id="sessionId">default</span></p>
+                    <p class="mb-1"><strong>Agent:</strong> <span id="currentAgent">Terraform</span></p>
+                    <p class="mb-0"><strong>Messages:</strong> <span id="messageCount">0</span></p>
+                </div>
+                
+                <div class="agent-selector">
+                    <label for="agentSelect" class="form-label">Select Agent:</label>
+                    <select class="form-select" id="agentSelect">
+                        <option value="terraform">🏗️ Terraform Agent</option>
+                        <option value="ansible" disabled>⚙️ Ansible Agent (Coming Soon)</option>
+                        <option value="kubernetes" disabled>☸️ Kubernetes Agent (Coming Soon)</option>
+                        <option value="security" disabled>🔒 Security Agent (Coming Soon)</option>
+                    </select>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="newSession()">
+                        <i class="fas fa-plus me-2"></i>New Session
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="clearChat()">
+                        <i class="fas fa-trash me-2"></i>Clear Chat
+                    </button>
+                    <button class="btn btn-outline-info" onclick="exportChat()">
+                        <i class="fas fa-download me-2"></i>Export Chat
+                    </button>
+                </div>
+                
+                <hr>
+                
+                <div>
+                    <h6>Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickMessage('Create a simple web application infrastructure')">
+                            Simple Web App
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickMessage('Design a scalable microservices architecture')">
+                            Microservices
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickMessage('Set up monitoring and logging infrastructure')">
+                            Monitoring Setup
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="sendQuickMessage('Create a secure database infrastructure')">
+                            Database Setup
+                        </button>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div>
+                    <h6>Navigation</h6>
+                    <div class="d-grid gap-2">
+                        <a href="/" class="btn btn-outline-primary">
+                            <i class="fas fa-home me-2"></i>Main Interface
+                        </a>
+                        <a href="/troubleshooting" class="btn btn-outline-info">
+                            <i class="fas fa-tools me-2"></i>Troubleshooting
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Area -->
+            <div class="col-md-9 d-flex flex-column">
+                <div class="chat-container" id="chatContainer">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-comments fa-3x mb-3"></i>
+                        <h5>Welcome to AI Agent Chat!</h5>
+                        <p>Start a conversation with the Terraform agent to get infrastructure recommendations, design plans, and implementation guidance.</p>
+                        <p><strong>Try asking:</strong> "Create a web application infrastructure for 1000 users"</p>
+                    </div>
+                </div>
+                
+                <div class="typing-indicator" id="typingIndicator">
+                    <i class="fas fa-circle-notch fa-spin me-2"></i>
+                    Agent is thinking...
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="messageInput" placeholder="Ask about infrastructure, design, or implementation..." onkeypress="handleKeyPress(event)">
+                        <button class="btn btn-primary" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-info-circle me-1"></i>
+                        The agent can help with infrastructure design, Terraform code generation, cost estimation, and implementation planning.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentSessionId = 'default';
+        let messageCount = 0;
+        
+        // Initialize chat
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChatHistory();
+            updateSessionInfo();
+            initializeTheme();
+        });
+        
+        // Theme functionality
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            setTheme(newTheme);
+        }
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            const themeIcon = document.getElementById('themeIcon');
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+                themeIcon.parentElement.title = 'Switch to Light Theme';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeIcon.parentElement.title = 'Switch to Dark Theme';
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessageToChat('user', message);
+            messageInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Send to agent
+            fetch('/api/chat/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    session_id: currentSessionId,
+                    agent_type: document.getElementById('agentSelect').value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTypingIndicator();
+                
+                if (data.success) {
+                    addAgentMessageToChat(data.response);
+                } else {
+                    addMessageToChat('system', `Error: ${data.error}`);
+                }
+            })
+            .catch(error => {
+                hideTypingIndicator();
+                addMessageToChat('system', `Error: ${error.message}`);
+            });
+        }
+        
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+        
+        function addMessageToChat(type, content) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            if (type === 'user') {
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+                messageContent.textContent = content;
+            } else if (type === 'system') {
+                avatar.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                messageContent.innerHTML = `<strong>System:</strong> ${content}`;
+                messageContent.style.backgroundColor = 'var(--system-bg)';
+                messageContent.style.borderColor = 'var(--system-border)';
+                messageContent.style.color = 'var(--text-primary)';
+            }
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            chatContainer.appendChild(messageDiv);
+            
+            scrollToBottom();
+            updateMessageCount();
+        }
+        
+        function addAgentMessageToChat(response) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message agent';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = '<i class="fas fa-robot"></i>';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            
+            // Main response content
+            messageContent.innerHTML = `
+                <div>${response.content}</div>
+                <div class="agent-response-details">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small><strong>Confidence:</strong> ${Math.round(response.confidence * 100)}%</small>
+                        <small><strong>Cost:</strong> $${response.cost_estimate}/month</small>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${response.confidence * 100}%"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Add reasoning steps if available
+            if (response.reasoning_steps && response.reasoning_steps.length > 0) {
+                const reasoningDiv = document.createElement('div');
+                reasoningDiv.className = 'mt-3';
+                reasoningDiv.innerHTML = `
+                    <h6><i class="fas fa-brain me-2"></i>Reasoning Steps:</h6>
+                    <ol class="small">
+                        ${response.reasoning_steps.map(step => `<li>${step}</li>`).join('')}
+                    </ol>
+                `;
+                messageContent.appendChild(reasoningDiv);
+            }
+            
+            // Add design plan if available
+            if (response.design_plan) {
+                const designDiv = document.createElement('div');
+                designDiv.className = 'mt-3';
+                designDiv.innerHTML = `
+                    <h6><i class="fas fa-drafting-compass me-2"></i>Design Plan:</h6>
+                    <div class="small">
+                        <p><strong>Architecture:</strong> ${response.design_plan.architecture_pattern?.pattern || 'N/A'}</p>
+                        <p><strong>Description:</strong> ${response.design_plan.architecture_pattern?.description || 'N/A'}</p>
+                    </div>
+                `;
+                messageContent.appendChild(designDiv);
+            }
+            
+            // Add implementation steps if available
+            if (response.implementation_steps && response.implementation_steps.length > 0) {
+                const implDiv = document.createElement('div');
+                implDiv.className = 'mt-3';
+                implDiv.innerHTML = `
+                    <h6><i class="fas fa-tasks me-2"></i>Implementation Steps:</h6>
+                    <ol class="small">
+                        ${response.implementation_steps.map(step => `<li>${step}</li>`).join('')}
+                    </ol>
+                `;
+                messageContent.appendChild(implDiv);
+            }
+            
+            // Add Terraform code if available
+            if (response.terraform_code && Object.keys(response.terraform_code).length > 0) {
+                const codeDiv = document.createElement('div');
+                codeDiv.className = 'mt-3';
+                codeDiv.innerHTML = `
+                    <h6><i class="fas fa-code me-2"></i>Generated Terraform Files:</h6>
+                    ${Object.entries(response.terraform_code).map(([filename, content]) => `
+                        <div class="mb-2">
+                            <strong>${filename}:</strong>
+                            <div class="code-block">
+                                <pre><code>${content.substring(0, 300)}${content.length > 300 ? '...' : ''}</code></pre>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                messageContent.appendChild(codeDiv);
+            }
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            chatContainer.appendChild(messageDiv);
+            
+            scrollToBottom();
+            updateMessageCount();
+        }
+        
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            scrollToBottom();
+        }
+        
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+        
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function updateMessageCount() {
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+        }
+        
+        function updateSessionInfo() {
+            document.getElementById('sessionId').textContent = currentSessionId;
+            document.getElementById('currentAgent').textContent = 
+                document.getElementById('agentSelect').options[document.getElementById('agentSelect').selectedIndex].text;
+        }
+        
+        function newSession() {
+            currentSessionId = 'session_' + Date.now();
+            messageCount = 0;
+            document.getElementById('chatContainer').innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="fas fa-comments fa-3x mb-3"></i>
+                    <h5>New Chat Session Started!</h5>
+                    <p>Start a new conversation with the AI agent.</p>
+                </div>
+            `;
+            updateSessionInfo();
+        }
+        
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                fetch(`/api/chat/clear/${currentSessionId}`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('chatContainer').innerHTML = `
+                            <div class="text-center text-muted">
+                                <i class="fas fa-comments fa-3x mb-3"></i>
+                                <h5>Chat Cleared!</h5>
+                                <p>Start a new conversation with the AI agent.</p>
+                            </div>
+                        `;
+                        messageCount = 0;
+                        updateSessionInfo();
+                    }
+                });
+            }
+        }
+        
+        function exportChat() {
+            fetch(`/api/chat/history/${currentSessionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const chatData = {
+                        session_id: currentSessionId,
+                        export_date: new Date().toISOString(),
+                        messages: data.messages
+                    };
+                    
+                    const blob = new Blob([JSON.stringify(chatData, null, 2)], {type: 'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `chat_export_${currentSessionId}_${Date.now()}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }
+            });
+        }
+        
+        function loadChatHistory() {
+            fetch(`/api/chat/history/${currentSessionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.messages.length > 0) {
+                    document.getElementById('chatContainer').innerHTML = '';
+                    data.messages.forEach(msg => {
+                        if (msg.type === 'user') {
+                            addMessageToChat('user', msg.content);
+                        } else if (msg.type === 'agent') {
+                            addAgentMessageToChat(msg);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Update session info when agent changes
+        document.getElementById('agentSelect').addEventListener('change', updateSessionInfo);
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "total_actions": 5,
+  "successful_actions": 5,
+  "failed_actions": 0,
+  "average_processing_time": 0.0,
+  "average_confidence": 0.8400000000000001,
+  "success_rate": 1.0,
+  "domain_accuracy": null,
+  "cost_accuracy": null,
+  "validation_success_rate": 0.0,
+  "terraform_generation_rate": 1.0
+}

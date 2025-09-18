@@ -5,19 +5,18 @@ Builds truly intelligent infrastructure as code solutions
 
 import os
 import json
+import uuid
+import time
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from core.reasoning.local_reasoning_engine import LocalReasoningEngine
+from .terraform_agent_monitoring.terraform_agent_monitor import TerraformAgentMonitor
 
-try:
-    from core.models.simple_local_model import get_simple_model, is_simple_model_available
-    LOCAL_MODEL_AVAILABLE = True
-except ImportError:
-    LOCAL_MODEL_AVAILABLE = False
-    print("⚠️ Local model integration not available in Terraform agent")
+# Local model integration removed - using enhanced built-in intelligence only
+LOCAL_MODEL_AVAILABLE = False
 
 @dataclass
 class TerraformResource:
@@ -52,6 +51,8 @@ class AgentResponse:
     reasoning_steps: List[str]
     cost_estimate: float
     implementation_steps: List[str]
+    design_plan: Dict[str, Any] = None
+    implementation_plan: Dict[str, Any] = None
 
 class IntelligentTerraformAgent:
     """
@@ -70,9 +71,13 @@ class IntelligentTerraformAgent:
         self.local_model = None
         self.use_local_model = False
         
-        # Disable local model for performance - use fast built-in logic instead
+        # Initialize Terraform-specific monitoring system  
+        self.monitor = TerraformAgentMonitor()
+        
+        # For web interface, use enhanced built-in logic for better performance
+        # Local model can be slow and cause connection timeouts
         self.use_local_model = False
-        print("🏗️ Intelligent Terraform Agent initialized (using fast built-in logic)")
+        print("🏗️ Intelligent Terraform Agent initialized (using enhanced built-in logic for web interface)")
     
     def _load_terraform_knowledge(self) -> Dict[str, Any]:
         """Load comprehensive Terraform knowledge base"""
@@ -122,6 +127,42 @@ class IntelligentTerraformAgent:
                     "complexity": "very_high",
                     "scalability": "very_high",
                     "security": "high"
+                },
+                "ml_training_pipeline": {
+                    "name": "ml_training_pipeline",
+                    "description": "ML model training with SageMaker, EMR, and S3",
+                    "components": ["sagemaker", "emr", "s3", "iam", "cloudwatch", "vpc"],
+                    "cost_estimate": 1200,
+                    "complexity": "very_high",
+                    "scalability": "very_high",
+                    "security": "high"
+                },
+                "ml_inference_pipeline": {
+                    "name": "ml_inference_pipeline",
+                    "description": "Real-time ML inference with Lambda, ECS, and API Gateway",
+                    "components": ["lambda", "ecs", "api_gateway", "dynamodb", "cloudwatch"],
+                    "cost_estimate": 400,
+                    "complexity": "high",
+                    "scalability": "very_high",
+                    "security": "high"
+                },
+                "iot_platform": {
+                    "name": "iot_platform",
+                    "description": "IoT device management with AWS IoT Core and Kinesis",
+                    "components": ["iot_core", "kinesis", "lambda", "dynamodb", "s3", "cloudwatch"],
+                    "cost_estimate": 300,
+                    "complexity": "high",
+                    "scalability": "very_high",
+                    "security": "high"
+                },
+                "enterprise_microservices": {
+                    "name": "enterprise_microservices",
+                    "description": "Enterprise microservices with EKS, service mesh, and monitoring",
+                    "components": ["eks", "istio", "prometheus", "grafana", "jaeger", "vpc", "alb"],
+                    "cost_estimate": 1500,
+                    "complexity": "very_high",
+                    "scalability": "very_high",
+                    "security": "very_high"
                 }
             },
             "azure_patterns": {
@@ -203,32 +244,438 @@ class IntelligentTerraformAgent:
     
     def process_request(self, request: str, session_id: str = "default") -> AgentResponse:
         """
-        Process infrastructure request and generate Terraform solution
+        Process infrastructure request and generate Terraform solution with monitoring
         """
+        # Generate unique action ID for monitoring
+        action_id = str(uuid.uuid4())[:8]
+        
+        # Start monitoring this Terraform action
+        monitoring_context = self.monitor.start_terraform_action_monitoring(
+            action_id=action_id,
+            action_type="terraform_generation",
+            input_request=request
+        )
+        
         print(f"🏗️ Processing Terraform request: {request}")
         
-        # Use reasoning engine to analyze the request
-        reasoning_result = self.reasoning_engine.reason_through_problem(request, {})
-        
-        # Generate Terraform code based on reasoning
-        terraform_project = self._generate_terraform_code(reasoning_result, request)
-        
-        # Create implementation steps
-        implementation_steps = self._generate_implementation_steps(terraform_project)
-        
-        # Calculate cost estimate
-        cost_estimate = self._calculate_cost_estimate(terraform_project)
-        
-        return AgentResponse(
-            content=reasoning_result.explanation,
-            terraform_code=self._format_terraform_files(terraform_project),
-            confidence=reasoning_result.confidence,
-            reasoning_steps=reasoning_result.reasoning_steps,
-            cost_estimate=cost_estimate,
-            implementation_steps=implementation_steps
-        )
+        try:
+            # Use reasoning engine to analyze the request
+            reasoning_result = self.reasoning_engine.reason_through_problem(request, {})
+            
+            # Generate architectural design and implementation plan
+            design_plan = self._generate_architectural_design(reasoning_result, request)
+            implementation_plan = self._generate_implementation_plan(design_plan, reasoning_result)
+            
+            # Generate Terraform code based on design plan
+            terraform_project = self._generate_terraform_code(reasoning_result, request, design_plan)
+            
+            # Create implementation steps
+            implementation_steps = self._generate_implementation_steps(terraform_project)
+            
+            # Calculate cost estimate
+            cost_estimate = self._calculate_cost_estimate(terraform_project)
+            
+            # Validate the generated Terraform code
+            try:
+                terraform_files = self._format_terraform_files(terraform_project)
+                domain = self._extract_domain_from_request(request)
+                
+                # Get terraform content for validation (combine all files)
+                terraform_content = ""
+                if terraform_files:
+                    terraform_content = "\n\n".join(terraform_files.values())
+            except Exception as e:
+                print(f"Debug: Error in terraform validation - {e}")
+                print(f"Debug: terraform_project type: {type(terraform_project)}")
+                print(f"Debug: terraform_project attributes: {dir(terraform_project)}")
+                terraform_content = ""
+                domain = "unknown"
+            
+            validation_results = self.monitor.validate_terraform_code(
+                terraform_content,
+                domain
+            )
+            
+            # Calculate complexity score
+            complexity_score = self._calculate_complexity_score(terraform_project)
+            
+            # Complete Terraform monitoring
+            self.monitor.complete_terraform_action_monitoring(
+                action_id=action_id,
+                success=True,
+                confidence_score=reasoning_result.confidence,
+                cost_estimate=cost_estimate,
+                complexity_score=complexity_score,
+                validation_results=validation_results,
+                domain=domain,
+                terraform_files_generated=len(terraform_files),
+                implementation_steps=len(implementation_steps)
+            )
+            
+            return AgentResponse(
+                content=reasoning_result.explanation,
+                terraform_code=terraform_files,
+                confidence=reasoning_result.confidence,
+                reasoning_steps=reasoning_result.reasoning_steps,
+                cost_estimate=cost_estimate,
+                implementation_steps=implementation_steps,
+                design_plan=design_plan,
+                implementation_plan=implementation_plan
+            )
+            
+        except Exception as e:
+            # Complete Terraform monitoring with error
+            self.monitor.complete_terraform_action_monitoring(
+                action_id=action_id,
+                success=False,
+                confidence_score=0.0,
+                cost_estimate=0.0,
+                complexity_score=0,
+                validation_results={"error": str(e)},
+                domain="unknown",
+                terraform_files_generated=0,
+                implementation_steps=0,
+                error_message=str(e)
+            )
+            raise e
     
-    def _generate_terraform_code(self, reasoning_result, request: str) -> TerraformProject:
+    def _generate_architectural_design(self, reasoning_result, request: str) -> Dict[str, Any]:
+        """Generate comprehensive architectural design plan"""
+        print("🎨 Generating architectural design...")
+        
+        # Parse requirements from request
+        requirements = self._parse_requirements_from_request(request)
+        
+        # Determine architecture pattern
+        architecture_pattern = self._determine_architecture_pattern(requirements)
+        
+        # Design components
+        components = self._design_components(requirements, architecture_pattern)
+        
+        # Design networking
+        networking = self._design_networking(requirements)
+        
+        # Design security
+        security = self._design_security(requirements)
+        
+        # Design monitoring
+        monitoring = self._design_monitoring(requirements)
+        
+        design_plan = {
+            "architecture_pattern": architecture_pattern,
+            "components": components,
+            "networking": networking,
+            "security": security,
+            "monitoring": monitoring,
+            "scalability": self._design_scalability(requirements),
+            "cost_optimization": self._design_cost_optimization(requirements),
+            "compliance": self._design_compliance(requirements)
+        }
+        
+        return design_plan
+    
+    def _generate_implementation_plan(self, design_plan: Dict[str, Any], reasoning_result) -> Dict[str, Any]:
+        """Generate detailed implementation plan"""
+        print("📋 Generating implementation plan...")
+        
+        implementation_plan = {
+            "phases": [
+                {
+                    "phase": "Phase 1: Foundation Setup",
+                    "description": "Set up core infrastructure foundation",
+                    "duration": "15-30 minutes",
+                    "steps": [
+                        "Configure AWS provider and authentication",
+                        "Create VPC and networking components",
+                        "Set up security groups and NACLs",
+                        "Configure IAM roles and policies"
+                    ],
+                    "dependencies": [],
+                    "risk_level": "Low"
+                },
+                {
+                    "phase": "Phase 2: Core Infrastructure",
+                    "description": "Deploy core compute and storage resources",
+                    "duration": "20-40 minutes",
+                    "steps": [
+                        "Launch EC2 instances or containers",
+                        "Configure load balancers",
+                        "Set up database instances",
+                        "Configure storage and backups"
+                    ],
+                    "dependencies": ["Phase 1"],
+                    "risk_level": "Medium"
+                },
+                {
+                    "phase": "Phase 3: Application Deployment",
+                    "description": "Deploy and configure applications",
+                    "duration": "15-30 minutes",
+                    "steps": [
+                        "Deploy application code",
+                        "Configure environment variables",
+                        "Set up database connections",
+                        "Test application functionality"
+                    ],
+                    "dependencies": ["Phase 2"],
+                    "risk_level": "Medium"
+                },
+                {
+                    "phase": "Phase 4: Monitoring & Security",
+                    "description": "Configure monitoring, logging, and security",
+                    "duration": "10-20 minutes",
+                    "steps": [
+                        "Set up CloudWatch monitoring",
+                        "Configure log aggregation",
+                        "Enable security scanning",
+                        "Set up alerting and notifications"
+                    ],
+                    "dependencies": ["Phase 3"],
+                    "risk_level": "Low"
+                }
+            ],
+            "rollback_strategy": {
+                "automatic_rollback": True,
+                "rollback_triggers": [
+                    "Health check failures",
+                    "High error rates",
+                    "Resource creation failures"
+                ],
+                "rollback_steps": [
+                    "Stop new deployments",
+                    "Restore previous version",
+                    "Verify system health",
+                    "Investigate and fix issues"
+                ]
+            },
+            "testing_strategy": {
+                "unit_tests": "Test individual components",
+                "integration_tests": "Test component interactions",
+                "load_tests": "Test performance under load",
+                "security_tests": "Test security configurations"
+            },
+            "success_criteria": [
+                "All resources deployed successfully",
+                "Application responds to health checks",
+                "Monitoring and alerting functional",
+                "Security configurations validated",
+                "Performance meets requirements"
+            ]
+        }
+        
+        return implementation_plan
+    
+    def _parse_requirements_from_request(self, request: str) -> Dict[str, Any]:
+        """Parse requirements from request text"""
+        requirements = {}
+        lines = request.split('\n')
+        
+        for line in lines:
+            if ':' in line:
+                key, value = line.split(':', 1)
+                key = key.strip().lower().replace(' ', '_')
+                value = value.strip()
+                requirements[key] = value
+        
+        return requirements
+    
+    def _determine_architecture_pattern(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Determine the best architecture pattern based on requirements"""
+        user_load = int(requirements.get('user_load', '1000'))
+        budget = int(requirements.get('budget', '100'))
+        security = requirements.get('security', 'basic')
+        
+        if user_load < 1000 and budget < 200:
+            pattern = "Simple Web Application"
+            description = "Single-tier architecture with web server and database"
+        elif user_load < 10000 and budget < 500:
+            pattern = "Load Balanced Web Application"
+            description = "Multi-tier architecture with load balancer, web servers, and database"
+        else:
+            pattern = "Microservices Architecture"
+            description = "Distributed architecture with multiple services, API gateway, and container orchestration"
+        
+        return {
+            "pattern": pattern,
+            "description": description,
+            "rationale": f"Selected based on user load ({user_load}), budget (${budget}), and security requirements ({security})"
+        }
+    
+    def _design_components(self, requirements: Dict[str, Any], architecture_pattern: Dict[str, Any]) -> Dict[str, Any]:
+        """Design system components based on requirements"""
+        components = {
+            "compute": {
+                "web_servers": {
+                    "type": "EC2 instances",
+                    "count": 2 if int(requirements.get('user_load', '1000')) > 1000 else 1,
+                    "instance_type": "t3.micro" if int(requirements.get('budget', '100')) < 200 else "t3.small",
+                    "purpose": "Host web application"
+                }
+            },
+            "storage": {
+                "database": {
+                    "type": "RDS PostgreSQL",
+                    "instance_class": "db.t3.micro",
+                    "purpose": "Store application data"
+                },
+                "file_storage": {
+                    "type": "S3 bucket",
+                    "purpose": "Store static files and backups"
+                }
+            },
+            "networking": {
+                "load_balancer": {
+                    "type": "Application Load Balancer",
+                    "purpose": "Distribute traffic across web servers"
+                },
+                "cdn": {
+                    "type": "CloudFront",
+                    "purpose": "Cache static content globally"
+                }
+            }
+        }
+        
+        return components
+    
+    def _design_networking(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design networking architecture"""
+        return {
+            "vpc": {
+                "cidr": "10.0.0.0/16",
+                "description": "Main VPC for the application"
+            },
+            "subnets": {
+                "public": {
+                    "cidr": "10.0.1.0/24",
+                    "availability_zone": "us-east-1a",
+                    "purpose": "Load balancer and NAT gateway"
+                },
+                "private": {
+                    "cidr": "10.0.2.0/24",
+                    "availability_zone": "us-east-1a",
+                    "purpose": "Web servers and database"
+                }
+            },
+            "security_groups": {
+                "web_sg": {
+                    "inbound": ["HTTP (80)", "HTTPS (443)", "SSH (22)"],
+                    "outbound": ["All traffic"]
+                },
+                "db_sg": {
+                    "inbound": ["PostgreSQL (5432) from web servers"],
+                    "outbound": ["All traffic"]
+                }
+            }
+        }
+    
+    def _design_security(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design security architecture"""
+        security_level = requirements.get('security', 'basic')
+        
+        security_design = {
+            "network_security": {
+                "vpc_endpoints": "Enable for AWS services",
+                "security_groups": "Restrictive inbound/outbound rules",
+                "nacls": "Additional network-level security"
+            },
+            "access_control": {
+                "iam_roles": "Least privilege access",
+                "mfa": "Multi-factor authentication enabled",
+                "key_rotation": "Regular key rotation policy"
+            }
+        }
+        
+        if security_level == 'high':
+            security_design.update({
+                "encryption": {
+                    "at_rest": "AES-256 encryption for all storage",
+                    "in_transit": "TLS 1.2+ for all communications"
+                },
+                "monitoring": {
+                    "cloudtrail": "API call logging",
+                    "config": "Resource configuration monitoring",
+                    "guardduty": "Threat detection"
+                }
+            })
+        
+        return security_design
+    
+    def _design_monitoring(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design monitoring and observability"""
+        return {
+            "metrics": {
+                "cloudwatch": "System and application metrics",
+                "custom_metrics": "Business-specific metrics"
+            },
+            "logging": {
+                "cloudwatch_logs": "Centralized log aggregation",
+                "log_groups": ["/aws/ec2/web", "/aws/rds/database"]
+            },
+            "alerting": {
+                "sns": "Email and SMS notifications",
+                "alarms": ["High CPU", "High memory", "Database connections"]
+            },
+            "dashboards": {
+                "grafana": "Custom monitoring dashboards",
+                "cloudwatch": "AWS native dashboards"
+            }
+        }
+    
+    def _design_scalability(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design scalability strategy"""
+        return {
+            "horizontal_scaling": {
+                "auto_scaling_groups": "Automatically scale web servers based on demand",
+                "target_tracking": "CPU and memory-based scaling policies"
+            },
+            "vertical_scaling": {
+                "instance_types": "Upgrade instance types as needed",
+                "database_scaling": "RDS read replicas for read scaling"
+            },
+            "caching": {
+                "elasticache": "Redis for session and data caching",
+                "cloudfront": "CDN for static content caching"
+            }
+        }
+    
+    def _design_cost_optimization(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design cost optimization strategy"""
+        return {
+            "compute_optimization": {
+                "spot_instances": "Use spot instances for non-critical workloads",
+                "reserved_instances": "Reserve instances for predictable workloads",
+                "right_sizing": "Regular instance size optimization"
+            },
+            "storage_optimization": {
+                "s3_lifecycle": "Automated data lifecycle management",
+                "ebs_optimization": "Use appropriate EBS volume types"
+            },
+            "monitoring": {
+                "cost_explorer": "Regular cost analysis and optimization",
+                "budget_alerts": "Set up budget alerts and notifications"
+            }
+        }
+    
+    def _design_compliance(self, requirements: Dict[str, Any]) -> Dict[str, Any]:
+        """Design compliance and governance"""
+        return {
+            "data_protection": {
+                "encryption": "Encrypt data at rest and in transit",
+                "backup": "Regular automated backups",
+                "retention": "Data retention policies"
+            },
+            "audit": {
+                "cloudtrail": "API call auditing",
+                "config": "Resource configuration compliance",
+                "access_logs": "User access logging"
+            },
+            "governance": {
+                "tagging": "Consistent resource tagging",
+                "policies": "IAM policies for access control",
+                "standards": "AWS Well-Architected Framework compliance"
+            }
+        }
+
+    def _generate_terraform_code(self, reasoning_result, request: str, design_plan: Dict[str, Any] = None) -> TerraformProject:
         """Generate Terraform code based on reasoning"""
         
         # Determine provider based on request
@@ -266,13 +713,25 @@ class IntelligentTerraformAgent:
             return "aws"  # Default to AWS
     
     def _select_pattern(self, reasoning_result, provider: str) -> Dict[str, Any]:
-        """Select appropriate infrastructure pattern"""
+        """Select appropriate infrastructure pattern with intelligent domain recognition"""
         patterns = self.knowledge_base.get(f"{provider}_patterns", {})
+        solution_name = reasoning_result.decision.solution.name.lower()
         
-        # Simple pattern selection based on requirements
-        if "serverless" in reasoning_result.decision.solution.name.lower():
+        # Intelligent domain recognition
+        if any(keyword in solution_name for keyword in ["machine learning", "ml", "ai", "training", "inference"]):
+            if "training" in solution_name or "model" in solution_name:
+                pattern = patterns.get("ml_training_pipeline", patterns.get("data_analytics", {}))
+            else:
+                pattern = patterns.get("ml_inference_pipeline", patterns.get("serverless_api", {}))
+        elif any(keyword in solution_name for keyword in ["iot", "device", "sensor", "telemetry"]):
+            pattern = patterns.get("iot_platform", patterns.get("serverless_api", {}))
+        elif any(keyword in solution_name for keyword in ["enterprise", "microservices", "distributed"]):
+            pattern = patterns.get("enterprise_microservices", patterns.get("microservices", {}))
+        elif any(keyword in solution_name for keyword in ["data", "analytics", "processing", "pipeline"]):
+            pattern = patterns.get("data_analytics", patterns.get("web_app_scalable", {}))
+        elif "serverless" in solution_name:
             pattern = patterns.get("serverless_api", patterns.get("web_app_basic", {}))
-        elif "scalable" in reasoning_result.decision.solution.name.lower():
+        elif "scalable" in solution_name or "load balanced" in solution_name:
             pattern = patterns.get("web_app_scalable", patterns.get("web_app_basic", {}))
         else:
             pattern = patterns.get("web_app_basic", {})
@@ -350,25 +809,9 @@ class IntelligentTerraformAgent:
             return self._generate_aws_main_tf_fallback(pattern)
     
     def _generate_aws_main_tf_with_local_model(self, pattern: Dict[str, Any]) -> str:
-        """Generate AWS main.tf using CodeLlama"""
-        try:
-            prompt = f"""<s>[INST] Generate AWS Terraform code for: {pattern["name"]}
-
-Create basic infrastructure with:
-- VPC and subnets
-- Security groups
-- EC2 instances or load balancer
-- Proper tagging
-
-Generate only Terraform code, no explanations.
-[/INST]"""
-            
-            response = self.local_model.generate_response(prompt, max_tokens=800)
-            return response
-            
-        except Exception as e:
-            print(f"⚠️ Local model failed for Terraform generation, using fallback: {e}")
-            return self._generate_aws_main_tf_fallback(pattern)
+        """Generate AWS main.tf using built-in intelligence"""
+        # This method is kept for compatibility but always uses fallback
+        return self._generate_aws_main_tf_fallback(pattern)
     
     def _generate_aws_main_tf_fallback(self, pattern: Dict[str, Any]) -> str:
         """Fallback AWS main.tf generation"""
@@ -1265,3 +1708,53 @@ resource "aws_autoscaling_policy" "web_scale_down" {
         ]
         
         return plan
+    
+    def _extract_domain_from_request(self, request: str) -> str:
+        """Extract domain from request for monitoring"""
+        request_lower = request.lower()
+        
+        if any(keyword in request_lower for keyword in ["machine learning", "ml", "ai", "training", "inference"]):
+            return "ml"
+        elif any(keyword in request_lower for keyword in ["iot", "device", "sensor", "telemetry"]):
+            return "iot"
+        elif any(keyword in request_lower for keyword in ["data", "analytics", "processing", "pipeline"]):
+            return "analytics"
+        elif any(keyword in request_lower for keyword in ["enterprise", "microservices", "distributed"]):
+            return "enterprise"
+        else:
+            return "web"
+    
+    def _calculate_complexity_score(self, terraform_project) -> int:
+        """Calculate complexity score for monitoring"""
+        score = 0
+        
+        # Handle TerraformProject object
+        if hasattr(terraform_project, 'files'):
+            # Count resources, modules, and data sources from TerraformProject
+            for file in terraform_project.files:
+                if hasattr(file, 'content'):
+                    content = file.content
+                    score += content.count('resource "')
+                    score += content.count('module "')
+                    score += content.count('data "')
+                    
+                    # Complexity based on services used
+                    services = ['aws_ecs', 'aws_eks', 'aws_emr', 'aws_sagemaker', 'aws_iot']
+                    for service in services:
+                        if service in content:
+                            score += 2
+        else:
+            # Handle dictionary format (fallback)
+            for file_content in terraform_project.values():
+                if isinstance(file_content, str):
+                    score += file_content.count('resource "')
+                    score += file_content.count('module "')
+                    score += file_content.count('data "')
+                    
+                    # Complexity based on services used
+                    services = ['aws_ecs', 'aws_eks', 'aws_emr', 'aws_sagemaker', 'aws_iot']
+                    for service in services:
+                        if service in file_content:
+                            score += 2
+        
+        return min(score, 10)  # Cap at 10 for simplicity

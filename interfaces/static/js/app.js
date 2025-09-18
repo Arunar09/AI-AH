@@ -327,6 +327,104 @@ function displayProcessingResults(response) {
             </div>
             ` : ''}
             
+            ${response.design_plan ? `
+            <div class="mt-4">
+                <h6><i class="fas fa-drafting-compass me-2"></i>Architectural Design Plan:</h6>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>🏗️ Architecture Pattern</h6>
+                                <p><strong>${response.design_plan.architecture_pattern?.pattern || 'N/A'}</strong></p>
+                                <p>${response.design_plan.architecture_pattern?.description || 'N/A'}</p>
+                                <small class="text-muted">${response.design_plan.architecture_pattern?.rationale || 'N/A'}</small>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>🔧 Components</h6>
+                                <ul class="list-unstyled">
+                                    ${response.design_plan.components ? Object.entries(response.design_plan.components).map(([category, items]) => 
+                                        `<li><strong>${category}:</strong> ${Object.keys(items).join(', ')}</li>`
+                                    ).join('') : '<li>N/A</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <h6>🌐 Networking</h6>
+                                <ul class="list-unstyled">
+                                    ${response.design_plan.networking ? Object.entries(response.design_plan.networking).map(([key, value]) => 
+                                        `<li><strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}</li>`
+                                    ).join('') : '<li>N/A</li>'}
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>🔒 Security</h6>
+                                <ul class="list-unstyled">
+                                    ${response.design_plan.security ? Object.entries(response.design_plan.security).map(([key, value]) => 
+                                        `<li><strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}</li>`
+                                    ).join('') : '<li>N/A</li>'}
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>📊 Monitoring</h6>
+                                <ul class="list-unstyled">
+                                    ${response.design_plan.monitoring ? Object.entries(response.design_plan.monitoring).map(([key, value]) => 
+                                        `<li><strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}</li>`
+                                    ).join('') : '<li>N/A</li>'}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            
+            ${response.implementation_plan ? `
+            <div class="mt-4">
+                <h6><i class="fas fa-tasks me-2"></i>Implementation Plan:</h6>
+                <div class="accordion" id="implementationAccordion">
+                    ${response.implementation_plan.phases ? response.implementation_plan.phases.map((phase, index) => `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="phaseHeading${index}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#phaseCollapse${index}">
+                                    ${phase.phase} (${phase.duration}) - Risk: ${phase.risk_level}
+                                </button>
+                            </h2>
+                            <div id="phaseCollapse${index}" class="accordion-collapse collapse" data-bs-parent="#implementationAccordion">
+                                <div class="accordion-body">
+                                    <p>${phase.description}</p>
+                                    <h6>Steps:</h6>
+                                    <ol>
+                                        ${phase.steps.map(step => `<li>${step}</li>`).join('')}
+                                    </ol>
+                                    ${phase.dependencies.length > 0 ? `<p><strong>Dependencies:</strong> ${phase.dependencies.join(', ')}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('') : '<p>No implementation phases available</p>'}
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>🔄 Rollback Strategy</h6>
+                        <ul>
+                            ${response.implementation_plan.rollback_strategy ? response.implementation_plan.rollback_strategy.rollback_steps.map(step => 
+                                `<li>${step}</li>`
+                            ).join('') : '<li>N/A</li>'}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>✅ Success Criteria</h6>
+                        <ul>
+                            ${response.implementation_plan.success_criteria ? response.implementation_plan.success_criteria.map(criteria => 
+                                `<li>${criteria}</li>`
+                            ).join('') : '<li>N/A</li>'}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            ` : ''}
+            
             <div class="mt-4">
                 <h6><i class="fas fa-cogs me-2"></i>Implementation Steps:</h6>
                 <ol>
