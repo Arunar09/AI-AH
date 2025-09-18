@@ -34,6 +34,16 @@ class Solution:
     performance_score: float
     security_score: float
     complexity: str
+    # Advanced reasoning attributes
+    scalability_score: float = 0.0
+    maintainability_score: float = 0.0
+    compliance_score: float = 0.0
+    risk_score: float = 0.0
+    optimization_recommendations: List[str] = None
+    
+    def __post_init__(self):
+        if self.optimization_recommendations is None:
+            self.optimization_recommendations = []
 
 @dataclass
 class Decision:
@@ -339,7 +349,11 @@ class LocalReasoningEngine:
                     cost_estimate=min(budget * 0.9, 1200),
                     performance_score=0.9,
                     security_score=0.85,
-                    complexity="high"
+                    complexity="high",
+                    scalability_score=0.9,
+                    maintainability_score=0.7,
+                    compliance_score=0.8,
+                    risk_score=0.3
                 )
             else:
                 solution = Solution(
@@ -349,7 +363,11 @@ class LocalReasoningEngine:
                     cost_estimate=min(budget * 0.8, 400),
                     performance_score=0.9,
                     security_score=0.8,
-                    complexity="high"
+                    complexity="high",
+                    scalability_score=0.95,
+                    maintainability_score=0.8,
+                    compliance_score=0.75,
+                    risk_score=0.2
                 )
         # IoT domain recognition
         elif any(keyword in objective_lower for keyword in ["iot", "device", "sensor", "telemetry", "connected", "smart"]):
@@ -360,7 +378,11 @@ class LocalReasoningEngine:
                 cost_estimate=min(budget * 0.8, 300),
                 performance_score=0.85,
                 security_score=0.9,
-                complexity="high"
+                complexity="high",
+                scalability_score=0.95,
+                maintainability_score=0.6,
+                compliance_score=0.85,
+                risk_score=0.4
             )
         # Data Analytics domain recognition
         elif any(keyword in objective_lower for keyword in ["data", "analytics", "processing", "pipeline", "warehouse", "lake", "etl"]):
@@ -371,7 +393,11 @@ class LocalReasoningEngine:
                 cost_estimate=min(budget * 0.9, 800),
                 performance_score=0.9,
                 security_score=0.8,
-                complexity="high"
+                complexity="high",
+                scalability_score=0.9,
+                maintainability_score=0.7,
+                compliance_score=0.8,
+                risk_score=0.3
             )
         # Enterprise domain recognition
         elif any(keyword in objective_lower for keyword in ["enterprise", "microservices", "distributed", "multi-tenant", "saas"]):
@@ -382,7 +408,11 @@ class LocalReasoningEngine:
                 cost_estimate=min(budget * 0.8, 1500),
                 performance_score=0.95,
                 security_score=0.95,
-                complexity="very_high"
+                complexity="very_high",
+                scalability_score=0.98,
+                maintainability_score=0.6,
+                compliance_score=0.95,
+                risk_score=0.5
             )
         # Standard web application logic
         elif users > 50000 or budget > 1000:
@@ -534,14 +564,19 @@ class LocalReasoningEngine:
         return self._generate_explanation_fallback(decision, parsed_request)
     
     def _generate_explanation_fallback(self, decision: Decision, parsed_request: ParsedRequest) -> str:
-        """Enhanced fallback explanation with intelligent analysis"""
+        """Enhanced fallback explanation with advanced reasoning analysis"""
         users = parsed_request.scale['users']
         budget = parsed_request.constraints['budget']
         performance = parsed_request.constraints['performance']
         security = parsed_request.constraints['security']
         scalability = parsed_request.constraints['scalability']
         
-        # Generate intelligent explanation
+        # Advanced reasoning analysis
+        constraint_analysis = self._analyze_constraints(decision.solution)
+        risk_assessment = self._assess_risks(decision.solution)
+        optimization_recommendations = self._generate_optimization_recommendations(decision.solution)
+        
+        # Generate intelligent explanation with advanced reasoning
         explanation = f"""
 ## Solution: {decision.solution.name}
 
@@ -554,8 +589,23 @@ class LocalReasoningEngine:
 - **Security:** {security.title()} security needs addressed with {decision.solution.security_score:.1f}/1.0 score
 - **Scalability:** {scalability.title()} scalability requirements supported
 
+**Advanced Performance Metrics:**
+- **Scalability Score:** {decision.solution.scalability_score:.1f}/1.0
+- **Maintainability Score:** {decision.solution.maintainability_score:.1f}/1.0
+- **Compliance Score:** {decision.solution.compliance_score:.1f}/1.0
+- **Risk Score:** {decision.solution.risk_score:.1f}/1.0 (Lower is better)
+
 **Architecture Components:**
 {chr(10).join([f"- {component.replace('_', ' ').title()}" for component in decision.solution.components])}
+
+**Multi-Constraint Analysis:**
+{constraint_analysis}
+
+**Risk Assessment:**
+{risk_assessment}
+
+**Optimization Recommendations:**
+{optimization_recommendations}
 
 **Implementation considerations:**
 - **Cost Optimization:** Solution designed to stay within budget while meeting requirements
@@ -588,4 +638,91 @@ class LocalReasoningEngine:
             "security": parsed_request.constraints.get("security", "medium"),
             "scalability": parsed_request.constraints.get("scalability", "medium")
         }
+    
+    def _analyze_constraints(self, solution: Solution) -> str:
+        """Analyze multi-constraint trade-offs"""
+        analysis = []
+        
+        # Cost vs Performance Analysis
+        if solution.cost_estimate > 1000 and solution.performance_score < 0.7:
+            analysis.append("⚠️ High cost with moderate performance - consider right-sizing")
+        elif solution.cost_estimate < 200 and solution.performance_score > 0.8:
+            analysis.append("✅ Excellent cost-performance ratio")
+        
+        # Security vs Usability Trade-offs
+        if solution.security_score > 0.8 and solution.complexity == "high":
+            analysis.append("🔒 High security with high complexity - consider security automation")
+        elif solution.security_score < 0.6 and solution.complexity == "low":
+            analysis.append("⚠️ Low security with simple architecture - add security layers")
+        
+        # Scalability vs Complexity Balance
+        if solution.scalability_score > 0.8 and solution.complexity == "very_high":
+            analysis.append("📈 High scalability with high complexity - consider managed services")
+        elif solution.scalability_score < 0.6 and solution.complexity == "low":
+            analysis.append("⚠️ Limited scalability - plan for future growth")
+        
+        return "\n".join(analysis) if analysis else "✅ Well-balanced solution across all constraints"
+    
+    def _assess_risks(self, solution: Solution) -> str:
+        """Comprehensive risk assessment"""
+        risks = []
+        mitigations = []
+        
+        # Infrastructure Risks
+        if solution.complexity == "very_high":
+            risks.append("🔴 High operational complexity - single points of failure")
+            mitigations.append("💡 Implement comprehensive monitoring and automation")
+        
+        if solution.cost_estimate > 2000:
+            risks.append("🔴 High cost risk - potential budget overruns")
+            mitigations.append("💡 Implement cost monitoring and auto-scaling")
+        
+        # Security Risks
+        if solution.security_score < 0.7:
+            risks.append("🔴 Security vulnerabilities - compliance issues")
+            mitigations.append("💡 Implement security scanning and compliance monitoring")
+        
+        # Performance Risks
+        if solution.performance_score < 0.6:
+            risks.append("🔴 Performance bottlenecks - user experience issues")
+            mitigations.append("💡 Implement performance monitoring and optimization")
+        
+        # Scalability Risks
+        if solution.scalability_score < 0.6:
+            risks.append("🔴 Limited scalability - growth constraints")
+            mitigations.append("💡 Plan for horizontal scaling and load balancing")
+        
+        risk_text = "**Identified Risks:**\n" + "\n".join(risks) if risks else "✅ Low risk profile"
+        mitigation_text = "**Risk Mitigations:**\n" + "\n".join(mitigations) if mitigations else "✅ No major risks identified"
+        
+        return f"{risk_text}\n\n{mitigation_text}"
+    
+    def _generate_optimization_recommendations(self, solution: Solution) -> str:
+        """Generate optimization recommendations"""
+        recommendations = []
+        
+        # Cost Optimization
+        if solution.cost_estimate > 1000:
+            recommendations.append("💰 Cost Optimization: Consider reserved instances, spot instances, or auto-scaling")
+        
+        if solution.cost_estimate < 100:
+            recommendations.append("💰 Cost Optimization: Current solution is cost-effective")
+        
+        # Performance Optimization
+        if solution.performance_score < 0.7:
+            recommendations.append("⚡ Performance: Add caching layers, CDN, or database optimization")
+        
+        # Security Optimization
+        if solution.security_score < 0.8:
+            recommendations.append("🔒 Security: Implement WAF, encryption, and access controls")
+        
+        # Scalability Optimization
+        if solution.scalability_score < 0.7:
+            recommendations.append("📈 Scalability: Add load balancers, auto-scaling, and microservices")
+        
+        # Maintenance Optimization
+        if solution.complexity == "very_high":
+            recommendations.append("🛠️ Maintenance: Consider managed services and automation")
+        
+        return "\n".join(recommendations) if recommendations else "✅ Solution is well-optimized"
 
