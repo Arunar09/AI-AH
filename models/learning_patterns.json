@@ -1,0 +1,70 @@
+{
+  "infrastructure_generation_100_0": {
+    "pattern_id": "infrastructure_generation_100_0",
+    "pattern_type": "infrastructure_generation",
+    "conditions": {
+      "operation_type": "infrastructure_generation",
+      "user_count": 100,
+      "data_volume": 0,
+      "availability_requirement": 99.0,
+      "security_requirements": false,
+      "compliance_required": false,
+      "execution_time": 0.5724203586578369,
+      "success": true,
+      "cost_impact": 65.0,
+      "resource_count": 0,
+      "timestamp_hour": 16,
+      "timestamp_day": 6
+    },
+    "outcomes": {
+      "operation_type": "infrastructure_generation",
+      "user_count": 100,
+      "data_volume": 0,
+      "availability_requirement": 99.0,
+      "security_requirements": false,
+      "compliance_required": false,
+      "execution_time": 0.5724203586578369,
+      "success": true,
+      "cost_impact": 65.0,
+      "resource_changes": []
+    },
+    "confidence": 0.3,
+    "frequency": 3,
+    "last_seen": "2025-09-21T16:29:02.264857",
+    "success_rate": 1.0
+  },
+  "infrastructure_generation_500_0": {
+    "pattern_id": "infrastructure_generation_500_0",
+    "pattern_type": "infrastructure_generation",
+    "conditions": {
+      "operation_type": "infrastructure_generation",
+      "user_count": 500,
+      "data_volume": 0,
+      "availability_requirement": 99.0,
+      "security_requirements": true,
+      "compliance_required": false,
+      "execution_time": 0.45270681381225586,
+      "success": true,
+      "cost_impact": 65.0,
+      "resource_count": 0,
+      "timestamp_hour": 16,
+      "timestamp_day": 6
+    },
+    "outcomes": {
+      "operation_type": "infrastructure_generation",
+      "user_count": 500,
+      "data_volume": 0,
+      "availability_requirement": 99.0,
+      "security_requirements": true,
+      "compliance_required": false,
+      "execution_time": 0.45270681381225586,
+      "success": true,
+      "cost_impact": 65.0,
+      "resource_changes": []
+    },
+    "confidence": 0.1,
+    "frequency": 1,
+    "last_seen": "2025-09-21T16:37:46.116868",
+    "success_rate": 1.0
+  }
+}

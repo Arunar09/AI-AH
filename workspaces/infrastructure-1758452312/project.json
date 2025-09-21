@@ -1,0 +1,17 @@
+{
+  "name": "infrastructure-1758452312",
+  "created_at": "2025-09-21T16:28:32.382599",
+  "variables": {
+    "aws_region": "us-east-1",
+    "project_name": "infrastructure-1758452312",
+    "environment": "production",
+    "instance_count": 1,
+    "instance_type": "t3.micro"
+  },
+  "outputs": {
+    "vpc_id": "aws_vpc.main.id",
+    "load_balancer_dns_name": "aws_lb.main.dns_name",
+    "database_endpoint": "aws_db_instance.main.endpoint"
+  },
+  "provider": "aws"
+}

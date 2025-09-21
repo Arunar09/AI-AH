@@ -865,59 +865,119 @@
         
         <!-- Agent Tabs -->
         <div class="agent-tabs" id="agentTabs">
-            <!-- Terraform Agent Tabs -->
+            <!-- Terraform Agent Tabs (Optimized) -->
             <div id="terraform-tabs" class="agent-tab-group">
-            <button class="agent-tab active" onclick="showAgentTab('dashboard')">
-                <i class="fas fa-tachometer-alt"></i>
-                Dashboard
-            </button>
-            <button class="agent-tab" onclick="showAgentTab('infrastructure')">
-                <i class="fas fa-cloud"></i>
-                Infrastructure
-            </button>
-            <button class="agent-tab" onclick="showAgentTab('projects')">
-                <i class="fas fa-folder"></i>
-                Projects
-            </button>
-            <button class="agent-tab" onclick="showAgentTab('monitoring')">
-                <i class="fas fa-chart-line"></i>
-                Monitoring
-            </button>
-            <button class="agent-tab" onclick="showAgentTab('security')">
-                <i class="fas fa-shield-alt"></i>
-                Security
-            </button>
+                <button class="agent-tab active" onclick="showAgentTab('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('infrastructure')">
+                    <i class="fas fa-cloud"></i>
+                    Infrastructure
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('projects')">
+                    <i class="fas fa-folder"></i>
+                    Projects
+                </button>
                 <button class="agent-tab" onclick="showAgentTab('intelligence')">
                     <i class="fas fa-brain"></i>
                     Intelligence
                 </button>
-                <button class="agent-tab" onclick="showAgentTab('chat')">
-                    <i class="fas fa-comments"></i>
-                    Chat
+                <button class="agent-tab" onclick="showAgentTab('automation')">
+                    <i class="fas fa-robot"></i>
+                    Automation
                 </button>
-                <button class="agent-tab" onclick="showAgentTab('aws-usage')">
-                    <i class="fas fa-aws"></i>
-                    AWS Usage
-            </button>
-            <button class="agent-tab" onclick="showAgentTab('automation')">
-                <i class="fas fa-robot"></i>
-                Automation
-            </button>
-                <button class="agent-tab" onclick="showAgentTab('analytics')">
-                    <i class="fas fa-chart-line"></i>
-                    Analytics
-            </button>
-            <button class="agent-tab" onclick="showAgentTab('settings')">
-                <i class="fas fa-cog"></i>
-                Settings
-            </button>
+                <button class="agent-tab" onclick="showAgentTab('settings')">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </button>
             </div>
-            
+
             <!-- Usage Agent Tabs -->
             <div id="usage-tabs" class="agent-tab-group" style="display: none;">
                 <button class="agent-tab active" onclick="showAgentTab('aws-usage')">
                     <i class="fas fa-aws"></i>
                     AWS Usage
+                </button>
+            </div>
+
+            <!-- Ansible Agent Tabs -->
+            <div id="ansible-tabs" class="agent-tab-group" style="display: none;">
+                <button class="agent-tab active" onclick="showAgentTab('ansible-dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('playbooks')">
+                    <i class="fas fa-play"></i>
+                    Playbooks
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('inventory')">
+                    <i class="fas fa-server"></i>
+                    Inventory
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('automation')">
+                    <i class="fas fa-cogs"></i>
+                    Automation
+                </button>
+            </div>
+
+            <!-- Kubernetes Agent Tabs -->
+            <div id="kubernetes-tabs" class="agent-tab-group" style="display: none;">
+                <button class="agent-tab active" onclick="showAgentTab('k8s-dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('clusters')">
+                    <i class="fas fa-cubes"></i>
+                    Clusters
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('pods')">
+                    <i class="fas fa-box"></i>
+                    Pods
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('services')">
+                    <i class="fas fa-network-wired"></i>
+                    Services
+                </button>
+            </div>
+
+            <!-- Security Agent Tabs -->
+            <div id="security-tabs" class="agent-tab-group" style="display: none;">
+                <button class="agent-tab active" onclick="showAgentTab('security-dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('threats')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Threats
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('compliance')">
+                    <i class="fas fa-shield-alt"></i>
+                    Compliance
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('vulnerabilities')">
+                    <i class="fas fa-bug"></i>
+                    Vulnerabilities
+                </button>
+            </div>
+
+            <!-- Monitoring Agent Tabs -->
+            <div id="monitoring-tabs" class="agent-tab-group" style="display: none;">
+                <button class="agent-tab active" onclick="showAgentTab('monitoring-dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('metrics')">
+                    <i class="fas fa-chart-line"></i>
+                    Metrics
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('alerts')">
+                    <i class="fas fa-bell"></i>
+                    Alerts
+                </button>
+                <button class="agent-tab" onclick="showAgentTab('logs')">
+                    <i class="fas fa-file-alt"></i>
+                    Logs
                 </button>
             </div>
         </div>
@@ -1612,6 +1672,15 @@
         let currentTab = 'dashboard';
         
         // Agent selection
+        function hideAllTabGroups() {
+            document.getElementById('terraform-tabs').style.display = 'none';
+            document.getElementById('usage-tabs').style.display = 'none';
+            document.getElementById('ansible-tabs').style.display = 'none';
+            document.getElementById('kubernetes-tabs').style.display = 'none';
+            document.getElementById('security-tabs').style.display = 'none';
+            document.getElementById('monitoring-tabs').style.display = 'none';
+        }
+        
         function selectAgent(agentName) {
             currentAgent = agentName;
             
@@ -1628,17 +1697,26 @@
             document.getElementById(agentName + '-dashboard').classList.add('active');
             
             // Show/hide appropriate tab groups
-            const terraformTabs = document.getElementById('terraform-tabs');
-            const usageTabs = document.getElementById('usage-tabs');
+            hideAllTabGroups();
             
-            if (agentName === 'usage') {
-                terraformTabs.style.display = 'none';
-                usageTabs.style.display = 'block';
-                showAgentTab('aws-usage');
-            } else {
-                terraformTabs.style.display = 'block';
-                usageTabs.style.display = 'none';
+            if (agentName === 'terraform') {
+                document.getElementById('terraform-tabs').style.display = 'flex';
                 showAgentTab('dashboard');
+            } else if (agentName === 'usage') {
+                document.getElementById('usage-tabs').style.display = 'flex';
+                showAgentTab('aws-usage');
+            } else if (agentName === 'ansible') {
+                document.getElementById('ansible-tabs').style.display = 'flex';
+                showAgentTab('ansible-dashboard');
+            } else if (agentName === 'kubernetes') {
+                document.getElementById('kubernetes-tabs').style.display = 'flex';
+                showAgentTab('k8s-dashboard');
+            } else if (agentName === 'security') {
+                document.getElementById('security-tabs').style.display = 'flex';
+                showAgentTab('security-dashboard');
+            } else if (agentName === 'monitoring') {
+                document.getElementById('monitoring-tabs').style.display = 'flex';
+                showAgentTab('monitoring-dashboard');
             }
             
             // Update current agent name
@@ -1661,23 +1739,24 @@
             currentTab = tabName;
             
             // Update tab buttons based on current agent
-            if (currentAgent === 'usage') {
-                // For usage agent, only show AWS Usage tab
-                document.querySelectorAll('#usage-tabs .agent-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-                document.querySelectorAll('#usage-tabs .agent-tab').forEach(button => {
-                if (button.textContent.trim().toLowerCase().includes(tabName.toLowerCase()) || 
-                    button.onclick.toString().includes(tabName)) {
-                    button.classList.add('active');
-                }
-            });
-            } else {
-                // For other agents, show their respective tabs
-                document.querySelectorAll('#terraform-tabs .agent-tab').forEach(tab => {
+            const tabGroups = {
+                'terraform': '#terraform-tabs',
+                'usage': '#usage-tabs',
+                'ansible': '#ansible-tabs',
+                'kubernetes': '#kubernetes-tabs',
+                'security': '#security-tabs',
+                'monitoring': '#monitoring-tabs'
+            };
+            
+            const currentTabGroup = tabGroups[currentAgent];
+            if (currentTabGroup) {
+                // Remove active class from all tabs in current group
+                document.querySelectorAll(`${currentTabGroup} .agent-tab`).forEach(tab => {
                     tab.classList.remove('active');
                 });
-                document.querySelectorAll('#terraform-tabs .agent-tab').forEach(button => {
+                
+                // Add active class to matching tab
+                document.querySelectorAll(`${currentTabGroup} .agent-tab`).forEach(button => {
                     if (button.textContent.trim().toLowerCase().includes(tabName.toLowerCase()) || 
                         button.onclick.toString().includes(tabName)) {
                         button.classList.add('active');
@@ -1700,31 +1779,44 @@
             document.getElementById(agentName + '-dashboard').classList.add('active');
             
             // Update content based on tab
-            if (tabName === 'dashboard') {
+            if (tabName === 'dashboard' || tabName === 'ansible-dashboard' || tabName === 'k8s-dashboard' || tabName === 'security-dashboard' || tabName === 'monitoring-dashboard') {
                 // Restore original dashboard content
                 restoreOriginalDashboard(agentName);
             } else if (tabName === 'infrastructure') {
                 showAgentInfrastructurePage(agentName);
             } else if (tabName === 'projects') {
                 showAgentProjectsPage(agentName);
-            } else if (tabName === 'monitoring') {
-                showAgentMonitoringPage(agentName);
-            } else if (tabName === 'security') {
-                showAgentSecurityPage(agentName);
             } else if (tabName === 'intelligence') {
                 showAgentIntelligencePage(agentName);
-            } else if (tabName === 'chat') {
-                showAgentChatPage(agentName);
-            } else if (tabName === 'aws-usage') {
-                // For usage agent, use the static dashboard (already loaded)
-                // No need to call showAWSUsagePage as it's disabled
-                console.log('AWS Usage tab selected - using static dashboard');
-            } else if (tabName === 'analytics') {
-                showAgentAnalyticsPage(agentName);
             } else if (tabName === 'automation') {
                 showAgentAutomationPage(agentName);
             } else if (tabName === 'settings') {
                 showAgentSettingsPage(agentName);
+            } else if (tabName === 'aws-usage') {
+                // For usage agent, use the static dashboard (already loaded)
+                console.log('AWS Usage tab selected - using static dashboard');
+            } else if (tabName === 'playbooks') {
+                showAnsiblePlaybooksPage();
+            } else if (tabName === 'inventory') {
+                showAnsibleInventoryPage();
+            } else if (tabName === 'clusters') {
+                showKubernetesClustersPage();
+            } else if (tabName === 'pods') {
+                showKubernetesPodsPage();
+            } else if (tabName === 'services') {
+                showKubernetesServicesPage();
+            } else if (tabName === 'threats') {
+                showSecurityThreatsPage();
+            } else if (tabName === 'compliance') {
+                showSecurityCompliancePage();
+            } else if (tabName === 'vulnerabilities') {
+                showSecurityVulnerabilitiesPage();
+            } else if (tabName === 'metrics') {
+                showMonitoringMetricsPage();
+            } else if (tabName === 'alerts') {
+                showMonitoringAlertsPage();
+            } else if (tabName === 'logs') {
+                showMonitoringLogsPage();
             }
             
             // Handle usage agent - no automatic loading
@@ -2880,6 +2972,65 @@
         function showError(message) {
             console.error('Usage Agent Error:', message);
             // You can add a toast notification or alert here if needed
+        }
+        
+        // Ansible Agent Functions
+        function showAnsiblePlaybooksPage() {
+            console.log('Ansible Playbooks page - Coming soon');
+            // TODO: Implement Ansible playbooks management
+        }
+        
+        function showAnsibleInventoryPage() {
+            console.log('Ansible Inventory page - Coming soon');
+            // TODO: Implement Ansible inventory management
+        }
+        
+        // Kubernetes Agent Functions
+        function showKubernetesClustersPage() {
+            console.log('Kubernetes Clusters page - Coming soon');
+            // TODO: Implement Kubernetes cluster management
+        }
+        
+        function showKubernetesPodsPage() {
+            console.log('Kubernetes Pods page - Coming soon');
+            // TODO: Implement Kubernetes pod management
+        }
+        
+        function showKubernetesServicesPage() {
+            console.log('Kubernetes Services page - Coming soon');
+            // TODO: Implement Kubernetes service management
+        }
+        
+        // Security Agent Functions
+        function showSecurityThreatsPage() {
+            console.log('Security Threats page - Coming soon');
+            // TODO: Implement security threat monitoring
+        }
+        
+        function showSecurityCompliancePage() {
+            console.log('Security Compliance page - Coming soon');
+            // TODO: Implement security compliance checking
+        }
+        
+        function showSecurityVulnerabilitiesPage() {
+            console.log('Security Vulnerabilities page - Coming soon');
+            // TODO: Implement vulnerability scanning
+        }
+        
+        // Monitoring Agent Functions
+        function showMonitoringMetricsPage() {
+            console.log('Monitoring Metrics page - Coming soon');
+            // TODO: Implement metrics visualization
+        }
+        
+        function showMonitoringAlertsPage() {
+            console.log('Monitoring Alerts page - Coming soon');
+            // TODO: Implement alert management
+        }
+        
+        function showMonitoringLogsPage() {
+            console.log('Monitoring Logs page - Coming soon');
+            // TODO: Implement log analysis
         }
         
         // Show resource details when card is clicked

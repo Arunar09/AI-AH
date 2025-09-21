@@ -26,7 +26,7 @@ intelligent_agents_dir = parent_dir / "intelligent-agents"
 sys.path.insert(0, str(intelligent_agents_dir))
 
 try:
-    from agents.terraform.intelligent_terraform_agent import IntelligentTerraformAgent
+    from agents.terraform.terraform_agent_enhanced import EnhancedTerraformAgent
     from core.reasoning.local_reasoning_engine import LocalReasoningEngine
     from agents.aws_usage_monitoring import IntelligentAWSUsageMonitoringAgent
     print(f"Successfully imported agents from: {intelligent_agents_dir}")
@@ -35,7 +35,7 @@ except ImportError as e:
     print(f"Intelligent agents directory: {intelligent_agents_dir}")
     print(f"Directory exists: {intelligent_agents_dir.exists()}")
     print("Running in demo mode without agent integration")
-    IntelligentTerraformAgent = None
+    EnhancedTerraformAgent = None
     LocalReasoningEngine = None
     IntelligentAWSUsageMonitoringAgent = None
 
@@ -79,18 +79,18 @@ class ProjectWorkspace:
     status: str = "created"
 
 def initialize_agent():
-    """Initialize the intelligent Terraform agent"""
+    """Initialize the Enhanced Terraform agent with Log^2 architecture"""
     global terraform_agent
     try:
-        if IntelligentTerraformAgent:
-            terraform_agent = IntelligentTerraformAgent()
-            print("✅ Intelligent Terraform Agent initialized successfully")
+        if EnhancedTerraformAgent:
+            terraform_agent = EnhancedTerraformAgent()
+            print("✅ Enhanced Terraform Agent initialized successfully with Log^2 architecture")
             return True
         else:
-            print("❌ Agent not available - running in demo mode")
+            print("❌ Enhanced Terraform Agent not available - running in demo mode")
             return False
     except Exception as e:
-        print(f"❌ Failed to initialize agent: {e}")
+        print(f"❌ Failed to initialize Enhanced Terraform agent: {e}")
         return False
 
 def initialize_aws_usage_agent():
@@ -431,6 +431,60 @@ def get_agent_performance():
         
         return jsonify(performance_data)
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/terraform-learning', methods=['GET'])
+def get_terraform_learning():
+    """Get Terraform agent learning insights from Log^2 architecture"""
+    try:
+        if not terraform_agent:
+            return jsonify({
+                'learning_summary': {},
+                'optimization_suggestions': [],
+                'predictive_insights': [],
+                'data_source': 'demo'
+            })
+        
+        # Get learning data from enhanced agent
+        learning_summary = terraform_agent.get_learning_summary()
+        optimization_suggestions = terraform_agent.get_optimization_suggestions()
+        predictive_insights = terraform_agent.get_predictive_insights()
+        
+        return jsonify({
+            'learning_summary': learning_summary,
+            'optimization_suggestions': optimization_suggestions,
+            'predictive_insights': predictive_insights,
+            'data_source': 'enhanced_agent_log2'
+        })
+        
+    except Exception as e:
+        print(f"Error getting Terraform learning: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/terraform-predict', methods=['POST'])
+def predict_terraform_metrics():
+    """Predict cost and performance for given requirements"""
+    try:
+        if not terraform_agent:
+            return jsonify({'error': 'Enhanced Terraform agent not available'}), 400
+        
+        data = request.get_json()
+        requirements = data.get('requirements', {})
+        
+        # Get predictions from enhanced agent
+        cost_prediction = terraform_agent.predict_cost(requirements)
+        performance_prediction = terraform_agent.predict_performance(requirements)
+        anomaly_detected = terraform_agent.detect_anomaly(requirements)
+        
+        return jsonify({
+            'cost_prediction': cost_prediction,
+            'performance_prediction': performance_prediction,
+            'anomaly_detected': anomaly_detected,
+            'data_source': 'enhanced_agent_log2'
+        })
+        
+    except Exception as e:
+        print(f"Error predicting Terraform metrics: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/execute-action', methods=['POST'])
