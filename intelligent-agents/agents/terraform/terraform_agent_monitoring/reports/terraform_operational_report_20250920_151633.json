@@ -1,0 +1,127 @@
+{
+  "report_timestamp": "2025-09-20T15:16:33.094711",
+  "summary": {
+    "total_actions": 1,
+    "success_rate": 1.0,
+    "average_confidence": 0.85,
+    "operational_readiness": 0.0
+  },
+  "performance_metrics": {
+    "total_actions": 1,
+    "successful_actions": 1,
+    "failed_actions": 0,
+    "average_processing_time": 0.0,
+    "average_confidence": 0.85,
+    "success_rate": 0.0,
+    "domain_accuracy": null,
+    "cost_accuracy": null,
+    "validation_success_rate": 0.0,
+    "terraform_generation_rate": 0.0,
+    "infrastructure_health_score": 0.0,
+    "performance_score": 0.76,
+    "cost_efficiency_score": 0.0,
+    "security_compliance_score": 0.0,
+    "scalability_score": 0.0,
+    "operational_readiness_score": 0.0,
+    "monitoring_coverage_score": 0.0,
+    "alerting_effectiveness_score": 0.0
+  },
+  "recent_actions": [
+    {
+      "action_id": "b6d5eb0a",
+      "timestamp": "2025-09-20 15:16:33.089387",
+      "action_type": "terraform_generation",
+      "input_request": "",
+      "processing_time": -1.6689300537109375e-06,
+      "success": true,
+      "error_message": null,
+      "confidence_score": 0.85,
+      "cost_estimate": 100,
+      "complexity_score": 8,
+      "validation_results": {
+        "syntax_valid": true,
+        "security_compliant": true,
+        "cost_optimized": false,
+        "monitoring_included": true,
+        "scalability_ready": false,
+        "operational_ready": true,
+        "recommendations": [
+          "Implement cost optimization strategies",
+          "Implement auto-scaling and load balancing",
+          "Add web application monitoring and performance optimization"
+        ]
+      },
+      "domain": "web",
+      "terraform_files_generated": 4,
+      "implementation_steps": 7,
+      "operational_metrics": {
+        "infrastructure_health": 0.7,
+        "performance_score": 0.76,
+        "cost_efficiency": 0.7,
+        "security_compliance": 0.8,
+        "scalability_readiness": 0.7,
+        "operational_readiness": 0.732,
+        "monitoring_coverage": 0.9,
+        "alerting_effectiveness": 0.8
+      },
+      "operational_intelligence": {
+        "monitoring_setup": {
+          "cloudwatch_dashboards": [
+            "Web Application Dashboard"
+          ],
+          "alarms": [
+            "Application Health",
+            "Response Times",
+            "Error Rates",
+            "Security Events",
+            "Access Violations",
+            "Compliance Status"
+          ],
+          "logs": [],
+          "metrics": [
+            "Custom Performance Metrics"
+          ],
+          "custom_monitoring": [
+            "Advanced Performance Monitoring"
+          ]
+        },
+        "performance_optimization": [
+          "Implement auto-scaling for web applications",
+          "Use CloudFront for global content delivery",
+          "Implement database read replicas",
+          "Add caching for improved performance"
+        ],
+        "cost_optimization": [
+          "Implement cost monitoring dashboards",
+          "Set up budget alerts and notifications",
+          "Regular cost reviews and optimization",
+          "Implement resource lifecycle management"
+        ],
+        "security_recommendations": [
+          "Implement WAF for web application protection",
+          "Use SSL/TLS for all communications",
+          "Implement proper IAM policies",
+          "Add security monitoring and alerting"
+        ],
+        "scalability_improvements": [
+          "Implement horizontal scaling",
+          "Use auto-scaling groups",
+          "Implement database scaling",
+          "Add CDN for global distribution"
+        ],
+        "operational_best_practices": [
+          "Implement Infrastructure as Code (IaC) best practices",
+          "Use version control for all infrastructure changes",
+          "Implement automated testing and validation",
+          "Add comprehensive documentation and runbooks",
+          "Implement web application best practices",
+          "Use CI/CD for deployment automation",
+          "Implement comprehensive testing strategies",
+          "Add performance and security monitoring"
+        ],
+        "summary": "\u26a0\ufe0f Infrastructure needs some improvements\n\u26a0\ufe0f Performance can be improved with optimization\n\u26a0\ufe0f Cost optimization opportunities available\n\u26a0\ufe0f Security can be improved\n\u26a0\ufe0f Scalability can be improved\n\ud83d\udcc8 Operational readiness is good with room for improvement"
+      }
+    }
+  ],
+  "operational_intelligence": {}
+}

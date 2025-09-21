@@ -1,0 +1,130 @@
+{
+  "report_timestamp": "2025-09-19T11:18:19.827705",
+  "summary": {
+    "total_actions": 1,
+    "success_rate": 1.0,
+    "average_confidence": 0.7999999999999999,
+    "operational_readiness": 0.0
+  },
+  "performance_metrics": {
+    "total_actions": 1,
+    "successful_actions": 1,
+    "failed_actions": 0,
+    "average_processing_time": 0.0,
+    "average_confidence": 0.7999999999999999,
+    "success_rate": 0.0,
+    "domain_accuracy": null,
+    "cost_accuracy": null,
+    "validation_success_rate": 0.0,
+    "terraform_generation_rate": 0.0,
+    "infrastructure_health_score": 0.0,
+    "performance_score": 0.8999999999999999,
+    "cost_efficiency_score": 0.0,
+    "security_compliance_score": 0.0,
+    "scalability_score": 0.0,
+    "operational_readiness_score": 0.0,
+    "monitoring_coverage_score": 0.0,
+    "alerting_effectiveness_score": 0.0
+  },
+  "recent_actions": [
+    {
+      "action_id": "521245c9",
+      "timestamp": "2025-09-19 11:18:19.825719",
+      "action_type": "terraform_generation",
+      "input_request": "",
+      "processing_time": 0.0,
+      "success": true,
+      "error_message": null,
+      "confidence_score": 0.7999999999999999,
+      "cost_estimate": 100,
+      "complexity_score": 10,
+      "validation_results": {
+        "syntax_valid": true,
+        "security_compliant": true,
+        "cost_optimized": false,
+        "monitoring_included": true,
+        "scalability_ready": false,
+        "operational_ready": true,
+        "recommendations": [
+          "Implement cost optimization strategies",
+          "Implement auto-scaling and load balancing",
+          "Add SageMaker monitoring and model performance tracking"
+        ]
+      },
+      "domain": "ml",
+      "terraform_files_generated": 4,
+      "implementation_steps": 7,
+      "operational_metrics": {
+        "infrastructure_health": 0.7,
+        "performance_score": 0.8999999999999999,
+        "cost_efficiency": 0.7,
+        "security_compliance": 0.8,
+        "scalability_readiness": 0.9,
+        "operational_readiness": 0.78,
+        "monitoring_coverage": 0.9,
+        "alerting_effectiveness": 0.8
+      },
+      "operational_intelligence": {
+        "monitoring_setup": {
+          "cloudwatch_dashboards": [
+            "ML Training Pipeline Dashboard"
+          ],
+          "alarms": [
+            "SageMaker Training Job Status",
+            "EMR Cluster Health",
+            "S3 Data Processing Metrics",
+            "Security Events",
+            "Access Violations",
+            "Compliance Status"
+          ],
+          "logs": [],
+          "metrics": [
+            "Training Accuracy",
+            "Model Performance",
+            "Data Processing Throughput",
+            "Custom Performance Metrics"
+          ],
+          "custom_monitoring": [
+            "Advanced Performance Monitoring"
+          ]
+        },
+        "performance_optimization": [
+          "Implement SageMaker Spot Instances for cost optimization",
+          "Use EMR with appropriate instance types for data processing",
+          "Implement S3 Intelligent Tiering for data storage",
+          "Add CloudFront for model serving optimization"
+        ],
+        "cost_optimization": [
+          "Implement cost monitoring dashboards",
+          "Set up budget alerts and notifications",
+          "Regular cost reviews and optimization",
+          "Implement resource lifecycle management"
+        ],
+        "security_recommendations": [
+          "Implement data encryption at rest and in transit",
+          "Use IAM roles for SageMaker and EMR access",
+          "Implement VPC endpoints for secure data access",
+          "Add security scanning for ML models"
+        ],
+        "scalability_improvements": [
+          "Implement distributed training with multiple instances",
+          "Use SageMaker multi-model endpoints",
+          "Implement data pipeline auto-scaling",
+          "Add model versioning and A/B testing"
+        ],
+        "operational_best_practices": [
+          "Implement Infrastructure as Code (IaC) best practices",
+          "Use version control for all infrastructure changes",
+          "Implement automated testing and validation",
+          "Add comprehensive documentation and runbooks",
+          "Implement MLOps practices for model lifecycle",
+          "Use version control for ML models and data",
+          "Implement automated model testing and validation",
+          "Add model performance monitoring and alerting"
+        ],
+        "summary": "\u26a0\ufe0f Infrastructure needs some improvements\n\u2705 Performance is optimized for the workload\n\u26a0\ufe0f Cost optimization opportunities available\n\u26a0\ufe0f Security can be improved\n\u2705 Scalability is well-prepared\n\ud83d\udcc8 Operational readiness is good with room for improvement"
+      }
+    }
+  ],
+  "operational_intelligence": {}
+}

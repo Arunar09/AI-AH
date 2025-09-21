@@ -153,18 +153,31 @@ class LocalReasoningEngine:
         """Intelligently extract user count from request"""
         import re
         
-        # Look for explicit numbers
-        numbers = re.findall(r'\b(\d+)\s*(?:users?|concurrent|simultaneous)\b', request_lower)
-        if numbers:
-            return int(numbers[0])
+        # Enhanced patterns for user count extraction
+        patterns = [
+            r'(\d{1,3}(?:,\d{3})*)\s*(?:users?|concurrent|simultaneous|devices?)\b',  # Handle comma-separated numbers
+            r'for\s+(\d{1,3}(?:,\d{3})*)\s*(?:users?|devices?|concurrent)',
+            r'(\d{1,3}(?:,\d{3})*)\s*(?:users?|devices?)\s*with',
+            r'support\s+(\d{1,3}(?:,\d{3})*)\s*(?:users?|devices?)',
+            r'(\d{1,3}(?:,\d{3})*)\s*(?:users?|devices?)\s*and',
+            r'\b(\d+)\s*(?:users?|concurrent|simultaneous|devices?)\b',  # Simple numbers
+            r'for\s+(\d+)\s*(?:users?|devices?|concurrent)',
+            r'(\d+)\s*(?:users?|devices?)\s*with',
+            r'support\s+(\d+)\s*(?:users?|devices?)',
+            r'(\d+)\s*(?:users?|devices?)\s*and',
+        ]
         
-        # Look for number patterns
-        numbers = re.findall(r'\b(\d+)\b', request_lower)
-        if numbers:
-            # Take the largest number that makes sense for users
-            candidates = [int(n) for n in numbers if 10 <= int(n) <= 1000000]
-            if candidates:
-                return max(candidates)
+        for pattern in patterns:
+            matches = re.findall(pattern, request_lower)
+            if matches:
+                # Handle comma-separated numbers like "10,000"
+                if isinstance(matches[0], tuple):
+                    number_str = ''.join(matches[0])
+                    return int(number_str)
+                else:
+                    # Remove commas and convert to int
+                    number_str = matches[0].replace(',', '')
+                    return int(number_str)
         
         # Keyword-based estimation
         if any(word in request_lower for word in ['millions', 'enterprise', 'global', 'massive']):
@@ -414,17 +427,36 @@ class LocalReasoningEngine:
                 compliance_score=0.95,
                 risk_score=0.5
             )
-        # Standard web application logic
-        elif users > 50000 or budget > 1000:
+        # Standard web application logic with proper scale recognition
+        elif users > 100000 or budget > 2000:
             # Enterprise-scale solution
             solution = Solution(
                 name="Enterprise Microservices Architecture",
                 description="High-scale microservices architecture with auto-scaling, load balancing, and enterprise security",
-                components=["api_gateway", "microservices", "load_balancer", "database_cluster", "cache", "monitoring"],
-                cost_estimate=min(budget * 0.8, 1500),
+                components=["eks", "alb", "rds_cluster", "cloudfront", "waf", "autoscaling", "monitoring"],
+                cost_estimate=min(budget * 0.8, 2000),
                 performance_score=0.95,
-                security_score=0.9,
-                complexity="high"
+                security_score=0.95,
+                complexity="very_high",
+                scalability_score=0.98,
+                maintainability_score=0.6,
+                compliance_score=0.95,
+                risk_score=0.5
+            )
+        elif users > 50000 or budget > 1000:
+            # Large-scale solution
+            solution = Solution(
+                name="Scalable Web Application",
+                description="High-scale web application with load balancing, auto-scaling, and monitoring",
+                components=["alb", "ec2", "rds", "autoscaling", "cloudfront", "monitoring"],
+                cost_estimate=min(budget * 0.8, 1200),
+                performance_score=0.9,
+                security_score=0.85,
+                complexity="high",
+                scalability_score=0.9,
+                maintainability_score=0.7,
+                compliance_score=0.8,
+                risk_score=0.3
             )
         elif users > 10000 or budget > 500:
             # Scalable web application
